@@ -14,7 +14,8 @@ import { AuthService } from '../../core/services/auth.service';
           <!-- Logo -->
           <div class="flex items-center">
             <a routerLink="/" class="flex items-center">
-              <div class="flex-shrink-0">
+              <div class="flex-shrink-0 flex items-center">
+                <img src="assets/logo/logo-tambo-800.webp" alt="Logo Tambo" class="h-10 w-auto mr-3" />
                 <h1 class="text-2xl font-bold text-indigo-600">Tambo Delivery</h1>
               </div>
             </a>

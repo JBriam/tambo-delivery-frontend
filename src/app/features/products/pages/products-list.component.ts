@@ -34,7 +34,7 @@ import { Utils } from '../../../utils/common.utils';
             <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
               <div class="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-t-lg bg-gray-200">
                 <img 
-                  [src]="product.imageUrl || 'assets/images/placeholder.png'" 
+                  [src]="product.imageUrl || ''" 
                   [alt]="product.name"
                   class="h-48 w-full object-cover object-center group-hover:opacity-75"
                 />
@@ -101,7 +101,7 @@ export class ProductsListComponent implements OnInit {
       name: 'Leche Gloria Entera',
       description: 'Leche entera fresca, rica en calcio y proteínas',
       price: 4.50,
-      imageUrl: 'assets/images/leche-gloria.jpg',
+      imageUrl: '',
       category: { id: 1, name: 'Lácteos' },
       stock: 25,
       isAvailable: true,
@@ -113,7 +113,7 @@ export class ProductsListComponent implements OnInit {
       name: 'Pan Integral',
       description: 'Pan integral casero, perfecto para el desayuno',
       price: 3.20,
-      imageUrl: 'assets/images/pan-integral.jpg',
+      imageUrl: '',
       category: { id: 2, name: 'Panadería' },
       stock: 15,
       isAvailable: true,
@@ -125,7 +125,7 @@ export class ProductsListComponent implements OnInit {
       name: 'Coca Cola 500ml',
       description: 'Bebida gaseosa refrescante',
       price: 2.80,
-      imageUrl: 'assets/images/coca-cola.jpg',
+      imageUrl: '',
       category: { id: 3, name: 'Bebidas' },
       stock: 0,
       isAvailable: false,

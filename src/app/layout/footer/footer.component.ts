@@ -11,7 +11,10 @@ import { RouterLink } from '@angular/router';
         <div class="grid md:grid-cols-4 gap-8">
           <!-- Company Info -->
           <div>
-            <h3 class="text-xl font-semibold mb-4">Tambo Delivery</h3>
+            <div class="flex items-center mb-4">
+              <img src="assets/logo/logo-tambo-800.webp" alt="Logo Tambo" class="h-10 w-auto mr-3" />
+              <h3 class="text-xl font-semibold text-white">Tambo Delivery</h3>
+            </div>
             <p class="text-gray-300">
               Tu plataforma confiable para pedidos en línea con entregas rápidas y seguras.
             </p>
@@ -32,7 +35,7 @@ import { RouterLink } from '@angular/router';
             <h4 class="text-lg font-semibold mb-4">Atención al Cliente</h4>
             <ul class="space-y-2">
               <li class="text-gray-300">📞 (01) 123-4567</li>
-              <li class="text-gray-300">✉️ info@tambodelivery.com</li>
+              <li class="text-gray-300">✉️ info&#64;tambodelivery.com</li>
               <li class="text-gray-300">🕒 Lun-Dom: 8:00-22:00</li>
             </ul>
           </div>
