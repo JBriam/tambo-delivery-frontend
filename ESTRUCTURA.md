@@ -1,13 +1,32 @@
 # Estructura de Carpetas - Tambo Delivery Frontend
 
-## 📁 Estructura Completa del Proyecto
+## 🏗️ **Arquitectura de Layout**
+
+### **Layout Principal (App Component)**
+```
+app.component.html:
+├── <app-header>           # Navegación principal
+├── <main>                 # Contenido dinámico (router-outlet)
+│   └── <router-outlet>    # Aquí se cargan las páginas
+└── <app-footer>           # Footer con enlaces e info
+```
+
+### **¿Cómo funciona el main content?**
+- **Header y Footer**: Siempre visibles, forman el layout base
+- **Main**: Área dinámica donde se renderizan las páginas según la ruta
+- **Cada feature**: Se carga independientemente en el `<router-outlet>`
+
+---
+
+## 📁 **Estructura Completa del Proyecto**
 
 ```
 src/
 ├── app/
 │   ├── core/                           # Servicios singleton y funcionalidad central
 │   │   ├── guards/                     # Guardas de ruta
-│   │   │   └── auth.guard.ts          # Protección de rutas autenticadas
+│   │   │   ├── auth.guard.ts          # Protección de rutas autenticadas
+│   │   │   └── admin.guard.ts         # Protección de rutas administrativas
 │   │   ├── interceptors/               # Interceptores HTTP
 │   │   │   └── auth.interceptor.ts    # Interceptor de autenticación
 │   │   └── services/                   # Servicios principales
@@ -20,6 +39,11 @@ src/
 │   │   └── directives/                 # Directivas personalizadas
 │   │
 │   ├── features/                       # Módulos de funcionalidades por dominio
+│   │   ├── home/                       # 🏠 Página de inicio/landing
+│   │   │   ├── pages/
+│   │   │   │   └── home.component.ts  # Landing page principal
+│   │   │   └── components/             # Componentes específicos del home
+│   │   │
 │   │   ├── auth/                       # Autenticación y autorización
 │   │   │   ├── pages/                  # Páginas de login, registro
 │   │   │   │   ├── login.component.ts        # Página de inicio de sesión
@@ -27,14 +51,23 @@ src/
 │   │   │   ├── components/             # Componentes específicos de auth
 │   │   │   └── services/               # Servicios específicos de auth
 │   │   │
-│   │   ├── products/                   # Gestión de productos
+│   │   ├── admin/                      # 🔐 Dashboard administrativo
+│   │   │   ├── pages/                  # Páginas del panel admin
+│   │   │   │   ├── dashboard.component.ts        # Panel principal
+│   │   │   │   ├── products-management.component.ts
+│   │   │   │   ├── orders-management.component.ts
+│   │   │   │   └── users-management.component.ts
+│   │   │   ├── components/             # Componentes admin (tablas, gráficos)
+│   │   │   └── services/               # Servicios de gestión admin
+│   │   │
+│   │   ├── products/                   # Gestión de productos (cliente)
 │   │   │   ├── pages/                  # Lista, detalle de productos
 │   │   │   │   ├── products-list.component.ts    # Catálogo de productos
 │   │   │   │   └── product-detail.component.ts   # Detalle del producto
 │   │   │   ├── components/             # Tarjetas de producto, filtros
 │   │   │   └── services/               # Servicio de productos
 │   │   │
-│   │   ├── orders/                     # Gestión de pedidos
+│   │   ├── orders/                     # Gestión de pedidos (cliente)
 │   │   │   ├── pages/                  # Lista, detalle, historial de pedidos
 │   │   │   │   ├── orders-list.component.ts   # Historial de pedidos
 │   │   │   │   └── order-detail.component.ts  # Detalle del pedido
@@ -48,6 +81,18 @@ src/
 │   │   │   └── services/               # Servicio del carrito
 │   │   │
 │   │   └── user-profile/               # Perfil de usuario
+│   │       ├── pages/                  # Páginas del perfil
+│   │       │   └── user-profile.component.ts # Página principal del perfil
+│   │       ├── components/             # Componentes del perfil
+│   │       └── services/               # Servicio del perfil
+│   │
+│   ├── layout/                         # Componentes de layout
+│   │   ├── header/                     # Navegación principal
+│   │   │   └── header.component.ts    # Header con menú y navegación
+│   │   ├── footer/                     # Pie de página
+│   │   │   └── footer.component.ts    # Footer con enlaces e información
+│   │   └── sidebar/                    # Barra lateral (si se necesita)
+│   │
 │   │       ├── pages/                  # Páginas de perfil, configuración
 │   │       │   └── user-profile.component.ts  # Página de perfil
 │   │       ├── components/             # Componentes de perfil
@@ -407,6 +452,182 @@ Valores constantes centralizados para evitar hardcoding.
 - **State Management**: Services con BehaviorSubject
 - **Build Tool**: Angular CLI
 - **TypeScript**: Fuerte tipado y interfaces
+
+---
+
+## 🤔 **¿Por qué separar por elementos? (pages/components/services)**
+
+### **🎯 Arquitectura Elegida: Separación por Elementos dentro de Features**
+
+Esta estructura sigue el patrón **"Feature-First + Element Separation"**:
+
+```
+features/
+├── admin/              ← FEATURE (dominio del negocio)
+│   ├── pages/         ← ELEMENTO: Páginas principales
+│   ├── components/    ← ELEMENTO: Componentes reutilizables del feature
+│   └── services/      ← ELEMENTO: Lógica de negocio del feature
+├── products/          ← FEATURE (dominio del negocio)  
+│   ├── pages/         ← ELEMENTO: Páginas principales
+│   ├── components/    ← ELEMENTO: Componentes reutilizables del feature
+│   └── services/      ← ELEMENTO: Lógica de negocio del feature
+```
+
+### **✅ Ventajas de esta Separación:**
+
+#### **1. Claridad Mental**
+- **pages/**: "¿Qué páginas tiene este módulo?"
+- **components/**: "¿Qué componentes reutilizo aquí?"
+- **services/**: "¿Qué lógica de negocio maneja esto?"
+
+#### **2. Escalabilidad por Feature**
+- Cada feature es **independiente** y **autocontenido**
+- Puedes **trabajar en productos** sin tocar **orders**
+- Fácil **asignar features a diferentes desarrolladores**
+
+#### **3. Lazy Loading Perfecto**
+- Cada feature se carga solo cuando se necesita
+- `products` se carga solo al ir a `/products`
+- `admin` se carga solo si eres administrador
+
+#### **4. Maintenance & Debugging**
+```
+❌ Error en el carrito? 
+✅ Buscar en: features/shopping-cart/
+
+❌ Problema en autenticación?
+✅ Buscar en: features/auth/
+```
+
+### **🤯 ¿Alternativa "Agrupada al Revés"?**
+
+#### **❌ Alternativa NO recomendada:**
+```
+src/app/
+├── pages/              ← TODAS las páginas juntas
+│   ├── home.component.ts
+│   ├── login.component.ts
+│   ├── products-list.component.ts
+│   ├── cart.component.ts
+│   └── admin-dashboard.component.ts
+├── components/         ← TODOS los componentes juntos
+│   ├── product-card.component.ts
+│   ├── login-form.component.ts
+│   ├── cart-item.component.ts
+│   └── admin-stats.component.ts
+└── services/           ← TODOS los servicios juntos
+    ├── auth.service.ts
+    ├── products.service.ts
+    ├── cart.service.ts
+    └── admin.service.ts
+```
+
+#### **❌ Problemas de la alternativa:**
+1. **Caos Mental**: 50+ archivos en una sola carpeta
+2. **Lazy Loading Roto**: Todo se carga al inicio
+3. **Acoplamiento**: Cambios en products afectan todo
+4. **Team Conflicts**: Todos tocan las mismas carpetas
+5. **Testing Difícil**: No sabes qué archivos van juntos
+
+### **🎯 Casos de Uso Reales:**
+
+#### **Desarrollo Colaborativo:**
+```
+👨‍💻 Dev 1: Trabaja en features/admin/ (dashboard completo)
+👩‍💻 Dev 2: Trabaja en features/products/ (catálogo completo)  
+👨‍💻 Dev 3: Trabaja en features/shopping-cart/ (carrito completo)
+❌ Conflictos: MÍNIMOS (cada uno en su feature)
+```
+
+#### **Despliegue Modular:**
+```
+✅ Versión 1.0: Solo features/home + features/auth
+✅ Versión 1.1: + features/products  
+✅ Versión 1.2: + features/shopping-cart
+✅ Versión 2.0: + features/admin (dashboard)
+```
+
+#### **Debugging Eficiente:**
+```
+🐛 "El admin no puede ver las estadísticas"
+👀 Revisar: features/admin/pages/dashboard.component.ts
+👀 Revisar: features/admin/services/admin.service.ts
+❌ NO revisar: 47 archivos en diferentes carpetas
+```
+
+---
+
+## 🏗️ **Dashboard Administrativo: ¿Dónde debe ir?**
+
+### **🔐 Ubicación: `features/admin/`**
+
+```
+features/admin/
+├── pages/                          ← Páginas administrativas
+│   ├── dashboard.component.ts      ← Panel principal con KPIs
+│   ├── products-management.component.ts  ← CRUD de productos
+│   ├── orders-management.component.ts    ← Gestión de pedidos
+│   └── users-management.component.ts     ← Gestión de usuarios
+├── components/                     ← Componentes admin específicos
+│   ├── stats-card.component.ts     ← Tarjetas de estadísticas
+│   ├── data-table.component.ts     ← Tabla de datos admin
+│   └── chart.component.ts          ← Gráficos y visualizaciones
+└── services/                       ← Lógica administrativa
+    ├── admin.service.ts            ← Servicio principal admin
+    ├── stats.service.ts            ← Servicio de estadísticas
+    └── management.service.ts       ← CRUD administrativo
+```
+
+### **🔒 Protección con Guards:**
+```typescript
+// admin.routes.ts
+{
+  path: 'admin',
+  canActivate: [AdminGuard],  // ← Solo administradores
+  loadChildren: () => import('./features/admin/admin.routes')
+}
+```
+
+### **🚀 Rutas del Admin:**
+- `/admin` → Dashboard principal
+- `/admin/products` → Gestión de productos  
+- `/admin/orders` → Gestión de pedidos
+- `/admin/users` → Gestión de usuarios
+
+---
+
+## 📱 **Layout Principal: Header + Main + Footer**
+
+### **🏗️ Estructura Visual:**
+
+```html
+<!-- app.component.html -->
+<div class="min-h-screen flex flex-col">
+  <app-header></app-header>      ← Navegación (siempre visible)
+  
+  <main class="flex-1">          ← Contenido dinámico
+    <router-outlet></router-outlet>  ← Aquí se cargan las páginas
+  </main>
+  
+  <app-footer></app-footer>      ← Footer (siempre visible)
+</div>
+```
+
+### **🎯 ¿Cómo funciona el main?**
+
+1. **Header**: Navegación, logo, menú usuario
+2. **Main**: Área donde se renderizan las páginas:
+   - `/home` → `home.component.ts`
+   - `/products` → `products-list.component.ts`  
+   - `/admin` → `dashboard.component.ts`
+3. **Footer**: Enlaces, info de contacto, copyright
+
+### **📱 Layout Responsive:**
+- **Mobile**: Header compacto, menú hamburguesa
+- **Desktop**: Header completo, navegación horizontal
+- **Footer**: Grid responsive (1 col móvil, 4 cols desktop)
+
+---
 
 ## 🔧 Beneficios de esta Estructura
 

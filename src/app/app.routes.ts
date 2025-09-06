@@ -5,10 +5,16 @@ export const routes: Routes = [
   // Ruta principal - redirige a productos
   {
     path: '',
-    redirectTo: '/products',
+    redirectTo: '/home',
     pathMatch: 'full'
   },
   
+  // Ruta del home (lazy loading)
+  {
+    path: 'home',
+    loadChildren: () => import('./features/home/home.routes').then(r => r.HOME_ROUTES)
+  },
+
   // Rutas de autenticación (lazy loading)
   {
     path: 'auth',

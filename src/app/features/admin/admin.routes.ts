@@ -1,0 +1,27 @@
+import { Routes } from '@angular/router';
+import { AdminGuard } from '../../core/guards/admin.guard';
+
+export const ADMIN_ROUTES: Routes = [
+  {
+    path: '',
+    canActivate: [AdminGuard], // Solo administradores
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./pages/dashboard.component').then(c => c.DashboardComponent)
+      },
+      {
+        path: 'products',
+        loadComponent: () => import('./pages/products-management.component').then(c => c.ProductsManagementComponent)
+      },
+      {
+        path: 'orders',
+        loadComponent: () => import('./pages/orders-management.component').then(c => c.OrdersManagementComponent)
+      },
+      {
+        path: 'users',
+        loadComponent: () => import('./pages/users-management.component').then(c => c.UsersManagementComponent)
+      }
+    ]
+  }
+];
