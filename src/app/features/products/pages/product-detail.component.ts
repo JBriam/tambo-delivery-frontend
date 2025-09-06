@@ -42,7 +42,7 @@ import { Utils } from '../../../utils/common.utils';
             <div class="flex flex-col-reverse">
               <div class="aspect-w-1 aspect-h-1 w-full">
                 <img 
-                  [src]="product.imageUrl || 'assets/images/placeholder.png'" 
+                  [src]="product.imageUrl || ''" 
                   [alt]="product.name"
                   class="w-full h-full object-center object-cover sm:rounded-lg"
                 />
@@ -168,7 +168,7 @@ export class ProductDetailComponent implements OnInit {
       name: 'Leche Gloria Entera',
       description: 'Leche entera fresca, rica en calcio y proteínas. Ideal para toda la familia. Contiene vitaminas A y D. Pasteurizada y homogenizada para garantizar la máxima calidad y seguridad.',
       price: 4.50,
-      imageUrl: 'assets/images/leche-gloria.jpg',
+      imageUrl: '',
       category: { id: 1, name: 'Lácteos' },
       stock: 25,
       isAvailable: true,
@@ -180,7 +180,7 @@ export class ProductDetailComponent implements OnInit {
       name: 'Pan Integral',
       description: 'Pan integral casero, perfecto para el desayuno. Hecho con harina integral 100% natural, sin conservantes artificiales. Rico en fibra y nutrientes.',
       price: 3.20,
-      imageUrl: 'assets/images/pan-integral.jpg',
+      imageUrl: '',
       category: { id: 2, name: 'Panadería' },
       stock: 15,
       isAvailable: true,

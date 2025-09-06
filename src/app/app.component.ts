@@ -6,10 +6,10 @@ import { FooterComponent } from './layout/footer/footer.component';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent],
+  imports: [HeaderComponent, RouterOutlet, FooterComponent],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'tambo-delivery-frontend';
+  title = 'Tambo Delivery';
 }
