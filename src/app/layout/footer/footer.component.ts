@@ -13,7 +13,6 @@ import { RouterLink } from '@angular/router';
           <div>
             <div class="flex items-center mb-4">
               <img src="assets/logo/logo-tambo-800.webp" alt="Logo Tambo" class="h-10 w-auto mr-3" />
-              <h3 class="text-xl font-semibold text-white">Tambo Delivery</h3>
             </div>
             <p class="text-gray-300">
               Tu plataforma confiable para pedidos en línea con entregas rápidas y seguras.
