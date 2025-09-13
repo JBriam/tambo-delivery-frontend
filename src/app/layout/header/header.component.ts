@@ -27,9 +27,9 @@ import { AuthService } from '../../core/services/auth.service';
             <a routerLink="/" class="flex items-center">
               <div class="flex-shrink-0 flex items-center">
                 <img
-                  src="assets/logo/logo-tambo-800.webp"
+                  src="assets/logo/logo-tambo-1000.webp"
                   alt="Logo Tambo"
-                  class="h-10 w-auto mr-3"
+                  class="h-12 w-auto mr-3"
                 />
               </div>
             </a>
