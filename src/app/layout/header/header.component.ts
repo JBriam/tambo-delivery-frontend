@@ -18,7 +18,7 @@ import { AuthService } from '../../core/services/auth.service';
             ¡Sobrin&#64; entregamos tu pedido en 30 minutos!
           </h1>
           <h1 class="text-md text-white border-b-1 border-dotted"> <!-- border-dashed si se quiere líneas discontinuas -->
-            Trabaja con nosotros
+            <a routerLink="#">Trabaja con nosotros</a>
           </h1>
         </div>
       </div>
@@ -42,7 +42,7 @@ import { AuthService } from '../../core/services/auth.service';
             <a
               routerLink="/products"
               routerLinkActive="text-indigo-600"
-              class="flex items-center gap-2 text-[#a81b8d] px-3 py-2 text-sm font-medium border-1 border-[#c23faa] hover:bg-[#c23faa] hover:text-white rounded-lg transition-colors"
+              class="flex items-center gap-2 text-[#a81b8d] px-3 py-2 text-sm font-medium border-1 border-[#a81b8d] hover:bg-[#a81b8d] hover:text-white rounded-lg transition-colors"
             >
               <!-- Ícono de categorías (grid) -->
               <svg
@@ -75,7 +75,7 @@ import { AuthService } from '../../core/services/auth.service';
             <a
               routerLink="/products"
               routerLinkActive="text-indigo-600"
-              class="flex items-center gap-2 text-[#a81b8d] px-3 py-2 text-sm font-medium border-1 border-[#c23faa] hover:bg-[#c23faa] hover:text-white rounded-lg transition-colors"
+              class="flex items-center gap-2 text-[#a81b8d] px-3 py-2 text-sm font-medium border-1 border-[#a81b8d] hover:bg-[#a81b8d] hover:text-white rounded-lg transition-colors"
             >
               <!-- Ícono de ubicación (location pin) -->
               <svg
@@ -163,7 +163,7 @@ import { AuthService } from '../../core/services/auth.service';
             </a>
             <a
               routerLink="/auth/register"
-              class="bg-[#c23faa] text-white hover:bg-[#a81b8d] hover:text-white px-4 py-2 rounded-md text-sm font-medium"
+              class="bg-[#be3ea7] text-white hover:bg-[#a81b8d] hover:text-white px-4 py-2 rounded-md text-sm font-medium"
             >
               Registrarse
             </a>
@@ -202,6 +202,20 @@ import { AuthService } from '../../core/services/auth.service';
                 ></path>
               </svg>
               Categorías
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 20 20"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-4 h-4"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                />
+              </svg>
             </a>
             <a
               routerLink="/products"
@@ -222,6 +236,20 @@ import { AuthService } from '../../core/services/auth.service';
                 ></path>
               </svg>
               ¿Dónde quieres pedir?
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 20 20"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-4 h-4"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                />
+              </svg>
             </a>
             @if (isAuthenticated) {
             <a

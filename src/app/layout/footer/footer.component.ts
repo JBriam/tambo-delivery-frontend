@@ -6,7 +6,7 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [RouterLink],
   template: `
-    <footer class="bg-gray-100 text-gray-600 mt-auto">
+    <footer class="bg-gray-100 text-gray-500 mt-auto">
       <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <!-- Enlaces rápidos -->
@@ -138,7 +138,7 @@ import { RouterLink } from '@angular/router';
                   >Política de privacidad</a
                 >
               </li>
-              <a href="#"
+              <a href="https://ux.automy.global/external/request-start/U1FKSGpTNlI4RkJTamJnYUpYR1VibGt4eUJIZkhpeVE3OEtLMGw0ampVTndoNFloeVV4N3ZEditVMC9SNTdJa0dzSm1Tc1VONjk3N0plcXljSzBnSldscDF3dERJNGllL1RTMUovNXp4UU94dXRia3NjUUJwcUxWMDZVb2xNM0JHV2pPM1dkZ1pUWU9YTnVPTGRzNXNHdFR1OVRLTjQ3alN4RFl2dmV4WkVqYnBObFprSHB6SVVoTGVLQzZ5VG5HYzhtaXpEWFBvM0FtcjFNVVJoMVBpZjEzdzFOK21TcEFUN1RYd0hLZGFuYUNVdzl6T2I1MjR1WW5KU0pBMGpBNQ?publicCode=n2y2mza0yj" target="_blank"
                 ><img
                   class="w-[100px] mt-4 efecto"
                   src="assets/images/libroReclamaciones.webp"
@@ -149,7 +149,7 @@ import { RouterLink } from '@angular/router';
         </div>
         <!-- Divider y copyright -->
         <div
-          class="text-sm font-medium border-t border-gray-500 mt-8 pt-8 text-center"
+          class="text-sm font-medium border-t border-dotted border-gray-500 mt-8 pt-8 text-center"
         >
           <p class="text-gray-950">
             © {{ currentYear }} Tambo Delivery. Todos los derechos reservados.
