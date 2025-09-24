@@ -95,7 +95,7 @@ import { RouterLink } from '@angular/router';
               </li>
               <li>
                 <a
-                  routerLink="#"
+                  routerLink="/legales"
                   class="text-sm hover:text-gray-950 transition-colors"
                   >Legales</a
                 >
