@@ -94,8 +94,8 @@ interface SliderImage {
               (click)="goToSlide(i)"
               [class]="
                 'w-3 h-3 rounded-full transition-all duration-500 cursor-pointer border-2 ' +
-                (currentSlide === i 
-                  ? 'bg-[#a81b8d] border-[#a81b8d] shadow-lg shadow-[#a81b8d]/50 scale-125' 
+                (currentSlide === i
+                  ? 'bg-[#a81b8d] border-[#a81b8d] shadow-lg shadow-[#a81b8d]/50 scale-125'
                   : 'bg-white/90 border-gray-400 hover:border-[#a81b8d] hover:bg-[#a81b8d]/20 hover:scale-110')
               "
               [attr.aria-label]="'Ir a imagen ' + (i + 1)"
@@ -142,21 +142,36 @@ interface SliderImage {
         </div>
       </div>
 
-      <!-- Features Section -->
-      <div class="bg-white py-16">
+      <!-- Sección de Productos Destacados -->
+      <div class="py-16 lg:py-20">
         <div class="container mx-auto px-4">
-          <div class="text-center mb-8">
-            <h2
-            class="font-bold text-3xl lg:text-4xl text-center"
-          >
-            ¿Qué nos hace <span class="text-yellow-500">diferentes</span>?
-          </h2>
-          <p class="text-gray-500 mt-2 max-w-2xl mx-auto text-center">
-            Descubre las ventajas que hacen de nuestra tienda tu mejor
-            opción
-          </p>
+          <!-- Header de la sección -->
+          <div class="text-center mb-12">
+            <h2 class="font-bold text-3xl lg:text-4xl text-center mb-4">
+              Nuestros <span class="text-[#a81b8d]">productos</span>
+            </h2>
+            <p class="text-gray-600 mt-2 max-w-2xl mx-auto text-center text-lg">
+              Descubre la mejor calidad y nuestras ofertas disponibles
+            </p>
           </div>
-          
+          <!-- Aquí puedes agregar un componente o código para mostrar productos destacados -->
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-12"
+          ></div>
+        </div>
+      </div>
+      <!-- Features Section -->
+      <div class="py-16 lg:py-20">
+        <div class="container mx-auto px-4">
+          <div class="text-center mb-16">
+            <h2 class="font-bold text-3xl lg:text-4xl text-center">
+              ¿Qué nos hace <span class="text-yellow-500">diferentes</span>?
+            </h2>
+            <p class="text-gray-500 mt-2 max-w-2xl mx-auto text-center">
+              Descubre las ventajas que hacen de nuestra tienda tu mejor opción
+            </p>
+          </div>
+
           <div class="grid md:grid-cols-3 gap-8">
             <div class="text-center">
               <div
@@ -237,25 +252,6 @@ interface SliderImage {
               </p>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- CTA Section -->
-      <div class="bg-blue-600 py-16">
-        <div class="container mx-auto px-4 text-center">
-          <h2 class="text-3xl font-bold text-white mb-4">
-            ¿Listo para hacer tu primer pedido?
-          </h2>
-          <p class="text-blue-100 mb-8 text-lg">
-            Únete a miles de clientes satisfechos y descubre la comodidad de
-            Tambo Delivery.
-          </p>
-          <a
-            routerLink="/auth/login"
-            class="bg-white text-blue-600 px-8 py-3 rounded-lg hover:bg-gray-100 transition duration-300 inline-block font-semibold"
-          >
-            Iniciar Sesión
-          </a>
         </div>
       </div>
     </div>

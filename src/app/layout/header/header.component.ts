@@ -8,8 +8,8 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <header class="bg-white shadow-lg">
-      <!-- Encabezado -->
+    <header class="fixed top-0 left-0 right-0 z-50">
+      <!-- Encabezado promocional -->
       <div class="mx-auto px-4 sm:px-6 lg:px-8 bg-[#a81b8d]">
         <div
           class="grid grid-cols-1 sm:grid-cols-2 justify-items-center items-center h-20 sm:h-12"
@@ -22,8 +22,10 @@ import { AuthService } from '../../core/services/auth.service';
           </h1>
         </div>
       </div>
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-22">
+      <!-- Navegación principal -->
+      <div class="bg-white shadow-lg relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
           <!-- Logo -->
           <div class="flex items-center">
             <a routerLink="/" class="flex items-center">
@@ -40,7 +42,7 @@ import { AuthService } from '../../core/services/auth.service';
           <!-- Nav -->
           <nav class="hidden md:flex space-x-8">
             <a
-              routerLink="/products"
+              routerLink="/productos"
               routerLinkActive="text-indigo-600"
               class="flex items-center gap-2 text-[#a81b8d] px-3 py-2 text-sm font-medium border-1 border-[#a81b8d] hover:bg-[#a81b8d] hover:text-white rounded-lg transition-colors"
             >
@@ -73,7 +75,7 @@ import { AuthService } from '../../core/services/auth.service';
               </svg>
             </a>
             <a
-              routerLink="/products"
+              routerLink="/productos"
               routerLinkActive="text-indigo-600"
               class="flex items-center gap-2 text-[#a81b8d] px-3 py-2 text-sm font-medium border-1 border-[#a81b8d] hover:bg-[#a81b8d] hover:text-white rounded-lg transition-colors"
             >
@@ -109,21 +111,21 @@ import { AuthService } from '../../core/services/auth.service';
             </a>
             @if (isAuthenticated) {
             <a
-              routerLink="/cart"
+              routerLink="/carrito"
               routerLinkActive="text-indigo-600"
               class="text-gray-900 hover:text-indigo-600 px-3 py-2 text-sm font-medium"
             >
               Carrito
             </a>
             <a
-              routerLink="/orders"
+              routerLink="/pedidos"
               routerLinkActive="text-indigo-600"
               class="text-gray-900 hover:text-indigo-600 px-3 py-2 text-sm font-medium"
             >
               Pedidos
             </a>
             <a
-              routerLink="/profile"
+              routerLink="/perfil"
               routerLinkActive="text-indigo-600"
               class="text-gray-900 hover:text-indigo-600 px-3 py-2 text-sm font-medium"
             >
@@ -162,7 +164,7 @@ import { AuthService } from '../../core/services/auth.service';
               Iniciar Sesión
             </a>
             <a
-              routerLink="/auth/register"
+              routerLink="/auth/registro"
               class="bg-[#be3ea7] text-white hover:bg-[#a81b8d] hover:text-white px-4 py-2 rounded-md text-sm font-medium"
             >
               Registrarse
@@ -183,10 +185,10 @@ import { AuthService } from '../../core/services/auth.service';
 
         <!-- Menú móvil -->
         @if (isMobileMenuOpen) {
-        <div class="md:hidden">
+        <div class="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg z-40 border-t">
           <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50">
             <a
-              routerLink="/products"
+              routerLink="/productos"
               (click)="closeMobileMenu()"
               class="flex items-center gap-2 text-[#a81b8d] px-3 py-2 text-sm font-medium border-1 border-[#a81b8d] hover:bg-[#a81b8d] hover:text-white rounded-lg transition-colors mb-2"
             >
@@ -218,7 +220,7 @@ import { AuthService } from '../../core/services/auth.service';
               </svg>
             </a>
             <a
-              routerLink="/products"
+              routerLink="/productos"
               (click)="closeMobileMenu()"
               class="flex items-center gap-2 text-[#a81b8d] px-3 py-2 text-sm font-medium border-1 border-[#a81b8d] hover:bg-[#a81b8d] hover:text-white rounded-lg transition-colors mb-2"
             >
@@ -253,21 +255,21 @@ import { AuthService } from '../../core/services/auth.service';
             </a>
             @if (isAuthenticated) {
             <a
-              routerLink="/cart"
+              routerLink="/carrito"
               (click)="closeMobileMenu()"
               class="text-gray-900 hover:text-indigo-600 block px-3 py-2 text-sm font-medium"
             >
               Carrito
             </a>
             <a
-              routerLink="/orders"
+              routerLink="/pedidos"
               (click)="closeMobileMenu()"
               class="text-gray-900 hover:text-indigo-600 block px-3 py-2 text-sm font-medium"
             >
               Pedidos
             </a>
             <a
-              routerLink="/profile"
+              routerLink="/perfil"
               (click)="closeMobileMenu()"
               class="text-gray-900 hover:text-indigo-600 block px-3 py-2 text-sm font-medium"
             >
@@ -277,6 +279,7 @@ import { AuthService } from '../../core/services/auth.service';
           </div>
         </div>
         }
+        </div>
       </div>
     </header>
   `,

@@ -1,12 +1,12 @@
 <div class="min-h-screen flex flex-col">
-  <!-- Header -->
-  <app-header></app-header>
+  <!-- Header - Solo mostrar si no estamos en auth -->
+  <app-header *ngIf="showLayout"></app-header>
   
   <!-- Main Content -->
-  <main class="flex-1">
+  <main [class]="showLayout ? 'flex-1 pt-32 sm:pt-28' : 'min-h-screen'">
     <router-outlet></router-outlet>
   </main>
   
-  <!-- Footer -->
-  <app-footer></app-footer>
+  <!-- Footer - Solo mostrar si no estamos en auth -->
+  <app-footer *ngIf="showLayout"></app-footer>
 </div>
