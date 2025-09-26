@@ -41,7 +41,7 @@ export const routes: Routes = [
   {
     path: 'carrito',
     loadChildren: () => import('./features/shopping-cart/shopping-cart.routes').then(r => r.CART_ROUTES),
-    canActivate: [AuthGuard]
+    //canActivate: [AuthGuard]
   },
   
   // Rutas de pedidos

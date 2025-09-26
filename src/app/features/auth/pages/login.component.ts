@@ -160,6 +160,12 @@ import { ButtonComponent } from '../../../shared/components/button.component';
                   >
                 </p>
               </div>
+              <div class="text-center mt-4 text-[#6b7280] text-sm m-0">
+                  <u><a (click)="navigateToHome()"
+                    class="text-[#667eea] text-sm text-decoration-none cursor-pointer hover:text-[#3353e4]"
+                    >Volver al inicio</a
+                  ></u>
+              </div>
             </form>
           </div>
           <!-- Cierre de space-y-8 -->
@@ -211,7 +217,7 @@ export class LoginComponent {
 
       this.authService.login(this.loginForm.value).subscribe({
         next: () => {
-          this.router.navigate(['/products']);
+          this.router.navigate(['/productos']);
         },
         error: (error: any) => {
           this.errorMessage = error.error?.message || 'Error al iniciar sesión';
@@ -225,7 +231,7 @@ export class LoginComponent {
   }
 
   navigateToRegister(): void {
-    this.router.navigate(['/auth/register']);
+    this.router.navigate(['/auth/registro']);
   }
 
   navigateToForgotPassword(): void {
@@ -235,5 +241,9 @@ export class LoginComponent {
   loginWithGoogle(): void {
     // Redirigir al endpoint de OAuth2 de Google
     window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+  }
+
+  navigateToHome(): void {
+    this.router.navigate(['/inicio']);
   }
 }

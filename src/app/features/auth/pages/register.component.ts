@@ -63,7 +63,7 @@ import { ButtonComponent } from '../../../shared/components/button.component';
                     for="firstName"
                     class="block text-sm font-medium text-gray-700"
                   >
-                    Nombre
+                    Nombres
                   </label>
                   <input
                     id="firstName"
@@ -81,7 +81,7 @@ import { ButtonComponent } from '../../../shared/components/button.component';
                     for="lastName"
                     class="block text-sm font-medium text-gray-700"
                   >
-                    Apellido
+                    Apellidos
                   </label>
                   <input
                     id="lastName"
@@ -208,10 +208,17 @@ import { ButtonComponent } from '../../../shared/components/button.component';
                 <p>
                   ¿Ya tienes una cuenta?
                   <a
+                    (click)="navigateToLogin()"
                     class="text-[#667eea] text-sm text-decoration-none cursor-pointer hover:text-[#3353e4]"
                     >Inicia sesión</a
                   >
                 </p>
+              </div>
+              <div class="text-center mt-4 text-[#6b7280] text-sm m-0">
+                  <u><a (click)="navigateToHome()"
+                    class="text-[#667eea] text-sm text-decoration-none cursor-pointer hover:text-[#3353e4]"
+                    >Volver al inicio</a
+                  ></u>
               </div>
             </form>
           </div>
@@ -283,7 +290,7 @@ export class RegisterComponent {
 
       this.authService.register(registerData).subscribe({
         next: () => {
-          this.router.navigate(['/products']);
+          this.router.navigate(['/productos']);
         },
         error: (error: any) => {
           this.errorMessage =
@@ -295,5 +302,13 @@ export class RegisterComponent {
         },
       });
     }
+  }
+
+  navigateToLogin(): void {
+    this.router.navigate(['/auth/login']);
+  }
+
+  navigateToHome(): void {
+    this.router.navigate(['/inicio']);
   }
 }
