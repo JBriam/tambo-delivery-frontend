@@ -1,18 +1,33 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
+import { AuthService } from '../../../core/services/auth.service';
+import { ProductService } from '../../products/services/product.service';
+import { OrderService } from '../../orders/services/order.service';
+import { User } from '../../../models/user.model';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   template: `
     <div class="p-6 bg-gray-50 min-h-screen">
       <!-- Header -->
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-800">Dashboard Administrativo</h1>
         <p class="text-gray-600">Panel de control para la gestión de Tambo Delivery</p>
+        @if (currentUser) {
+          <p class="text-sm text-[#a81b8d] mt-2">Bienvenido, {{ currentUser.firstName }} {{ currentUser.lastName }}</p>
+        }
       </div>
+
+      <!-- Loading state -->
+      @if (isLoading) {
+        <div class="flex justify-center items-center py-12">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#a81b8d]"></div>
+        </div>
+      } @else {
 
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -24,7 +39,7 @@ import { CommonModule } from '@angular/common';
               </svg>
             </div>
             <div>
-              <p class="text-2xl font-bold text-gray-800">150</p>
+              <p class="text-2xl font-bold text-gray-800">{{ stats.ordersToday }}</p>
               <p class="text-gray-600">Pedidos Hoy</p>
             </div>
           </div>
@@ -38,7 +53,7 @@ import { CommonModule } from '@angular/common';
               </svg>
             </div>
             <div>
-              <p class="text-2xl font-bold text-gray-800">S/. 12,350</p>
+              <p class="text-2xl font-bold text-gray-800">S/. {{ stats.salesToday.toLocaleString() }}</p>
               <p class="text-gray-600">Ventas Hoy</p>
             </div>
           </div>
@@ -52,7 +67,7 @@ import { CommonModule } from '@angular/common';
               </svg>
             </div>
             <div>
-              <p class="text-2xl font-bold text-gray-800">1,248</p>
+              <p class="text-2xl font-bold text-gray-800">{{ stats.totalUsers.toLocaleString() }}</p>
               <p class="text-gray-600">Clientes</p>
             </div>
           </div>
@@ -66,7 +81,7 @@ import { CommonModule } from '@angular/common';
               </svg>
             </div>
             <div>
-              <p class="text-2xl font-bold text-gray-800">342</p>
+              <p class="text-2xl font-bold text-gray-800">{{ stats.totalProducts }}</p>
               <p class="text-gray-600">Productos</p>
             </div>
           </div>
@@ -79,18 +94,18 @@ import { CommonModule } from '@angular/common';
           <div class="bg-white p-6 rounded-lg shadow-md">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Acciones Rápidas</h2>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <a routerLink="/admin/products" class="p-4 text-center border rounded-lg hover:bg-gray-50 transition">
+              <button (click)="navigateToProducts()" class="p-4 text-center border rounded-lg hover:bg-gray-50 transition">
                 <div class="text-blue-600 mb-2">📦</div>
                 <p class="text-sm font-medium">Gestionar Productos</p>
-              </a>
-              <a routerLink="/admin/orders" class="p-4 text-center border rounded-lg hover:bg-gray-50 transition">
+              </button>
+              <button (click)="navigateToOrders()" class="p-4 text-center border rounded-lg hover:bg-gray-50 transition">
                 <div class="text-green-600 mb-2">📋</div>
                 <p class="text-sm font-medium">Ver Pedidos</p>
-              </a>
-              <a routerLink="/admin/users" class="p-4 text-center border rounded-lg hover:bg-gray-50 transition">
+              </button>
+              <button (click)="navigateToUsers()" class="p-4 text-center border rounded-lg hover:bg-gray-50 transition">
                 <div class="text-purple-600 mb-2">👥</div>
                 <p class="text-sm font-medium">Gestionar Usuarios</p>
-              </a>
+              </button>
               <a href="#" class="p-4 text-center border rounded-lg hover:bg-gray-50 transition">
                 <div class="text-yellow-600 mb-2">📊</div>
                 <p class="text-sm font-medium">Reportes</p>
@@ -162,8 +177,98 @@ import { CommonModule } from '@angular/common';
           </div>
         </div>
       </div>
+      } <!-- Cierre del @else -->
     </div>
   `,
   styles: []
 })
-export class DashboardComponent { }
+export class DashboardComponent implements OnInit, OnDestroy {
+  currentUser: User | null = null;
+  isLoading = false;
+  
+  // Dashboard statistics
+  stats = {
+    ordersToday: 0,
+    salesToday: 0,
+    totalProducts: 0,
+    totalUsers: 0
+  };
+
+  // Actividades recientes (vacío hasta implementar servicio)
+  recentActivities: any[] = [];
+
+  private subscriptions: Subscription[] = [];
+
+  constructor(
+    private authService: AuthService,
+    private productService: ProductService,
+    private orderService: OrderService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.checkAdminAccess();
+    this.loadDashboardData();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  /**
+   * Verifica si el usuario actual es administrador
+   */
+  private checkAdminAccess(): void {
+    this.subscriptions.push(
+      this.authService.currentUser$.subscribe(user => {
+        this.currentUser = user;
+        
+        // Verificar si el usuario es admin
+        if (!user || !user.authorities?.some(auth => auth.authority === 'ADMIN')) {
+          this.router.navigate(['/']);
+        }
+      })
+    );
+  }
+
+  /**
+   * Carga los datos del dashboard
+   */
+  private loadDashboardData(): void {
+    this.isLoading = true;
+    
+    // Cargar estadísticas de productos
+    this.productService.getProducts().subscribe({
+      next: (products) => {
+        this.stats.totalProducts = products.length;
+      },
+      error: (error) => console.error('Error loading products stats:', error)
+    });
+
+    // TODO: Implementar APIs para obtener estadísticas reales de órdenes, ventas y usuarios
+    // Se necesita implementar servicios para obtener estos datos del backend
+    // Mientras tanto, mantener los valores en 0 hasta implementar las APIs correspondientes
+    this.isLoading = false;
+  }
+
+  /**
+   * Navega a la gestión de productos
+   */
+  navigateToProducts(): void {
+    this.router.navigate(['/admin/products']);
+  }
+
+  /**
+   * Navega a la gestión de órdenes
+   */
+  navigateToOrders(): void {
+    this.router.navigate(['/admin/orders']);
+  }
+
+  /**
+   * Navega a la gestión de usuarios
+   */
+  navigateToUsers(): void {
+    this.router.navigate(['/admin/users']);
+  }
+}

@@ -1,15 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { ButtonComponent } from '../../../shared/components/button.component';
-
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-  description?: string;
-}
+import { CartService } from '../../../services/cart.service';
+import { Cart, CartItem, CartSummary } from '../../../models/cart.model';
 
 @Component({
   selector: 'app-shopping-cart',
@@ -20,7 +15,7 @@ interface CartItem {
       <h1 class="text-3xl font-bold text-gray-900 mb-8">Carrito de Compras</h1>
       
       <!-- Si el carrito está vacío -->
-      @if (cartItems.length === 0) {
+      @if (cart.items.length === 0) {
         <div class="text-center py-12">
           <div class="text-gray-400 mb-4">
             <svg class="mx-auto h-24 w-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -45,18 +40,18 @@ interface CartItem {
           <!-- Columna izquierda: Lista de productos -->
           <div class="lg:col-span-2 space-y-4">
             <h2 class="text-xl font-semibold text-gray-900 mb-4">
-              Productos en tu carrito ({{ getTotalItems() }})
+              Productos en tu carrito ({{ cart.totalItems }})
             </h2>
             
-            @for (item of cartItems; track item.id) {
+            @for (item of cart.items; track item.product.id) {
               <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
                 <div class="flex items-start space-x-4">
                   
                   <!-- Imagen del producto -->
                   <div class="flex-shrink-0">
                     <img 
-                      [src]="item.image" 
-                      [alt]="item.name"
+                      [src]="item.product.thumbnail || '/assets/products/placeholder.webp'" 
+                      [alt]="item.product.name"
                       class="h-20 w-20 object-cover rounded-md border"
                       onerror="this.src='assets/images/placeholder-product.webp'"
                     />
@@ -64,11 +59,11 @@ interface CartItem {
                   
                   <!-- Información del producto -->
                   <div class="flex-1 min-w-0">
-                    <h3 class="text-lg font-medium text-gray-900 mb-1">{{ item.name }}</h3>
-                    @if (item.description) {
-                      <p class="text-sm text-gray-600 mb-2">{{ item.description }}</p>
+                    <h3 class="text-lg font-medium text-gray-900 mb-1">{{ item.product.name }}</h3>
+                    @if (item.product.description) {
+                      <p class="text-sm text-gray-600 mb-2">{{ item.product.description }}</p>
                     }
-                    <p class="text-lg font-semibold text-[#a81b8d]">S/ {{ item.price.toFixed(2) }}</p>
+                    <p class="text-lg font-semibold text-[#a81b8d]">S/ {{ item.product.price.toFixed(2) }}</p>
                   </div>
                   
                   <!-- Controles de cantidad y eliminación -->
@@ -76,7 +71,7 @@ interface CartItem {
                     
                     <!-- Botón eliminar -->
                     <button 
-                      (click)="removeItem(item.id)"
+                      (click)="removeItem(item.product.id)"
                       class="text-gray-400 hover:text-red-500 transition-colors"
                       title="Eliminar producto"
                     >
@@ -88,7 +83,7 @@ interface CartItem {
                     <!-- Controles de cantidad -->
                     <div class="flex items-center space-x-2">
                       <button 
-                        (click)="decreaseQuantity(item.id)"
+                        (click)="decreaseQuantity(item.product.id)"
                         [disabled]="item.quantity <= 1"
                         class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -100,7 +95,7 @@ interface CartItem {
                       <span class="w-8 text-center font-medium">{{ item.quantity }}</span>
                       
                       <button 
-                        (click)="increaseQuantity(item.id)"
+                        (click)="increaseQuantity(item.product.id)"
                         class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50"
                       >
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -111,7 +106,7 @@ interface CartItem {
                     
                     <!-- Subtotal del producto -->
                     <p class="text-lg font-semibold text-gray-900">
-                      S/ {{ (item.price * item.quantity).toFixed(2) }}
+                      S/ {{ item.subtotal.toFixed(2) }}
                     </p>
                   </div>
                 </div>
@@ -141,30 +136,18 @@ interface CartItem {
               <div class="space-y-3 mb-4">
                 <div class="flex justify-between text-sm">
                   <span class="text-gray-600">Subtotal ({{ getTotalItems() }} productos)</span>
-                  <span class="font-medium">S/ {{ getSubtotal().toFixed(2) }}</span>
+                  <span class="font-medium">S/ {{ cartSummary.subtotal.toFixed(2) }}</span>
                 </div>
                 
                 <div class="flex justify-between text-sm">
                   <span class="text-gray-600">Costo de envío</span>
                   <span class="font-medium">
-                    @if (getSubtotal() >= deliveryFreeThreshold) {
+                    @if (cartSummary.deliveryFee === 0) {
                       <span class="text-green-600">Gratis</span>
                     } @else {
-                      <span>S/ {{ deliveryCost.toFixed(2) }}</span>
+                      <span>S/ {{ cartSummary.deliveryFee.toFixed(2) }}</span>
                     }
                   </span>
-                </div>
-                
-                @if (discount > 0) {
-                  <div class="flex justify-between text-sm">
-                    <span class="text-gray-600">Descuento</span>
-                    <span class="font-medium text-green-600">-S/ {{ discount.toFixed(2) }}</span>
-                  </div>
-                }
-                
-                <div class="flex justify-between text-sm">
-                  <span class="text-gray-600">IGV (18%)</span>
-                  <span class="font-medium">S/ {{ getIGV().toFixed(2) }}</span>
                 </div>
               </div>
               
@@ -172,19 +155,19 @@ interface CartItem {
               <div class="border-t pt-4 mb-6">
                 <div class="flex justify-between items-center">
                   <span class="text-lg font-semibold text-gray-900">Total a pagar</span>
-                  <span class="text-2xl font-bold text-[#a81b8d]">S/ {{ getTotal().toFixed(2) }}</span>
+                  <span class="text-2xl font-bold text-[#a81b8d]">S/ {{ cartSummary.total.toFixed(2) }}</span>
                 </div>
               </div>
               
               <!-- Información de envío gratis -->
-              @if (getSubtotal() < deliveryFreeThreshold) {
+              @if (cartSummary.deliveryFee > 0) {
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                   <p class="text-xs text-blue-800">
-                    <span class="font-medium">¡Envío gratis!</span> 
-                    Agrega S/ {{ (deliveryFreeThreshold - getSubtotal()).toFixed(2) }} más para obtener envío gratuito
+                    <span class="font-medium">¡Envío disponible!</span> 
+                    Costo de envío: S/ {{ cartSummary.deliveryFee.toFixed(2) }}
                   </p>
                 </div>
-              } @else {
+              } @else if (cartSummary.subtotal > 0) {
                 <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
                   <p class="text-xs text-green-800 font-medium">
                     ✅ ¡Felicidades! Tienes envío gratis
@@ -220,88 +203,68 @@ interface CartItem {
     </div>
   `
 })
-export class ShoppingCartComponent {
-  // Datos de ejemplo - en producción vendrían del servicio
-  cartItems: CartItem[] = [
-    {
-      id: 1,
-      name: 'Coca Cola 3L',
-      price: 8.50,
-      quantity: 2,
-      image: 'assets/products/coca-cola-500ml.webp',
-      description: 'Bebida gaseosa sabor original'
-    },
-    {
-      id: 2,
-      name: 'Pan Integral Bimbo',
-      price: 4.20,
-      quantity: 1,
-      image: 'assets/products/pan-integral.webp',
-      description: 'Pan de molde integral, 500g'
-    },
-    {
-      id: 3,
-      name: 'Leche Evaporada Gloria',
-      price: 3.80,
-      quantity: 3,
-      image: 'assets/products/leche-gloria-entera.webp',
-      description: 'Leche evaporada entera, 400g'
-    }
-  ];
+export class ShoppingCartComponent implements OnInit, OnDestroy {
+  cart: Cart = { items: [], totalItems: 0, totalPrice: 0, updatedAt: new Date() };
+  cartSummary: CartSummary = { itemCount: 0, subtotal: 0, deliveryFee: 0, total: 0 };
+  private cartSubscription?: Subscription;
 
-  deliveryCost = 5.00;
-  deliveryFreeThreshold = 50.00;
-  discount = 0; // Descuentos aplicados
-  igvRate = 0.18; // 18% IGV
+  constructor(
+    private cartService: CartService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    // Suscribirse a los cambios del carrito
+    this.cartSubscription = this.cartService.cart$.subscribe(cart => {
+      this.cart = cart;
+      this.cartSummary = this.cartService.getCartSummary();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.cartSubscription?.unsubscribe();
+  }
 
   getTotalItems(): number {
-    return this.cartItems.reduce((total, item) => total + item.quantity, 0);
+    return this.cart.totalItems;
   }
 
   getSubtotal(): number {
-    return this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return this.cartSummary.subtotal;
   }
 
   getShippingCost(): number {
-    return this.getSubtotal() >= this.deliveryFreeThreshold ? 0 : this.deliveryCost;
+    return this.cartSummary.deliveryFee;
   }
 
   getIGV(): number {
-    const subtotalWithShipping = this.getSubtotal() + this.getShippingCost() - this.discount;
-    return subtotalWithShipping * this.igvRate;
+    // IGV está incluido en el total del CartSummary
+    const subtotalWithShipping = this.cartSummary.subtotal + this.cartSummary.deliveryFee;
+    return subtotalWithShipping * 0.18; // 18% IGV
   }
 
   getTotal(): number {
-    return this.getSubtotal() + this.getShippingCost() - this.discount + this.getIGV();
+    return this.cartSummary.total;
   }
 
-  increaseQuantity(itemId: number): void {
-    const item = this.cartItems.find(item => item.id === itemId);
-    if (item) {
-      item.quantity++;
-    }
+  increaseQuantity(productId: string): void {
+    this.cartService.incrementQuantity(productId);
   }
 
-  decreaseQuantity(itemId: number): void {
-    const item = this.cartItems.find(item => item.id === itemId);
-    if (item && item.quantity > 1) {
-      item.quantity--;
-    }
+  decreaseQuantity(productId: string): void {
+    this.cartService.decrementQuantity(productId);
   }
 
-  removeItem(itemId: number): void {
-    const index = this.cartItems.findIndex(item => item.id === itemId);
-    if (index > -1) {
-      this.cartItems.splice(index, 1);
-    }
+  removeItem(productId: string): void {
+    this.cartService.removeFromCart(productId);
   }
 
   goToProducts(): void {
-    window.location.href = '/productos';
+    this.router.navigate(['/productos']);
   }
 
   proceedToCheckout(): void {
     // Navegará a la página de dirección de entrega
-    window.location.href = '/carrito/direccion';
+    this.router.navigate(['/carrito/direccion']);
   }
 }

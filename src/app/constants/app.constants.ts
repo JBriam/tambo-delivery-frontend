@@ -1,34 +1,81 @@
-// API Endpoints
+// API Endpoints - Basado en el backend Spring Boot
 export const API_ENDPOINTS = {
   BASE_URL: 'http://localhost:8080/api',
+  
+  // Autenticación (AuthController)
   AUTH: {
     LOGIN: '/auth/login',
     REGISTER: '/auth/register',
-    REFRESH: '/auth/refresh',
-    LOGOUT: '/auth/logout'
+    VERIFY: '/auth/verify',
+    FORGOT_PASSWORD: '/auth/forgot-password',
+    RESET_PASSWORD: '/auth/reset-password'
   },
+
+  // Productos públicos (PublicController)
+  PUBLIC: {
+    PRODUCTS: '/public/product',
+    PRODUCT_SECTIONS: '/public/product-sections',
+    CATEGORIES: '/public/category/get-all' // Endpoint público para obtener categorías
+  },
+
+  // Usuarios (UserDetailController)
   USERS: {
-    PROFILE: '/users/profile',
-    UPDATE_PROFILE: '/users/profile',
-    ADDRESSES: '/users/addresses'
+    PROFILE: '/user/profile',
+    UPDATE_PROFILE: '/user/profile',
+    ADDRESSES: '/user/address',
+    CREATE_ADDRESS: '/user/address',
+    UPDATE_ADDRESS: '/user/address',
+    DELETE_ADDRESS: '/user/address'
   },
-  PRODUCTS: {
-    LIST: '/products',
-    CATEGORIES: '/products/categories',
-    SEARCH: '/products/search'
-  },
+
+  // Pedidos (OrderController)
   ORDERS: {
-    CREATE: '/orders',
-    LIST: '/orders',
-    DETAILS: '/orders',
-    UPDATE_STATUS: '/orders/status'
+    CREATE: '/order',
+    BOLETA: '/order', // /{orderId}/boleta
+    FACTURA: '/order' // /{orderId}/factura
   },
-  CART: {
-    GET: '/cart',
-    ADD_ITEM: '/cart/items',
-    UPDATE_ITEM: '/cart/items',
-    REMOVE_ITEM: '/cart/items',
-    CLEAR: '/cart/clear'
+
+  // Panel de administración (AdminController)
+  ADMIN: {
+    // Marcas
+    BRANDS: '/admin/brand',
+    BRANDS_ALL: '/admin/brand/get-all',
+    
+    // Categorías
+    CATEGORIES: '/admin/category',
+    CATEGORIES_ALL: '/admin/category/get-all',
+    CATEGORY_BUTTONS: '/admin/category-button',
+    
+    // Productos
+    PRODUCTS: '/admin/product',
+    PRODUCTS_ALL: '/admin/product/get-all',
+    PRODUCT_SECTIONS: '/admin/product-section',
+    
+    // Usuarios
+    USERS: '/admin/user',
+    USERS_ALL: '/admin/user/get-all',
+    
+    // Pedidos
+    ORDERS: '/admin/orders',
+    ORDERS_ALL: '/admin/orders/get-all',
+    ORDERS_STATISTICS: '/admin/orders/statistics',
+    
+    // Descuentos
+    DISCOUNTS: '/admin/discount',
+    DISCOUNTS_ALL: '/admin/discount/get-all',
+    
+    // Roles
+    AUTHORITIES: '/admin/authority',
+    AUTHORITIES_ALL: '/admin/authority/get-all',
+    
+    // Imágenes slider
+    SLIDER_IMAGES: '/admin/slider-image',
+    SLIDER_IMAGES_ALL: '/admin/slider-image/get-all'
+  },
+
+  // Pagos (PaymentController) 
+  PAYMENTS: {
+    PROCESS: '/payment/process'
   }
 } as const;
 
