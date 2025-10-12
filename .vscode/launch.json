@@ -15,6 +15,26 @@
       "request": "launch",
       "preLaunchTask": "npm: test",
       "url": "http://localhost:9876/debug.html"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-IntranetApplication<intranet-backend>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.tambo.intranet.IntranetApplication",
+      "projectName": "intranet-backend",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-TamboDeliveryBackendApplication<tambo-delivery-backend>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.tambo.TamboDeliveryBackendApplication",
+      "projectName": "tambo-delivery-backend",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
     }
   ]
 }
