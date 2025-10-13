@@ -10,6 +10,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }), 
     provideRouter(routes),
     // Usar interceptor funcional para Angular 17+
+    // jwtInterceptor ahora maneja tanto rutas públicas como privadas
     provideHttpClient(
       withInterceptors([jwtInterceptor])
     )

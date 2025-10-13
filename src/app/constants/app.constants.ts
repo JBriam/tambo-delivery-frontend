@@ -14,6 +14,7 @@ export const API_ENDPOINTS = {
   // Productos públicos (PublicController)
   PUBLIC: {
     PRODUCTS: '/public/product',
+    PRODUCTS_BY_CATEGORY: '/public/product/by-category',
     PRODUCT_SECTIONS: '/public/product-sections',
     CATEGORIES: '/public/category/get-all' // Endpoint público para obtener categorías
   },

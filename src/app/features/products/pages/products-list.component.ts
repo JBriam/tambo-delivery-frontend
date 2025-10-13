@@ -14,20 +14,24 @@ import { Utils } from '../../../utils/common.utils';
   imports: [CommonModule, FormsModule, ProductCardComponent],
   template: `
     <div class="container mx-auto px-4 py-8">
-      <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Nuestros Productos</h1>
-        <div class="flex items-center space-x-4">
-          <!-- Filtro por categoría -->
-          <select 
-            [(ngModel)]="selectedCategoryId" 
-            (change)="onCategoryChange()"
-            class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <option value="">Todas las categorías</option>
-            @for (category of categories; track category.id) {
-              <option [value]="category.id">{{ category.name }}</option>
-            }
-          </select>
+      <!-- Category Header when filtered -->
+      @if (selectedCategoryId && getCurrentCategory()) {
+        <div class="mb-8">
+          <div class="flex items-center space-x-4">
+            <div class="flex-1">
+              <h1 class="text-3xl font-bold text-gray-900">{{ getCurrentCategory()?.name }}</h1>
+              <p *ngIf="getCurrentCategory()?.description" class="text-gray-600 mt-2">{{ getCurrentCategory()?.description }}</p>
+            </div>
+            <div class="text-sm text-gray-500">
+              {{ products.length }} producto{{ products.length !== 1 ? 's' : '' }}
+            </div>
+          </div>
+        </div>
+      }
 
+      <div class="flex justify-between items-center mb-8">
+        <h1 *ngIf="!selectedCategoryId" class="text-3xl font-bold text-gray-900">Nuestros Productos</h1>
+        <div class="flex items-center space-x-4">
           <!-- Filtro por precio -->
           <select 
             [(ngModel)]="priceRange" 
@@ -107,11 +111,19 @@ export class ProductsListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Verificar si hay parámetros en la URL
+    // Verificar si hay parámetros de ruta (route params)
+    this.route.params.subscribe(params => {
+      if (params['categoryId']) {
+        this.selectedCategoryId = params['categoryId'];
+        this.currentFilter.categoryId = params['categoryId'];
+      }
+    });
+
+    // Verificar si hay parámetros de consulta (query params)
     this.route.queryParams.subscribe(params => {
       console.log('Query params:', params);
       
-      if (params['category']) {
+      if (params['category'] && !this.selectedCategoryId) {
         this.selectedCategoryId = params['category'];
         this.currentFilter.categoryId = params['category'];
       }
@@ -165,8 +177,8 @@ export class ProductsListComponent implements OnInit {
       }
     });
 
-    // Cargar categorías
-    this.productService.getAllCategories().subscribe({
+    // Cargar categorías públicas
+    this.productService.getPublicCategories().subscribe({
       next: (categories) => {
         this.categories = categories || [];
         console.log('Categorías cargadas:', this.categories);
@@ -187,11 +199,6 @@ export class ProductsListComponent implements OnInit {
         this.productSections = [];
       }
     });
-  }
-
-  onCategoryChange(): void {
-    this.currentFilter.categoryId = this.selectedCategoryId || undefined;
-    this.loadProducts();
   }
 
   onPriceRangeChange(): void {
@@ -269,5 +276,12 @@ export class ProductsListComponent implements OnInit {
    */
   isProductInCart(productId: string): boolean {
     return this.cartService.isProductInCart(productId);
+  }
+
+  /**
+   * Obtiene la categoría actual seleccionada
+   */
+  getCurrentCategory(): Category | undefined {
+    return this.categories.find(cat => cat.id === this.selectedCategoryId);
   }
 }
