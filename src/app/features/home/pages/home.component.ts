@@ -186,16 +186,35 @@ interface CategoryProducts {
             </button>
           </div>
 
-          <!-- Products Grid -->
-          <div *ngIf="!isLoading && !error" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-12">
-            <app-product-card
-              *ngFor="let product of featuredProducts"
-              [product]="product"
-            ></app-product-card>
+          <!-- Products by Category -->
+          <div *ngIf="!isLoading && !error && categoryProducts.length > 0">
+            <div *ngFor="let categoryData of categoryProducts; trackBy: trackByCategory" class="mb-16">
+              <!-- Category Header -->
+              <div class="flex justify-between items-center mb-8">
+                <div>
+                  <h3 class="text-2xl font-bold text-gray-800 mb-2">{{ categoryData.category.name }}</h3>
+                  <p *ngIf="categoryData.category.description" class="text-gray-600">{{ categoryData.category.description }}</p>
+                </div>
+                <button
+                  (click)="navigateToCategory(categoryData.category.id)"
+                  class="bg-[#a81b8d] hover:bg-[#8a1674] text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  Ver más
+                </button>
+              </div>
+              
+              <!-- Products Grid for Category -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+                <app-product-card
+                  *ngFor="let product of categoryData.products; trackBy: trackByProduct"
+                  [product]="product"
+                ></app-product-card>
+              </div>
+            </div>
           </div>
 
           <!-- No Products State -->
-          <div *ngIf="!isLoading && !error && featuredProducts.length === 0" class="text-center py-12">
+          <div *ngIf="!isLoading && !error && categoryProducts.length === 0" class="text-center py-12">
             <div class="text-gray-500 text-lg">
               <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
@@ -204,10 +223,10 @@ interface CategoryProducts {
             </div>
           </div>
 
-          <!-- Ver más productos -->
-          <div *ngIf="!isLoading && !error && featuredProducts.length > 0" class="text-center">
+          <!-- Ver todos los productos -->
+          <div *ngIf="!isLoading && !error && categoryProducts.length > 0" class="text-center">
             <button
-              [routerLink]="['/products']"
+              [routerLink]="['/productos']"
               class="bg-[#a81b8d] hover:bg-[#8a1674] text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               Ver todos los productos
@@ -335,6 +354,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   
   // Productos destacados (solo del backend)
   featuredProducts: Product[] = [];
+  
+  // Productos por categoría
+  categoryProducts: CategoryProducts[] = [];
 
   sliderImages: SliderImage[] = [
     {
@@ -385,22 +407,21 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   loadProducts(): void {
-    console.log('[Home] Iniciando carga de productos...');
+    console.log('[Home] Iniciando carga de productos por categorías...');
     this.isLoading = true;
     this.error = null;
 
-    // Cargar productos destacados
-    this.productService.getProducts().subscribe({
-      next: (products) => {
-        console.log('[Home] Productos cargados exitosamente:', products);
-        // Limitamos a 8 productos para el home
-        this.featuredProducts = products.slice(0, 8);
+    // Cargar productos agrupados por categorías (6 productos por categoría)
+    this.productService.getProductsByCategories(6).subscribe({
+      next: (categoryProducts) => {
+        console.log('[Home] Productos por categorías cargados exitosamente:', categoryProducts);
+        this.categoryProducts = categoryProducts.filter(cp => cp.products.length > 0); // Solo mostrar categorías con productos
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('[Home] Error al cargar productos:', error);
+        console.error('[Home] Error al cargar productos por categorías:', error);
         this.error = 'Error al cargar los productos. Por favor, inténtelo de nuevo.';
-        this.featuredProducts = [];
+        this.categoryProducts = [];
         this.isLoading = false;
       }
     });
@@ -442,5 +463,19 @@ export class HomeComponent implements OnInit, OnDestroy {
       clearInterval(this.autoPlayInterval);
       this.autoPlayInterval = null;
     }
+  }
+
+  // Navegación a categoría específica
+  navigateToCategory(categoryId: string): void {
+    this.router.navigate(['/productos'], { queryParams: { category: categoryId } });
+  }
+
+  // TrackBy functions para optimizar el rendering
+  trackByCategory(index: number, item: CategoryProducts): string {
+    return item.category.id;
+  }
+
+  trackByProduct(index: number, item: Product): string {
+    return item.id;
   }
 }

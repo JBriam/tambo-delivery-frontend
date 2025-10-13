@@ -34,7 +34,7 @@ import { Utils } from '../../../utils/common.utils';
       <div class="relative aspect-square overflow-hidden bg-gray-100">
         <a [routerLink]="['/productos', product.id]" class="block">
           <img 
-            [src]="product.thumbnail || 'assets/products/coca-cola-500ml.webp'" 
+            [src]="product.thumbnail" 
             [alt]="product.name"
             class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
             loading="lazy"

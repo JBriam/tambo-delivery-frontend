@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { Observable, throwError, forkJoin } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { Product, ProductFilter, Brand, Category, CategoryType, ProductSection } from '../../../models/product.model';
 import { API_ENDPOINTS } from '../../../constants/app.constants';
 
@@ -47,11 +47,18 @@ export class ProductService {
     if (filter.maxPrice) params = params.set('maxPrice', filter.maxPrice.toString());
     if (filter.newArrival !== undefined) params = params.set('newArrival', filter.newArrival.toString());
 
-    return this.http.get<Product[]>(
-      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.PUBLIC.PRODUCTS}`,
-      { params }
-    ).pipe(
-      catchError(this.handleError)
+    const url = `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.PUBLIC.PRODUCTS}`;
+    console.log('🌐 [ProductService] GET:', url, 'params:', params.toString());
+
+    return this.http.get<Product[]>(url, { params }).pipe(
+      map((products: Product[]) => {
+        console.log('✅ [ProductService] Productos recibidos:', products?.length || 0);
+        return products || [];
+      }),
+      catchError((error) => {
+        console.error('❌ [ProductService] Error en getProducts:', error);
+        return this.handleError(error);
+      })
     );
   }
 
@@ -94,6 +101,53 @@ export class ProductService {
     return this.http.get<Category[]>(
       `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.PUBLIC.CATEGORIES}`
     ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Obtener productos agrupados por categorías (para home page)
+   */
+  getProductsByCategories(limit: number = 6): Observable<{category: Category, products: Product[]}[]> {
+    console.log('🏠 [ProductService] Obteniendo productos por categorías con límite:', limit);
+    
+    return this.getPublicCategories().pipe(
+      map((categories: Category[]) => {
+        console.log('📂 [ProductService] Categorías obtenidas:', categories.length);
+        return categories.sort((a, b) => a.name.localeCompare(b.name)); // Ordenar alfabéticamente
+      }),
+      switchMap((categories: Category[]) => {
+        console.log('🔄 [ProductService] Obteniendo productos para cada categoría...');
+        const requests = categories.map((category: Category) => {
+          // Usar el nuevo endpoint optimizado por categoría
+          let params = new HttpParams()
+            .set('categoryId', category.id)
+            .set('limit', limit.toString());
+          
+          const url = `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.PUBLIC.PRODUCTS_BY_CATEGORY}`;
+          
+          return this.http.get<Product[]>(url, { params }).pipe(
+            map((products: Product[]) => {
+              console.log(`📦 [ProductService] Categoría "${category.name}" (ID: ${category.id}): ${products.length} productos encontrados`);
+              if (products.length > 0) {
+                console.log(`📦 [ProductService] Primeros productos de "${category.name}":`, products.slice(0, 3).map(p => ({ id: p.id, name: p.name })));
+              }
+              return {
+                category,
+                products: products // Ya viene limitado desde el backend
+              };
+            }),
+            catchError((error) => {
+              console.error(`❌ [ProductService] Error obteniendo productos para categoría "${category.name}":`, error);
+              return [{
+                category,
+                products: []
+              }];
+            })
+          );
+        });
+        return forkJoin(requests);
+      }),
       catchError(this.handleError)
     );
   }
@@ -247,19 +301,27 @@ export class ProductService {
   private handleError(error: any): Observable<never> {
     let errorMessage = 'Ha ocurrido un error';
     
-    if (error.error?.message) {
+    console.error('❌ [ProductService] Error completo:', error);
+    console.error('❌ [ProductService] Error status:', error.status);
+    console.error('❌ [ProductService] Error statusText:', error.statusText);
+    console.error('❌ [ProductService] Error url:', error.url);
+    
+    if (error.status === 401) {
+      errorMessage = 'Error de autorización - El endpoint requiere autenticación';
+      console.error('🔒 [ProductService] Error 401: Endpoint protegido o problema de CORS/Seguridad');
+    } else if (error.error?.message) {
       errorMessage = error.error.message;
     } else if (error.message) {
       errorMessage = error.message;
     } else if (error.status === 0) {
-      errorMessage = 'No se puede conectar con el servidor';
+      errorMessage = 'No se puede conectar con el servidor - Posible problema de CORS';
     } else if (error.status === 404) {
       errorMessage = 'Recurso no encontrado';
     } else if (error.status === 500) {
       errorMessage = 'Error interno del servidor';
     }
 
-    console.error('Product Service Error:', error);
+    console.error('❌ [ProductService] Error Message:', errorMessage);
     return throwError(() => new Error(errorMessage));
   }
 }

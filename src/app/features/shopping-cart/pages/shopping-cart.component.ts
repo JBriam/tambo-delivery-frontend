@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ButtonComponent } from '../../../shared/components/button.component';
 import { CartService } from '../../../services/cart.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Cart, CartItem, CartSummary } from '../../../models/cart.model';
 
 @Component({
@@ -175,10 +176,19 @@ import { Cart, CartItem, CartSummary } from '../../../models/cart.model';
                 </div>
               }
               
+              <!-- Mensaje de autenticación requerida -->
+              @if (!isAuthenticated) {
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                  <p class="text-xs text-yellow-800">
+                    <span class="font-medium">⚠️ Inicia sesión</span> para continuar con tu compra
+                  </p>
+                </div>
+              }
+              
               <!-- Botón continuar compra -->
               <app-button
                 [config]="{
-                  text: 'Continuar con la compra',
+                  text: isAuthenticated ? 'Continuar con la compra' : 'Iniciar sesión y continuar',
                   type: 'primary',
                   size: 'lg'
                 }"
@@ -207,13 +217,18 @@ export class ShoppingCartComponent implements OnInit, OnDestroy {
   cart: Cart = { items: [], totalItems: 0, totalPrice: 0, updatedAt: new Date() };
   cartSummary: CartSummary = { itemCount: 0, subtotal: 0, deliveryFee: 0, total: 0 };
   private cartSubscription?: Subscription;
+  isAuthenticated = false;
 
   constructor(
     private cartService: CartService,
+    private authService: AuthService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
+    // Verificar estado de autenticación
+    this.isAuthenticated = this.authService.isAuthenticated;
+    
     // Suscribirse a los cambios del carrito
     this.cartSubscription = this.cartService.cart$.subscribe(cart => {
       this.cart = cart;
@@ -264,7 +279,18 @@ export class ShoppingCartComponent implements OnInit, OnDestroy {
   }
 
   proceedToCheckout(): void {
-    // Navegará a la página de dirección de entrega
+    // Verificar si el usuario está autenticado
+    if (!this.isAuthenticated) {
+      // Guardar la URL de retorno y redirigir al login
+      const returnUrl = '/carrito/direccion';
+      this.router.navigate(['/auth/login'], { 
+        queryParams: { returnUrl: returnUrl },
+        state: { message: 'Por favor, inicia sesión para continuar con tu compra' }
+      });
+      return;
+    }
+    
+    // Si está autenticado, navegará a la página de dirección de entrega
     this.router.navigate(['/carrito/direccion']);
   }
 }
