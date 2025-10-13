@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -6,14 +6,13 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { ButtonComponent } from '../../../shared/components/button.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonComponent],
+  imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div
       class="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100"
@@ -49,6 +48,14 @@ import { ButtonComponent } from '../../../shared/components/button.component';
               [formGroup]="loginForm"
               (ngSubmit)="onSubmit()"
             >
+              @if (successMessage) {
+              <div
+                class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded"
+              >
+                {{ successMessage }}
+              </div>
+              }
+              
               @if (errorMessage) {
               <div
                 class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"
@@ -60,22 +67,22 @@ import { ButtonComponent } from '../../../shared/components/button.component';
               <div class="space-y-4">
                 <div>
                   <label
-                    for="email"
+                    for="userName"
                     class="block text-sm font-medium text-gray-700"
                   >
                     Correo Electrónico
                   </label>
                   <input
-                    id="email"
-                    name="email"
+                    id="userName"
+                    name="userName"
                     type="email"
-                    formControlName="email"
+                    formControlName="userName"
                     required
                     class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                     placeholder="tu@email.com"
                   />
-                  @if (loginForm.get('email')?.invalid &&
-                  loginForm.get('email')?.touched) {
+                  @if (loginForm.get('userName')?.invalid &&
+                  loginForm.get('userName')?.touched) {
                   <p class="mt-1 text-sm text-red-600">
                     Ingresa un email válido
                   </p>
@@ -160,6 +167,12 @@ import { ButtonComponent } from '../../../shared/components/button.component';
                   >
                 </p>
               </div>
+              <div class="text-center mt-4 text-[#6b7280] text-sm m-0">
+                  <u><a (click)="navigateToHome()"
+                    class="text-[#667eea] text-sm text-decoration-none cursor-pointer hover:text-[#3353e4]"
+                    >Volver al inicio</a
+                  ></u>
+              </div>
             </form>
           </div>
           <!-- Cierre de space-y-8 -->
@@ -188,19 +201,34 @@ import { ButtonComponent } from '../../../shared/components/button.component';
     </div>
   `,
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   isLoading = false;
   errorMessage = '';
+  successMessage = '';
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      userName: ['', [Validators.required, Validators.email]], // Cambiado de 'email' a 'userName'
       password: ['', [Validators.required, Validators.minLength(6)]],
+    });
+  }
+
+  ngOnInit(): void {
+    // Leer mensajes de query parameters
+    this.route.queryParams.subscribe(params => {
+      if (params['message']) {
+        this.successMessage = params['message'];
+        // Limpiar el mensaje después de 5 segundos
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 5000);
+      }
     });
   }
 
@@ -209,12 +237,41 @@ export class LoginComponent {
       this.isLoading = true;
       this.errorMessage = '';
 
-      this.authService.login(this.loginForm.value).subscribe({
-        next: () => {
-          this.router.navigate(['/products']);
+      console.log('🔐 Login: Sending login request with:', this.loginForm.value);
+
+      this.authService.loginAndLoadProfile(this.loginForm.value).subscribe({
+        next: (result) => {
+          console.log('🔐 Login: Login and profile result:', result);
+          if (result.success) {
+            const redirectRoute = result.redirectRoute || '/productos';
+            console.log('🔐 Login: Login successful, redirecting to:', redirectRoute);
+            this.router.navigate([redirectRoute]);
+          } else {
+            this.errorMessage = result.error || 'Error al iniciar sesión';
+          }
         },
         error: (error: any) => {
-          this.errorMessage = error.error?.message || 'Error al iniciar sesión';
+          console.error('🔐 Login: Login error:', error);
+          if (error.status === 401) {
+            if (error.error?.message && error.error.message.includes('deshabilitado')) {
+              this.errorMessage = 'Tu cuenta no está verificada. Por favor revisa tu email y usa el código de verificación que te enviamos.';
+              // Opcionalmente, redirigir a la página de verificación después de unos segundos
+              setTimeout(() => {
+                this.router.navigate(['/auth/verify'], {
+                  queryParams: { 
+                    email: this.loginForm.value.userName,
+                    message: 'Por favor ingresa el código de verificación que te enviamos por email.' 
+                  }
+                });
+              }, 3000);
+            } else {
+              this.errorMessage = 'Email o contraseña incorrectos';
+            }
+          } else if (error.error?.message) {
+            this.errorMessage = error.error.message;
+          } else {
+            this.errorMessage = 'Error al conectar con el servidor';
+          }
           this.isLoading = false;
         },
         complete: () => {
@@ -225,7 +282,7 @@ export class LoginComponent {
   }
 
   navigateToRegister(): void {
-    this.router.navigate(['/auth/register']);
+    this.router.navigate(['/auth/registro']);
   }
 
   navigateToForgotPassword(): void {
@@ -235,5 +292,9 @@ export class LoginComponent {
   loginWithGoogle(): void {
     // Redirigir al endpoint de OAuth2 de Google
     window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+  }
+
+  navigateToHome(): void {
+    this.router.navigate(['/inicio']);
   }
 }

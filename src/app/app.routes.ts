@@ -26,6 +26,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/pages/register.component').then(c => c.RegisterComponent)
   },
   {
+    path: 'auth/verify',
+    loadComponent: () => import('./features/auth/pages/verify.component').then(c => c.VerifyComponent)
+  },
+  {
     path: 'auth',
     redirectTo: 'auth/login',
     pathMatch: 'full'
@@ -41,7 +45,7 @@ export const routes: Routes = [
   {
     path: 'carrito',
     loadChildren: () => import('./features/shopping-cart/shopping-cart.routes').then(r => r.CART_ROUTES),
-    canActivate: [AuthGuard]
+    //canActivate: [AuthGuard]
   },
   
   // Rutas de pedidos
@@ -55,6 +59,13 @@ export const routes: Routes = [
   {
     path: 'perfil',
     loadChildren: () => import('./features/user-profile/user-profile.routes').then(r => r.PROFILE_ROUTES),
+    canActivate: [AuthGuard]
+  },
+
+  // Rutas de administración
+  {
+    path: 'admin',
+    loadChildren: () => import('./features/admin/admin.routes').then(r => r.ADMIN_ROUTES),
     canActivate: [AuthGuard]
   },
 

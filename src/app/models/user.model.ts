@@ -1,22 +1,34 @@
 export interface User {
-  id: number;
+  id: string; // UUID en el backend
   email: string;
   firstName: string;
   lastName: string;
   phoneNumber?: string;
-  address?: Address;
-  role: UserRole;
-  createdAt: Date;
-  updatedAt: Date;
+  profileImageUrl?: string;
+  provider?: string; // OAuth provider
+  enabled: boolean;
+  authorities: Authority[];
+  addresses?: Address[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface Authority {
+  id: string;
+  authority: string; // Nombre del rol
 }
 
 export interface Address {
-  id?: number;
+  id?: string; // UUID en el backend
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
   street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
+  references?: string;
+  district: string;
+  province: string;
+  department: string;
+  postalCode?: string;
   isDefault?: boolean;
 }
 

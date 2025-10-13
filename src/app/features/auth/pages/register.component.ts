@@ -6,14 +6,13 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { ButtonComponent } from '../../../shared/components/button.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, ButtonComponent],
+  imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div
       class="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100"
@@ -63,7 +62,7 @@ import { ButtonComponent } from '../../../shared/components/button.component';
                     for="firstName"
                     class="block text-sm font-medium text-gray-700"
                   >
-                    Nombre
+                    Nombres
                   </label>
                   <input
                     id="firstName"
@@ -81,7 +80,7 @@ import { ButtonComponent } from '../../../shared/components/button.component';
                     for="lastName"
                     class="block text-sm font-medium text-gray-700"
                   >
-                    Apellido
+                    Apellidos
                   </label>
                   <input
                     id="lastName"
@@ -117,16 +116,23 @@ import { ButtonComponent } from '../../../shared/components/button.component';
                     for="phoneNumber"
                     class="block text-sm font-medium text-gray-700"
                   >
-                    Teléfono (opcional)
+                    Teléfono
                   </label>
                   <input
                     id="phoneNumber"
                     name="phoneNumber"
                     type="tel"
                     formControlName="phoneNumber"
+                    required
                     class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                     placeholder="+51 999 999 999"
                   />
+                  @if (registerForm.get('phoneNumber')?.invalid &&
+                  registerForm.get('phoneNumber')?.touched) {
+                  <p class="mt-1 text-sm text-red-600">
+                    El teléfono es requerido
+                  </p>
+                  }
                 </div>
 
                 <div>
@@ -208,10 +214,17 @@ import { ButtonComponent } from '../../../shared/components/button.component';
                 <p>
                   ¿Ya tienes una cuenta?
                   <a
+                    (click)="navigateToLogin()"
                     class="text-[#667eea] text-sm text-decoration-none cursor-pointer hover:text-[#3353e4]"
                     >Inicia sesión</a
                   >
                 </p>
+              </div>
+              <div class="text-center mt-4 text-[#6b7280] text-sm m-0">
+                  <u><a (click)="navigateToHome()"
+                    class="text-[#667eea] text-sm text-decoration-none cursor-pointer hover:text-[#3353e4]"
+                    >Volver al inicio</a
+                  ></u>
               </div>
             </form>
           </div>
@@ -256,7 +269,7 @@ export class RegisterComponent {
         firstName: ['', [Validators.required]],
         lastName: ['', [Validators.required]],
         email: ['', [Validators.required, Validators.email]],
-        phoneNumber: [''],
+        phoneNumber: ['', [Validators.required]],
         password: ['', [Validators.required, Validators.minLength(6)]],
         confirmPassword: ['', [Validators.required]],
       },
@@ -280,20 +293,90 @@ export class RegisterComponent {
       this.errorMessage = '';
 
       const { confirmPassword, ...registerData } = this.registerForm.value;
+      
+      // Asegurar que phoneNumber no sea undefined o vacío
+      if (!registerData.phoneNumber || registerData.phoneNumber.trim() === '') {
+        this.errorMessage = 'El número de teléfono es requerido';
+        this.isLoading = false;
+        return;
+      }
+
+      console.log('🔐 Register: Sending registration request:', registerData);
 
       this.authService.register(registerData).subscribe({
-        next: () => {
-          this.router.navigate(['/products']);
+        next: (response) => {
+          console.log('🔐 Register: Registration response:', response);
+          console.log('🔐 Register: Response code:', response.code);
+          console.log('🔐 Register: Response message:', response.message);
+          
+          if (response.code === 200) {
+            console.log('🔐 Register: Registration successful, redirecting to verify page');
+            console.log('🔐 Register: Email for verification:', registerData.email);
+            console.log('🔐 Register: Current auth status:', this.authService.isAuthenticated);
+            console.log('🔐 Register: Current user:', this.authService.currentUser);
+            
+            // Asegurar que no hay token guardado después del registro
+            this.authService.logout();
+            console.log('🔐 Register: Cleared any authentication after registration');
+            
+            // Usar setTimeout para asegurar que la navegación tenga prioridad
+            setTimeout(() => {
+              console.log('🔐 Register: Executing navigation to verify page');
+              // Redirigir a la página de verificación con el email
+              this.router.navigate(['/auth/verify'], {
+                queryParams: { 
+                  email: registerData.email,
+                  message: 'Hemos enviado un código de verificación a tu email. Por favor, revisa tu bandeja de entrada.' 
+                }
+              }).then(success => {
+                console.log('🔐 Register: Navigation result:', success);
+                if (success) {
+                  console.log('🔐 Register: Successfully navigated to verify page');
+                } else {
+                  console.error('🔐 Register: Navigation failed');
+                }
+              }).catch(error => {
+                console.error('🔐 Register: Navigation error:', error);
+              });
+            }, 100);
+          } else {
+            console.log('🔐 Register: Registration failed with response:', response);
+            this.errorMessage = response.message || 'Error al crear la cuenta';
+          }
         },
         error: (error: any) => {
-          this.errorMessage =
-            error.error?.message || 'Error al crear la cuenta';
+          console.error('🔐 Register: Registration error:', error);
+          if (error.error?.message) {
+            this.errorMessage = error.error.message;
+          } else if (error.status === 400) {
+            this.errorMessage = 'Los datos proporcionados no son válidos';
+          } else {
+            this.errorMessage = 'Error al conectar con el servidor';
+          }
           this.isLoading = false;
         },
         complete: () => {
           this.isLoading = false;
         },
       });
+    } else {
+      // Mostrar errores de validación
+      console.log('🔐 Register: Form is invalid:', this.registerForm.errors);
+      Object.keys(this.registerForm.controls).forEach(key => {
+        const control = this.registerForm.get(key);
+        if (control && control.invalid) {
+          console.log(`🔐 Register: Field ${key} is invalid:`, control.errors);
+          control.markAsTouched();
+        }
+      });
     }
+  }
+
+  navigateToLogin(): void {
+    this.router.navigate(['/auth/login']);
+  }
+
+  navigateToHome(): void {
+    this.router.navigate(['/inicio']);
   }
 }

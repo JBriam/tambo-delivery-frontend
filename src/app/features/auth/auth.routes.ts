@@ -15,6 +15,10 @@ export const AUTH_ROUTES: Routes = [
         loadComponent: () => import('./pages/register.component').then(c => c.RegisterComponent)
       },
       {
+        path: 'verify',
+        loadComponent: () => import('./pages/verify.component').then(c => c.VerifyComponent)
+      },
+      {
         path: '',
         redirectTo: 'login',
         pathMatch: 'full'

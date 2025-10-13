@@ -1,6 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ProductService } from '../../products/services/product.service';
+import { Product, Category } from '../../../models/product.model';
+import { CartService } from '../../../services/cart.service';
+import { ProductCardComponent } from '../../products/components/product-card.component';
+import { forkJoin } from 'rxjs';
 
 interface SliderImage {
   desktop: string;
@@ -8,10 +13,15 @@ interface SliderImage {
   alt: string;
 }
 
+interface CategoryProducts {
+  category: Category;
+  products: Product[];
+}
+
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, CommonModule],
+  imports: [CommonModule, RouterLink, ProductCardComponent],
   template: `
     <div class="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <!-- Slider -->
@@ -154,14 +164,78 @@ interface SliderImage {
               Descubre la mejor calidad y nuestras ofertas disponibles
             </p>
           </div>
-          <!-- Aquí puedes agregar un componente o código para mostrar productos destacados -->
-          <div
-            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-12"
-          ></div>
+          
+          <!-- Loading State -->
+          <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#a81b8d]"></div>
+          </div>
+
+          <!-- Error State -->
+          <div *ngIf="error && !isLoading" class="text-center py-12">
+            <div class="text-red-600 text-lg mb-4">
+              <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              {{ error }}
+            </div>
+            <button 
+              (click)="loadProducts()" 
+              class="bg-[#a81b8d] hover:bg-[#8a1674] text-white px-6 py-2 rounded-lg transition-colors"
+            >
+              Intentar de nuevo
+            </button>
+          </div>
+
+          <!-- Products by Category -->
+          <div *ngIf="!isLoading && !error && categoryProducts.length > 0">
+            <div *ngFor="let categoryData of categoryProducts; trackBy: trackByCategory" class="mb-16">
+              <!-- Category Header -->
+              <div class="flex justify-between items-center mb-8">
+                <div>
+                  <h3 class="text-2xl font-bold text-gray-800 mb-2">{{ categoryData.category.name }}</h3>
+                  <p *ngIf="categoryData.category.description" class="text-gray-600">{{ categoryData.category.description }}</p>
+                </div>
+                <button
+                  (click)="navigateToCategory(categoryData.category.id)"
+                  class="bg-[#a81b8d] hover:bg-[#8a1674] text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  Ver más
+                </button>
+              </div>
+              
+              <!-- Products Grid for Category -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+                <app-product-card
+                  *ngFor="let product of categoryData.products; trackBy: trackByProduct"
+                  [product]="product"
+                ></app-product-card>
+              </div>
+            </div>
+          </div>
+
+          <!-- No Products State -->
+          <div *ngIf="!isLoading && !error && categoryProducts.length === 0" class="text-center py-12">
+            <div class="text-gray-500 text-lg">
+              <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+              </svg>
+              No hay productos disponibles en este momento
+            </div>
+          </div>
+
+          <!-- Ver todos los productos -->
+          <div *ngIf="!isLoading && !error && categoryProducts.length > 0" class="text-center">
+            <button
+              [routerLink]="['/productos']"
+              class="bg-[#a81b8d] hover:bg-[#8a1674] text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              Ver todos los productos
+            </button>
+          </div>
         </div>
       </div>
       <!-- Features Section -->
-      <div class="py-16 lg:py-20">
+      <div class="py-16 lg:py-20 bg-gray-50">
         <div class="container mx-auto px-4">
           <div class="text-center mb-16">
             <h2 class="font-bold text-3xl lg:text-4xl text-center">
@@ -274,6 +348,16 @@ export class HomeComponent implements OnInit, OnDestroy {
   private autoPlayInterval: any;
   private readonly autoPlayDelay = 4000; // 4 segundos
 
+  // Estado de carga
+  isLoading = false;
+  error: string | null = null;
+  
+  // Productos destacados (solo del backend)
+  featuredProducts: Product[] = [];
+  
+  // Productos por categoría
+  categoryProducts: CategoryProducts[] = [];
+
   sliderImages: SliderImage[] = [
     {
       desktop: 'assets/slider/banner-01-desktop.webp',
@@ -307,14 +391,43 @@ export class HomeComponent implements OnInit, OnDestroy {
     },
   ];
 
+  constructor(
+    private productService: ProductService,
+    private cartService: CartService,
+    private router: Router
+  ) {}
+
   ngOnInit(): void {
     this.startAutoPlay();
+    this.loadProducts();
   }
 
   ngOnDestroy(): void {
     this.stopAutoPlay();
   }
 
+  loadProducts(): void {
+    console.log('[Home] Iniciando carga de productos por categorías...');
+    this.isLoading = true;
+    this.error = null;
+
+    // Cargar productos agrupados por categorías (6 productos por categoría)
+    this.productService.getProductsByCategories(6).subscribe({
+      next: (categoryProducts) => {
+        console.log('[Home] Productos por categorías cargados exitosamente:', categoryProducts);
+        this.categoryProducts = categoryProducts.filter(cp => cp.products.length > 0); // Solo mostrar categorías con productos
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('[Home] Error al cargar productos por categorías:', error);
+        this.error = 'Error al cargar los productos. Por favor, inténtelo de nuevo.';
+        this.categoryProducts = [];
+        this.isLoading = false;
+      }
+    });
+  }
+
+  // Métodos del slider
   nextSlide(): void {
     this.currentSlide = (this.currentSlide + 1) % this.sliderImages.length;
   }
@@ -350,5 +463,19 @@ export class HomeComponent implements OnInit, OnDestroy {
       clearInterval(this.autoPlayInterval);
       this.autoPlayInterval = null;
     }
+  }
+
+  // Navegación a categoría específica
+  navigateToCategory(categoryId: string): void {
+    this.router.navigate(['/productos'], { queryParams: { category: categoryId } });
+  }
+
+  // TrackBy functions para optimizar el rendering
+  trackByCategory(index: number, item: CategoryProducts): string {
+    return item.category.id;
+  }
+
+  trackByProduct(index: number, item: Product): string {
+    return item.id;
   }
 }
