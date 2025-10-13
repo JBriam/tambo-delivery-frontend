@@ -5,6 +5,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Product } from '../../../models/product.model';
 import { ButtonComponent } from '../../../shared/components/button.component';
 import { Utils } from '../../../utils/common.utils';
+import { ProductService } from '../services/product.service';
+import { CartService } from '../../../services/cart.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -15,6 +17,21 @@ import { Utils } from '../../../utils/common.utils';
       @if (isLoading) {
         <div class="flex justify-center items-center py-12">
           <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+        </div>
+      } @else if (error) {
+        <div class="text-center py-12">
+          <div class="text-red-600 text-lg mb-4">
+            <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            {{ error }}
+          </div>
+          <button 
+            (click)="ngOnInit()" 
+            class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition-colors"
+          >
+            Intentar de nuevo
+          </button>
         </div>
       } @else if (product) {
         <div class="max-w-6xl mx-auto">
@@ -42,7 +59,7 @@ import { Utils } from '../../../utils/common.utils';
             <div class="flex flex-col-reverse">
               <div class="aspect-w-1 aspect-h-1 w-full">
                 <img 
-                  [src]="product.imageUrl || ''" 
+                  [src]="product.thumbnail || ''" 
                   [alt]="product.name"
                   class="w-full h-full object-center object-cover sm:rounded-lg"
                 />
@@ -63,7 +80,7 @@ import { Utils } from '../../../utils/common.utils';
 
               <!-- Disponibilidad -->
               <div class="mt-6">
-                @if (product.isAvailable && product.stock > 0) {
+                @if (product.isActive && product.stock > 0) {
                   <div class="flex items-center">
                     <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
@@ -106,7 +123,7 @@ import { Utils } from '../../../utils/common.utils';
                     [(ngModel)]="selectedQuantity"
                     name="quantity"
                     class="max-w-full rounded-md border border-gray-300 py-1.5 text-base leading-5 font-medium text-gray-700 text-left shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    [disabled]="!product.isAvailable || product.stock === 0"
+                    [disabled]="!product.isActive || product.stock === 0"
                   >
                     @for (i of getQuantityOptions(); track i) {
                       <option [value]="i">{{ i }}</option>
@@ -119,7 +136,7 @@ import { Utils } from '../../../utils/common.utils';
                     text: 'Agregar al Carrito',
                     type: 'primary',
                     size: 'lg',
-                    disabled: !product.isAvailable || product.stock === 0
+                    disabled: !product.isActive || product.stock === 0
                   }"
                   (buttonClick)="addToCart()"
                   class="w-full"
@@ -160,51 +177,38 @@ export class ProductDetailComponent implements OnInit {
   product: Product | null = null;
   isLoading = true;
   selectedQuantity = 1;
-
-  // Datos de ejemplo - en producción vendría del servicio
-  private mockProducts: Product[] = [
-    {
-      id: 1,
-      name: 'Leche Gloria Entera',
-      description: 'Leche entera fresca, rica en calcio y proteínas. Ideal para toda la familia. Contiene vitaminas A y D. Pasteurizada y homogenizada para garantizar la máxima calidad y seguridad.',
-      price: 4.50,
-      imageUrl: '',
-      category: { id: 1, name: 'Lácteos' },
-      stock: 25,
-      isAvailable: true,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: 2,
-      name: 'Pan Integral',
-      description: 'Pan integral casero, perfecto para el desayuno. Hecho con harina integral 100% natural, sin conservantes artificiales. Rico en fibra y nutrientes.',
-      price: 3.20,
-      imageUrl: '',
-      category: { id: 2, name: 'Panadería' },
-      stock: 15,
-      isAvailable: true,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  ];
+  error: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private productService: ProductService,
+    private cartService: CartService
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.loadProduct(id);
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.loadProduct(id);
+    }
   }
 
-  loadProduct(id: number): void {
-    // Simular carga desde API
-    setTimeout(() => {
-      this.product = this.mockProducts.find(p => p.id === id) || null;
-      this.isLoading = false;
-    }, 500);
+  loadProduct(id: string): void {
+    this.isLoading = true;
+    this.error = null;
+    
+    this.productService.getProductBySlug(id).subscribe({
+      next: (product) => {
+        this.product = product;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading product:', error);
+        this.error = 'Error al cargar el producto. Por favor, inténtelo de nuevo.';
+        this.product = null;
+        this.isLoading = false;
+      }
+    });
   }
 
   getQuantityOptions(): number[] {
@@ -215,9 +219,11 @@ export class ProductDetailComponent implements OnInit {
 
   addToCart(): void {
     if (this.product) {
-      // TODO: Implementar lógica del carrito
-      console.log('Agregando al carrito:', { product: this.product, quantity: this.selectedQuantity });
-      alert(`${this.selectedQuantity} unidad(es) de ${this.product.name} agregado(s) al carrito`);
+      // Agregar la cantidad seleccionada al carrito
+      for (let i = 0; i < this.selectedQuantity; i++) {
+        this.cartService.addToCart(this.product);
+      }
+      console.log(`${this.selectedQuantity} unidad(es) de ${this.product.name} agregado(s) al carrito`);
     }
   }
 
