@@ -12,15 +12,14 @@ import { User } from '../../../models/user.model';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="p-6 bg-gray-50 min-h-screen">
-      <!-- Header -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-800">Dashboard Administrativo</h1>
-        <p class="text-gray-600">Panel de control para la gestión de Tambo Delivery</p>
-        @if (currentUser) {
-          <p class="text-sm text-[#a81b8d] mt-2">Bienvenido, {{ currentUser.firstName }} {{ currentUser.lastName }}</p>
-        }
-      </div>
+    <div class="p-6">
+      <!-- Welcome Message -->
+      @if (currentUser) {
+        <div class="mb-6">
+          <h1 class="text-2xl font-bold text-gray-800 mb-2">¡Bienvenido, {{ currentUser.firstName }}!</h1>
+          <p class="text-gray-600">Aquí tienes un resumen de la actividad de Tambo Delivery</p>
+        </div>
+      }
 
       <!-- Loading state -->
       @if (isLoading) {
@@ -31,7 +30,7 @@ import { User } from '../../../models/user.model';
 
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div class="flex items-center">
             <div class="p-3 rounded-full bg-blue-100 mr-4">
               <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,12 +39,12 @@ import { User } from '../../../models/user.model';
             </div>
             <div>
               <p class="text-2xl font-bold text-gray-800">{{ stats.ordersToday }}</p>
-              <p class="text-gray-600">Pedidos Hoy</p>
+              <p class="text-gray-600 text-sm">Pedidos Hoy</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div class="flex items-center">
             <div class="p-3 rounded-full bg-green-100 mr-4">
               <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,12 +53,12 @@ import { User } from '../../../models/user.model';
             </div>
             <div>
               <p class="text-2xl font-bold text-gray-800">S/. {{ stats.salesToday.toLocaleString() }}</p>
-              <p class="text-gray-600">Ventas Hoy</p>
+              <p class="text-gray-600 text-sm">Ventas Hoy</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div class="flex items-center">
             <div class="p-3 rounded-full bg-purple-100 mr-4">
               <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,12 +67,12 @@ import { User } from '../../../models/user.model';
             </div>
             <div>
               <p class="text-2xl font-bold text-gray-800">{{ stats.totalUsers.toLocaleString() }}</p>
-              <p class="text-gray-600">Clientes</p>
+              <p class="text-gray-600 text-sm">Clientes</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div class="flex items-center">
             <div class="p-3 rounded-full bg-yellow-100 mr-4">
               <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,7 +81,7 @@ import { User } from '../../../models/user.model';
             </div>
             <div>
               <p class="text-2xl font-bold text-gray-800">{{ stats.totalProducts }}</p>
-              <p class="text-gray-600">Productos</p>
+              <p class="text-gray-600 text-sm">Productos</p>
             </div>
           </div>
         </div>
@@ -91,53 +90,53 @@ import { User } from '../../../models/user.model';
       <!-- Quick Actions -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <div class="lg:col-span-2">
-          <div class="bg-white p-6 rounded-lg shadow-md">
+          <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Acciones Rápidas</h2>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <button (click)="navigateToProducts()" class="p-4 text-center border rounded-lg hover:bg-gray-50 transition">
-                <div class="text-blue-600 mb-2">📦</div>
-                <p class="text-sm font-medium">Gestionar Productos</p>
+              <button (click)="navigateToProducts()" class="p-4 text-center border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#a81b8d] transition-all duration-200">
+                <div class="text-2xl mb-2">📦</div>
+                <p class="text-sm font-medium text-gray-700">Gestionar Productos</p>
               </button>
-              <button (click)="navigateToOrders()" class="p-4 text-center border rounded-lg hover:bg-gray-50 transition">
-                <div class="text-green-600 mb-2">📋</div>
-                <p class="text-sm font-medium">Ver Pedidos</p>
+              <button (click)="navigateToOrders()" class="p-4 text-center border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#a81b8d] transition-all duration-200">
+                <div class="text-2xl mb-2">📋</div>
+                <p class="text-sm font-medium text-gray-700">Ver Pedidos</p>
               </button>
-              <button (click)="navigateToUsers()" class="p-4 text-center border rounded-lg hover:bg-gray-50 transition">
-                <div class="text-purple-600 mb-2">👥</div>
-                <p class="text-sm font-medium">Gestionar Usuarios</p>
+              <button (click)="navigateToUsers()" class="p-4 text-center border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#a81b8d] transition-all duration-200">
+                <div class="text-2xl mb-2">👥</div>
+                <p class="text-sm font-medium text-gray-700">Gestionar Usuarios</p>
               </button>
-              <a href="#" class="p-4 text-center border rounded-lg hover:bg-gray-50 transition">
-                <div class="text-yellow-600 mb-2">📊</div>
-                <p class="text-sm font-medium">Reportes</p>
-              </a>
+              <button class="p-4 text-center border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#a81b8d] transition-all duration-200">
+                <div class="text-2xl mb-2">📊</div>
+                <p class="text-sm font-medium text-gray-700">Reportes</p>
+              </button>
             </div>
           </div>
         </div>
 
         <div>
-          <div class="bg-white p-6 rounded-lg shadow-md">
+          <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Pedidos Recientes</h2>
             <div class="space-y-3">
               <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
                 <div>
-                  <p class="font-medium">#12345</p>
+                  <p class="font-medium text-gray-800">#12345</p>
                   <p class="text-sm text-gray-600">Juan Pérez</p>
                 </div>
-                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs">Pendiente</span>
+                <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">Pendiente</span>
               </div>
               <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
                 <div>
-                  <p class="font-medium">#12344</p>
+                  <p class="font-medium text-gray-800">#12344</p>
                   <p class="text-sm text-gray-600">Ana García</p>
                 </div>
-                <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">Completado</span>
+                <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Completado</span>
               </div>
               <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
                 <div>
-                  <p class="font-medium">#12343</p>
+                  <p class="font-medium text-gray-800">#12343</p>
                   <p class="text-sm text-gray-600">Carlos López</p>
                 </div>
-                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">En proceso</span>
+                <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">En proceso</span>
               </div>
             </div>
           </div>
@@ -145,34 +144,34 @@ import { User } from '../../../models/user.model';
       </div>
 
       <!-- Recent Activity -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
+      <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Actividad Reciente</h2>
         <div class="space-y-3">
-          <div class="flex items-center p-3 border-l-4 border-blue-500 bg-blue-50">
-            <div class="mr-3">
+          <div class="flex items-start p-4 border-l-4 border-blue-500 bg-blue-50 rounded-r">
+            <div class="mr-3 mt-1">
               <span class="w-2 h-2 bg-blue-500 rounded-full inline-block"></span>
             </div>
             <div>
-              <p class="text-sm"><strong>Nuevo pedido:</strong> Juan Pérez realizó un pedido por S/. 85.50</p>
-              <p class="text-xs text-gray-500">Hace 5 minutos</p>
+              <p class="text-sm text-gray-800"><strong>Nuevo pedido:</strong> Juan Pérez realizó un pedido por S/. 85.50</p>
+              <p class="text-xs text-gray-500 mt-1">Hace 5 minutos</p>
             </div>
           </div>
-          <div class="flex items-center p-3 border-l-4 border-green-500 bg-green-50">
-            <div class="mr-3">
+          <div class="flex items-start p-4 border-l-4 border-green-500 bg-green-50 rounded-r">
+            <div class="mr-3 mt-1">
               <span class="w-2 h-2 bg-green-500 rounded-full inline-block"></span>
             </div>
             <div>
-              <p class="text-sm"><strong>Producto añadido:</strong> "Leche Deslactosada 1L" fue agregado al catálogo</p>
-              <p class="text-xs text-gray-500">Hace 15 minutos</p>
+              <p class="text-sm text-gray-800"><strong>Producto añadido:</strong> "Leche Deslactosada 1L" fue agregado al catálogo</p>
+              <p class="text-xs text-gray-500 mt-1">Hace 15 minutos</p>
             </div>
           </div>
-          <div class="flex items-center p-3 border-l-4 border-yellow-500 bg-yellow-50">
-            <div class="mr-3">
+          <div class="flex items-start p-4 border-l-4 border-yellow-500 bg-yellow-50 rounded-r">
+            <div class="mr-3 mt-1">
               <span class="w-2 h-2 bg-yellow-500 rounded-full inline-block"></span>
             </div>
             <div>
-              <p class="text-sm"><strong>Stock bajo:</strong> "Pan Integral" tiene menos de 10 unidades</p>
-              <p class="text-xs text-gray-500">Hace 30 minutos</p>
+              <p class="text-sm text-gray-800"><strong>Stock bajo:</strong> "Pan Integral" tiene menos de 10 unidades</p>
+              <p class="text-xs text-gray-500 mt-1">Hace 30 minutos</p>
             </div>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { AdminGuard } from '../../core/guards/admin.guard';
 export const ADMIN_ROUTES: Routes = [
   {
     path: '',
+    loadComponent: () => import('../../layout/admin-layout/admin-layout.component').then(c => c.AdminLayoutComponent),
     canActivate: [AdminGuard], // Solo administradores
     children: [
       {
@@ -21,11 +22,11 @@ export const ADMIN_ROUTES: Routes = [
       {
         path: 'orders',
         loadComponent: () => import('./pages/orders-management.component').then(c => c.OrdersManagementComponent)
-      }/*,
+      },
       {
         path: 'users',
         loadComponent: () => import('./pages/users-management.component').then(c => c.UsersManagementComponent)
-      }*/
+      }
     ]
   }
 ];

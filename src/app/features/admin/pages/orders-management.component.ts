@@ -18,20 +18,14 @@ interface OrderDisplay extends Order {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="p-6 bg-gray-50 min-h-screen">
+    <div class="p-6">
       <!-- Header -->
       <div class="flex justify-between items-center mb-8">
         <div>
-          <h1 class="text-3xl font-bold text-gray-800">Gestión de Pedidos</h1>
+          <h1 class="text-2xl font-bold text-gray-800">Gestión de Pedidos</h1>
           <p class="text-gray-600">Administra todos los pedidos de Tambo Delivery</p>
         </div>
         <div class="flex gap-3">
-          <button
-            (click)="goBack()"
-            class="px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            ← Volver
-          </button>
           <button
             (click)="refreshOrders()"
             class="px-4 py-2 text-[#a81b8d] bg-white border border-[#a81b8d] rounded-lg hover:bg-[#a81b8d] hover:text-white transition-colors"

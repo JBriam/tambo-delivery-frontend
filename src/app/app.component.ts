@@ -21,8 +21,8 @@ export class AppComponent {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        // Ocultar header/footer en rutas de auth
-        this.showLayout = !event.url.startsWith('/auth');
+        // Ocultar header/footer en rutas de auth y admin
+        this.showLayout = !event.url.startsWith('/auth') && !event.url.startsWith('/admin');
       });
   }
 }
