@@ -53,8 +53,7 @@ export const API_ENDPOINTS = {
     PRODUCT_SECTIONS: '/admin/product-section',
     
     // Usuarios
-    USERS: '/admin/user',
-    USERS_ALL: '/admin/user/get-all',
+    USERS: '/admin/users',
     
     // Pedidos
     ORDERS: '/admin/orders',
