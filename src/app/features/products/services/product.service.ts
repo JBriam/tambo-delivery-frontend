@@ -233,7 +233,7 @@ export class ProductService {
    */
   updateBrand(brandId: string, brandData: { name: string; description?: string; imageUrl?: string }): Observable<Brand> {
     return this.http.put<Brand>(
-      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.BRANDS}/${brandId}`,
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.BRAND_UPDATE}/${brandId}`,
       brandData
     ).pipe(
       catchError(this.handleError)
@@ -245,7 +245,7 @@ export class ProductService {
    */
   deleteBrand(brandId: string): Observable<any> {
     return this.http.delete(
-      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.BRANDS}/${brandId}`
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.BRAND_DELETE}/${brandId}`
     ).pipe(
       catchError(this.handleError)
     );

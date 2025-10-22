@@ -6,11 +6,15 @@ import { Subscription } from 'rxjs';
 import { ProductService } from '../../products/services/product.service';
 import { Brand } from '../../../models/brand.model';
 import { ButtonComponent } from '../../../shared/components/button.component';
+import { BrandModalComponent } from '../components/brand-modal.component';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal.component';
+import { ToastComponent } from '../../../shared/components/toast.component';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-brands-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, BrandModalComponent, ConfirmModalComponent, ToastComponent],
   template: `
     <div class="p-6">
       <!-- Header -->
@@ -99,6 +103,12 @@ import { ButtonComponent } from '../../../shared/components/button.component';
                         >
                           Editar
                         </button>
+                        <button
+                          (click)="onDeleteBrand(brand.id)"
+                          class="text-red-600 hover:text-red-900"
+                        >
+                          Eliminar
+                        </button>
                       </td>
                     </tr>
                   }
@@ -109,6 +119,30 @@ import { ButtonComponent } from '../../../shared/components/button.component';
         </div>
       }
     </div>
+
+    <!-- Brand Modal -->
+    <app-brand-modal
+      [isOpen]="isModalOpen"
+      [mode]="modalMode"
+      [brand]="selectedBrand"
+      (closeModal)="closeModal()"
+      (saveBrand)="onSaveBrand($event)"
+    />
+
+    <!-- Delete Confirmation Modal -->
+    <app-confirm-modal
+      [isOpen]="isDeleteModalOpen"
+      type="danger"
+      [title]="getDeleteTitle()"
+      [message]="getDeleteMessage()"
+      confirmText="Sí, eliminar"
+      cancelText="Cancelar"
+      (confirm)="confirmDelete()"
+      (cancel)="cancelDelete()"
+    />
+
+    <!-- Toast Notifications -->
+    <app-toast />
   `
 })
 export class BrandsManagementComponent implements OnInit, OnDestroy {
@@ -120,11 +154,21 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
   searchTerm = '';
   selectedStatus = '';
   
+  // Modal
+  isModalOpen = false;
+  modalMode: 'create' | 'edit' = 'create';
+  selectedBrand: Brand | null = null;
+  
+  // Delete Modal
+  isDeleteModalOpen = false;
+  brandToDelete: Brand | null = null;
+  
   private subscriptions: Subscription[] = [];
 
   constructor(
     private productService: ProductService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -177,16 +221,151 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
    * Abre el modal para crear una nueva marca
    */
   openCreateBrandModal(): void {
-    // TODO: Implementar modal de creación de marca
-    alert('Funcionalidad de crear marca en desarrollo');
+    this.modalMode = 'create';
+    this.selectedBrand = null;
+    this.isModalOpen = true;
   }
 
   /**
    * Edita una marca existente
    */
   editBrand(brand: Brand): void {
-    // TODO: Implementar modal de edición de marca
-    alert(`Editar marca: ${brand.name}`);
+    this.modalMode = 'edit';
+    this.selectedBrand = { ...brand };
+    this.isModalOpen = true;
+  }
+
+  /**
+   * Cierra el modal
+   */
+  closeModal(): void {
+    this.isModalOpen = false;
+    this.selectedBrand = null;
+  }
+
+  /**
+   * Guarda o actualiza una marca
+   */
+  onSaveBrand(brand: Brand): void {
+    if (this.modalMode === 'create') {
+      this.createBrand(brand);
+    } else {
+      this.updateBrand(brand);
+    }
+  }
+
+  /**
+   * Crea una nueva marca
+   */
+  private createBrand(brand: Brand): void {
+    this.subscriptions.push(
+      this.productService.createBrand(brand).subscribe({
+        next: (newBrand) => {
+          this.closeModal();
+          this.toastService.success(`Marca "${brand.name}" creada exitosamente`);
+          this.loadBrands();
+        },
+        error: (error) => {
+          console.error('Error al crear marca:', error);
+          this.toastService.error('Error al crear la marca. Por favor, intenta nuevamente.');
+          // ✅ Cerrar y reabrir el modal para resetear isSubmitting
+          this.closeModal();
+          setTimeout(() => {
+            this.modalMode = 'create';
+            this.selectedBrand = brand;
+            this.isModalOpen = true;
+          }, 100);
+        }
+      })
+    );
+  }
+
+  /**
+   * Actualiza una marca existente
+   */
+  private updateBrand(brand: Brand): void {
+    this.subscriptions.push(
+      this.productService.updateBrand(brand.id, brand).subscribe({
+        next: (updatedBrand) => {
+          this.closeModal();
+          this.toastService.success(`Marca "${brand.name}" actualizada exitosamente`);
+          this.loadBrands();
+        },
+        error: (error) => {
+          console.error('Error al actualizar marca:', error);
+          this.toastService.error('Error al actualizar la marca. Por favor, intenta nuevamente.');
+          // ✅ Cerrar y reabrir el modal para resetear isSubmitting
+          this.closeModal();
+          setTimeout(() => {
+            this.modalMode = 'edit';
+            this.selectedBrand = brand;
+            this.isModalOpen = true;
+          }, 100);
+        }
+      })
+    );
+  }
+
+  /**
+   * Abre el modal de confirmación de eliminación
+   */
+  onDeleteBrand(brandId: string): void {
+    const brand = this.brands.find(b => b.id === brandId);
+    if (brand) {
+      this.brandToDelete = brand;
+      this.isDeleteModalOpen = true;
+    }
+  }
+
+  /**
+   * Confirma la eliminación de la marca
+   */
+  confirmDelete(): void {
+    if (!this.brandToDelete) return;
+
+    const brandId = this.brandToDelete.id;
+    const brandName = this.brandToDelete.name;
+    
+    this.subscriptions.push(
+      this.productService.deleteBrand(brandId).subscribe({
+        next: () => {
+          this.brands = this.brands.filter(b => b.id !== brandId);
+          this.applyFilters();
+          this.cancelDelete();
+          this.toastService.success(`Marca "${brandName}" eliminada exitosamente`);
+        },
+        error: (error) => {
+          console.error('Error al eliminar marca:', error);
+          this.toastService.error('Error al eliminar la marca. Por favor, intenta nuevamente.');
+          this.cancelDelete();
+        }
+      })
+    );
+  }
+
+  /**
+   * Cancela la eliminación y cierra el modal
+   */
+  cancelDelete(): void {
+    this.isDeleteModalOpen = false;
+    this.brandToDelete = null;
+  }
+
+  /**
+   * Obtiene el título del modal de eliminación
+   */
+  getDeleteTitle(): string {
+    return '¿Eliminar marca?';
+  }
+
+  /**
+   * Obtiene el mensaje del modal de eliminación
+   */
+  getDeleteMessage(): string {
+    if (this.brandToDelete) {
+      return `¿Estás seguro de que deseas eliminar la marca "${this.brandToDelete.name}"? Esta acción no se puede deshacer.`;
+    }
+    return 'Esta acción no se puede deshacer.';
   }
 
   /**
