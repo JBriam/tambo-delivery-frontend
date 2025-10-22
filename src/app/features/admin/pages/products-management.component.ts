@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { ProductService } from '../../../features/products/services/product.service';
+import { ProductService, CreateProductRequest, UpdateProductRequest } from '../../../features/products/services/product.service';
 import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
 import { ButtonComponent } from '../../../shared/components/button.component';
