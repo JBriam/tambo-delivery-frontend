@@ -16,6 +16,10 @@ export const ADMIN_ROUTES: Routes = [
         loadComponent: () => import('./pages/dashboard.component').then(c => c.DashboardComponent)
       },
       {
+        path: 'brands',
+        loadComponent: () => import('./pages/brands-management.component').then(c => c.BrandsManagementComponent)
+      },
+      {
         path: 'products',
         loadComponent: () => import('./pages/products-management.component').then(c => c.ProductsManagementComponent)
       },

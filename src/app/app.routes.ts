@@ -6,13 +6,13 @@ export const routes: Routes = [
   // Ruta principal - redirige a productos
   {
     path: '',
-    redirectTo: '/inicio',
+    redirectTo: '/home',
     pathMatch: 'full'
   },
   
   // Ruta del home (lazy loading)
   {
-    path: 'inicio',
+    path: 'home',
     loadChildren: () => import('./features/home/home.routes').then(r => r.HOME_ROUTES)
   },
 
@@ -22,7 +22,7 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/pages/login.component').then(c => c.LoginComponent)
   },
   {
-    path: 'auth/registro',
+    path: 'auth/register',
     loadComponent: () => import('./features/auth/pages/register.component').then(c => c.RegisterComponent)
   },
   {
@@ -37,27 +37,27 @@ export const routes: Routes = [
   
   // Rutas de productos (lazy loading)
   {
-    path: 'productos',
+    path: 'products',
     loadChildren: () => import('./features/products/products.routes').then(r => r.PRODUCTS_ROUTES)
   },
   
   // Rutas de carrito de compras
   {
-    path: 'carrito',
+    path: 'cart',
     loadChildren: () => import('./features/shopping-cart/shopping-cart.routes').then(r => r.CART_ROUTES),
     //canActivate: [AuthGuard]
   },
   
   // Rutas de pedidos
   {
-    path: 'pedidos',
+    path: 'orders',
     loadChildren: () => import('./features/orders/orders.routes').then(r => r.ORDERS_ROUTES),
     canActivate: [AuthGuard]
   },
   
   // Rutas de perfil de usuario
   {
-    path: 'perfil',
+    path: 'profile',
     loadChildren: () => import('./features/user-profile/user-profile.routes').then(r => r.PROFILE_ROUTES),
     canActivate: [AuthGuard]
   },
@@ -77,7 +77,7 @@ export const routes: Routes = [
 
   // Rutas directas para páginas del footer (acceso directo con URLs limpias)
   {
-    path: 'legales',
+    path: 'legals',
     loadComponent: () => import('./features/about-us/pages/legales.component').then(c => c.LegalesComponent)
   },
   // TODO: Agregar estas rutas cuando crees los componentes:
