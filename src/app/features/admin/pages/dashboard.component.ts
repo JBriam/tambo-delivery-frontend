@@ -258,6 +258,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Navega a la gestión de marcas
+   */
+  navigateToBrands(): void {
+    this.router.navigate(['/admin/brands']);
+  }
+
+  /**
    * Navega a la gestión de órdenes
    */
   navigateToOrders(): void {

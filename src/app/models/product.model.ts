@@ -1,3 +1,6 @@
+import { Category, CategoryType } from './category.model';
+import { Brand } from './brand.model';
+
 export interface Product {
   id: string; // UUID en el backend
   slug: string;
@@ -16,35 +19,6 @@ export interface Product {
   categoryType: CategoryType;
   createdAt?: Date;
   updatedAt?: Date;
-}
-
-export interface Brand {
-  id: string;
-  name: string;
-  description?: string;
-  imageUrl?: string;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  description?: string;
-  imageUrl?: string;
-}
-
-export interface CategoryType {
-  id: string;
-  name: string;
-  description?: string;
-  imageUrl?: string;
-}
-
-export interface ProductSection {
-  id: string;
-  title: string;
-  description?: string;
-  imageUrl?: string;
-  slug?: string;
 }
 
 // Para el carrito de compras
