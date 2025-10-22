@@ -15,9 +15,22 @@ import {
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="p-6">
-      <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-800 mb-2">Gestión de Usuarios</h1>
-        <p class="text-gray-600">Administra los usuarios registrados en la plataforma</p>
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800 mb-2">Gestión de Usuarios</h1>
+          <p class="text-gray-600">Administra los usuarios registrados en la plataforma</p>
+        </div>
+        <div class="flex gap-3">
+          <app-button
+            [config]="{
+              text: 'Añadir Usuario',
+              type: 'primary',
+              size: 'md'
+            }"
+            (buttonClick)="openCreateUserModal()"
+          />
+        </div>
       </div>
 
       <!-- Actions Bar -->
@@ -290,6 +303,95 @@ import {
           </div>
         </div>
       </div>
+
+      <!-- Loading -->
+      @if (isLoading) {
+        <div class="flex justify-center items-center py-12">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#a81b8d]"></div>
+        </div>
+      } @else {
+        <!-- Users Table -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    N°
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Nombres completos
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Correo electrónico
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Teléfono
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Estado
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                @if (filteredUsers.length === 0) {
+                  <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                      @if (searchTerm || selectedStatus) {
+                        No se encontraron usuarios que coincidan con los filtros
+                      } @else {
+                        No hay usuarios disponibles
+                      }
+                    </td>
+                  </tr>
+                } @else {
+                  @for (user of filteredUsers; track user.email; let i = $index) {
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ i + 1 }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ user.firstName }} {{ user.lastName }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ user.email }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ user.phoneNumber || 'N/A' }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span 
+                          class="px-2 py-1 text-xs font-medium rounded-full"
+                          [class]="user.enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                        >
+                          {{ user.enabled ? 'Activo' : 'Inactivo' }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        <button
+                          (click)="editUser(user)"
+                          class="text-indigo-600 hover:text-indigo-900"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          (click)="toggleUserStatus(user)"
+                          [class]="user.enabled ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'"
+                        >
+                          {{ user.enabled ? 'Desactivar' : 'Activar' }}
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
     </div>
   `,
   styles: []

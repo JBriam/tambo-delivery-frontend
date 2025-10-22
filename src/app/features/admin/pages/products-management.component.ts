@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ProductService } from '../../../features/products/services/product.service';
-import { Product, Category } from '../../../models/product.model';
+import { Product } from '../../../models/product.model';
+import { Category } from '../../../models/category.model';
 import { ButtonComponent } from '../../../shared/components/button.component';
 
 @Component({
@@ -40,14 +41,14 @@ import { ButtonComponent } from '../../../shared/components/button.component';
               [(ngModel)]="searchTerm"
               (input)="applyFilters()"
               placeholder="Buscar productos..."
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
+              class="w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
             />
           </div>
           <div>
             <select
               [(ngModel)]="selectedCategoryId"
               (change)="applyFilters()"
-              class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
+              class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
             >
               <option value="">Todas las categorías</option>
               @for (category of categories; track category.id) {
@@ -59,7 +60,7 @@ import { ButtonComponent } from '../../../shared/components/button.component';
             <select
               [(ngModel)]="selectedStatus"
               (change)="applyFilters()"
-              class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
+              class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
             >
               <option value="">Todos los estados</option>
               <option value="active">Activos</option>

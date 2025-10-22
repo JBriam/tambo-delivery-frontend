@@ -2,7 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError, forkJoin } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { Product, ProductFilter, Brand, Category, CategoryType, ProductSection } from '../../../models/product.model';
+import { Product, ProductFilter } from '../../../models/product.model';
+import { ProductSection } from '../../../models/product-section.model';
+import { Category, CategoryType } from '../../../models/category.model';
+import { Brand } from '../../../models/brand.model';
 import { API_ENDPOINTS } from '../../../constants/app.constants';
 
 // DTOs para el backend Spring Boot
@@ -207,7 +210,7 @@ export class ProductService {
    */
   getAllBrands(): Observable<Brand[]> {
     return this.http.get<Brand[]>(
-      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.BRANDS_ALL}`
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.BRANDS}`
     ).pipe(
       catchError(this.handleError)
     );
@@ -218,7 +221,7 @@ export class ProductService {
    */
   createBrand(brandData: { name: string; description?: string; imageUrl?: string }): Observable<Brand> {
     return this.http.post<Brand>(
-      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.BRANDS}`,
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.BRAND_CREATE}`,
       brandData
     ).pipe(
       catchError(this.handleError)

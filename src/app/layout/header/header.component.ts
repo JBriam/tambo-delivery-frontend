@@ -6,7 +6,8 @@ import { Subscription, debounceTime, distinctUntilChanged, Subject } from 'rxjs'
 import { AuthService } from '../../core/services/auth.service';
 import { ProductService } from '../../features/products/services/product.service';
 import { CartService } from '../../services/cart.service';
-import { Category, Product } from '../../models/product.model';
+import { Product } from '../../models/product.model';
+import { Category } from '../../models/category.model';
 
 @Component({
   selector: 'app-header',
