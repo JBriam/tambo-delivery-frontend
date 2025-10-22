@@ -54,6 +54,9 @@ export const API_ENDPOINTS = {
     
     // Usuarios
     USERS: '/admin/users',
+    USERS_CREATE: '/admin/users/create',
+    USERS_UPDATE: '/admin/users/update', // Requiere /{email}
+    USERS_BY_EMAIL: '/admin/users', // Requiere /{email}
     
     // Pedidos
     ORDERS: '/admin/orders',
