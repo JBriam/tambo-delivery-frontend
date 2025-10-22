@@ -41,6 +41,8 @@ export const API_ENDPOINTS = {
     // Marcas
     BRANDS: '/admin/brand/get-all',
     BRAND_CREATE: '/admin/brand/create',
+    BRAND_UPDATE: '/admin/brand/update',
+    BRAND_DELETE: '/admin/brand/delete',
     
     // Categorías
     CATEGORIES: '/admin/category',
