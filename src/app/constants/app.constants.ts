@@ -39,8 +39,8 @@ export const API_ENDPOINTS = {
   // Panel de administración (AdminController)
   ADMIN: {
     // Marcas
-    BRANDS: '/admin/brand',
-    BRANDS_ALL: '/admin/brand/get-all',
+    BRANDS: '/admin/brand/get-all',
+    BRAND_CREATE: '/admin/brand/create',
     
     // Categorías
     CATEGORIES: '/admin/category',
@@ -53,8 +53,10 @@ export const API_ENDPOINTS = {
     PRODUCT_SECTIONS: '/admin/product-section',
     
     // Usuarios
-    USERS: '/admin/user',
-    USERS_ALL: '/admin/user/get-all',
+    USERS: '/admin/users',
+    USERS_CREATE: '/admin/users/create',
+    USERS_UPDATE: '/admin/users/update', // Requiere /{email}
+    USERS_BY_EMAIL: '/admin/users', // Requiere /{email}
     
     // Pedidos
     ORDERS: '/admin/orders',

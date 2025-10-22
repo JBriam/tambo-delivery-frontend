@@ -59,6 +59,18 @@ import { User } from '../../models/user.model';
                 Usuarios
               </a>
             </li>
+
+            <li>
+              <a 
+                (click)="navigateTo('/admin/brands')"
+                [class]="getNavItemClass('/admin/brands')"
+                class="flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer transition-colors duration-150">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                </svg>
+                Marcas
+              </a>
+            </li>
             
             <li>
               <a 
@@ -199,6 +211,7 @@ export class AdminLayoutComponent implements OnInit {
       '/admin': 'Dashboard',
       '/admin/dashboard': 'Dashboard',
       '/admin/users': 'Gestión de Usuarios',
+      '/admin/brands': 'Gestión de Marcas',
       '/admin/products': 'Gestión de Productos',
       '/admin/orders': 'Gestión de Pedidos',
       '/perfil': 'Mi Perfil'
