@@ -258,7 +258,7 @@ export class ProductService {
    */
   getAllCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(
-      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORIES_ALL}`
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORIES}`
     ).pipe(
       catchError(this.handleError)
     );
@@ -269,7 +269,7 @@ export class ProductService {
    */
   createCategory(categoryData: { name: string; description?: string; imageUrl?: string }): Observable<Category> {
     return this.http.post<Category>(
-      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORIES}`,
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_CREATE}`,
       categoryData
     ).pipe(
       catchError(this.handleError)
@@ -281,7 +281,7 @@ export class ProductService {
    */
   updateCategory(categoryId: string, categoryData: { name: string; description?: string; imageUrl?: string }): Observable<Category> {
     return this.http.put<Category>(
-      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORIES}/${categoryId}`,
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_UPDATE}/${categoryId}`,
       categoryData
     ).pipe(
       catchError(this.handleError)
@@ -293,7 +293,7 @@ export class ProductService {
    */
   deleteCategory(categoryId: string): Observable<any> {
     return this.http.delete(
-      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORIES}/${categoryId}`
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_DELETE}/${categoryId}`
     ).pipe(
       catchError(this.handleError)
     );

@@ -651,12 +651,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
               
               // Si ambos fallan, usar categorías por defecto
               console.log('🏠 Header: Using fallback categories');
-              this.categories = this.getFallbackCategories();
+              // this.categories = this.getFallbackCategories();
             }
           });
         } else {
           console.log('🏠 Header: User not authenticated, using fallback categories');
-          this.categories = this.getFallbackCategories();
+          // this.categories = this.getFallbackCategories();
         }
       }
     });
@@ -665,34 +665,34 @@ export class HeaderComponent implements OnInit, OnDestroy {
   /**
    * Obtiene categorías por defecto cuando no se pueden cargar desde el backend
    */
-  private getFallbackCategories(): Category[] {
-    return [
-      {
-        id: '1',
-        name: 'Bebidas',
-        description: 'Refrescos, jugos y más',
-        imageUrl: 'assets/categories/bebidas.webp'
-      },
-      {
-        id: '2',  
-        name: 'Comidas',
-        description: 'Snacks y comidas preparadas',
-        imageUrl: 'assets/categories/comidas.webp'
-      },
-      {
-        id: '3',
-        name: 'Despensa',
-        description: 'Productos de despensa',
-        imageUrl: 'assets/categories/despensa.webp'
-      },
-      {
-        id: '4',
-        name: 'Helados',
-        description: 'Helados y postres fríos',
-        imageUrl: 'assets/categories/helados.webp'
-      }
-    ];
-  }
+  // private getFallbackCategories(): Category[] {
+  //   return [
+  //     {
+  //       id: '1',
+  //       name: 'Bebidas',
+  //       description: 'Refrescos, jugos y más',
+  //       imageUrl: 'assets/categories/bebidas.webp'
+  //     },
+  //     {
+  //       id: '2',  
+  //       name: 'Comidas',
+  //       description: 'Snacks y comidas preparadas',
+  //       imageUrl: 'assets/categories/comidas.webp'
+  //     },
+  //     {
+  //       id: '3',
+  //       name: 'Despensa',
+  //       description: 'Productos de despensa',
+  //       imageUrl: 'assets/categories/despensa.webp'
+  //     },
+  //     {
+  //       id: '4',
+  //       name: 'Helados',
+  //       description: 'Helados y postres fríos',
+  //       imageUrl: 'assets/categories/helados.webp'
+  //     }
+  //   ];
+  // }
 
   /**
    * Alterna el dropdown de categorías

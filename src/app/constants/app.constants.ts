@@ -45,9 +45,10 @@ export const API_ENDPOINTS = {
     BRAND_DELETE: '/admin/brand/delete',
     
     // Categorías
-    CATEGORIES: '/admin/category',
-    CATEGORIES_ALL: '/admin/category/get-all',
-    CATEGORY_BUTTONS: '/admin/category-button',
+    CATEGORIES: '/admin/category/get-all',
+    CATEGORY_CREATE: '/admin/category/create',
+    CATEGORY_UPDATE: '/admin/category/update',
+    CATEGORY_DELETE: '/admin/category/delete',
     
     // Productos
     PRODUCTS: '/admin/product',

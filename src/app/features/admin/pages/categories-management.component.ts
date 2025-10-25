@@ -4,33 +4,33 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ProductService } from '../../products/services/product.service';
-import { Brand } from '../../../models/brand.model';
+import { Category } from '../../../models/category.model';
 import { ButtonComponent } from '../../../shared/components/button.component';
-import { BrandModalComponent } from '../components/brand-modal.component';
+import { CategoryModalComponent } from '../components/category-modal.component';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal.component';
 import { ToastComponent } from '../../../shared/components/toast.component';
 import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
-  selector: 'app-brands-management',
+  selector: 'app-categories-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent, BrandModalComponent, ConfirmModalComponent, ToastComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, CategoryModalComponent, ConfirmModalComponent, ToastComponent],
   template: `
     <div class="p-6">
       <!-- Header -->
       <div class="flex justify-between items-center mb-8">
         <div>
-          <h1 class="text-2xl font-bold text-gray-800">Gestión de Marcas</h1>
-          <p class="text-gray-600">Administra el catálogo de marcas de Tambo Delivery</p>
+          <h1 class="text-2xl font-bold text-gray-800">Gestión de Categorías</h1>
+          <p class="text-gray-600">Administra el catálogo de categorías de Tambo Delivery</p>
         </div>
         <div class="flex gap-3">
           <app-button
             [config]="{
-              text: 'Añadir Marca',
+              text: 'Añadir Categoría',
               type: 'primary',
               size: 'md'
             }"
-            (buttonClick)="openCreateBrandModal()"
+            (buttonClick)="openCreateCategoryModal()"
           />
         </div>
       </div>
@@ -43,7 +43,7 @@ import { ToastService } from '../../../shared/services/toast.service';
               type="text"
               [(ngModel)]="searchTerm"
               (input)="applyFilters()"
-              placeholder="Buscar marca..."
+              placeholder="Buscar categoría..."
               class="w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
             />
           </div>
@@ -55,7 +55,7 @@ import { ToastService } from '../../../shared/services/toast.service';
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#a81b8d]"></div>
         </div>
       } @else {
-        <!-- Brands Table -->
+        <!-- Categories Table -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
@@ -70,41 +70,41 @@ import { ToastService } from '../../../shared/services/toast.service';
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-                @if (filteredBrands.length === 0) {
+                @if (filteredCategories.length === 0) {
                   <tr>
                     <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                       @if (searchTerm) {
-                        No se encontraron marcas que coincidan con los filtros
+                        No se encontraron categorías que coincidan con los filtros
                       } @else {
-                        No hay marcas disponibles
+                        No hay categorías disponibles
                       }
                     </td>
                   </tr>
                 } @else {
-                  @for (brand of filteredBrands; track brand.id) {
+                  @for (category of filteredCategories; track category.id) {
                     <tr class="hover:bg-gray-50">
                       <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
                           <img 
-                            [src]="brand.imageUrl || '/assets/brands/brand-default.png'" 
-                            [alt]="brand.name"
-                            class="h-12 w-12 rounded-lg object-cover mr-4"
+                            [src]="category.imageUrl || '/assets/categories/category-default.jpg'" 
+                            [alt]="category.name"
+                            class="h-10 w-10 rounded-lg object-cover mr-4"
                           />
                           <div>
-                            <div class="text-sm font-medium text-gray-900">{{ brand.name }}</div>
-                            <div class="text-sm text-gray-500">{{ brand.description }}</div>
+                            <div class="text-sm font-medium text-gray-900">{{ category.name }}</div>
+                            <div class="text-sm text-gray-500">{{ category.description }}</div>
                           </div>
                         </div>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                         <button
-                          (click)="editBrand(brand)"
+                          (click)="editCategory(category)"
                           class="text-indigo-600 hover:text-indigo-900"
                         >
                           Editar
                         </button>
                         <button
-                          (click)="onDeleteBrand(brand.id)"
+                          (click)="onDeleteCategory(category.id)"
                           class="text-red-600 hover:text-red-900"
                         >
                           Eliminar
@@ -120,13 +120,13 @@ import { ToastService } from '../../../shared/services/toast.service';
       }
     </div>
 
-    <!-- Brand Modal -->
-    <app-brand-modal
+    <!-- Category Modal -->
+    <app-category-modal
       [isOpen]="isModalOpen"
       [mode]="modalMode"
-      [brand]="selectedBrand"
+      [category]="selectedCategory"
       (closeModal)="closeModal()"
-      (saveBrand)="onSaveBrand($event)"
+      (saveCategory)="onSaveCategory($event)"
     />
 
     <!-- Delete Confirmation Modal -->
@@ -145,9 +145,9 @@ import { ToastService } from '../../../shared/services/toast.service';
     <app-toast />
   `
 })
-export class BrandsManagementComponent implements OnInit, OnDestroy {
-  brands: Brand[] = [];
-  filteredBrands: Brand[] = [];
+export class CategoriesManagementComponent implements OnInit, OnDestroy {
+  categories: Category[] = [];
+  filteredCategories: Category[] = [];
   isLoading = false;
   
   // Filters
@@ -157,12 +157,12 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
   // Modal
   isModalOpen = false;
   modalMode: 'create' | 'edit' = 'create';
-  selectedBrand: Brand | null = null;
+  selectedCategory: Category | null = null;
   
   // Delete Modal
   isDeleteModalOpen = false;
-  brandToDelete: Brand | null = null;
-  
+  categoryToDelete: Category | null = null;
+
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -172,7 +172,7 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.loadBrands();
+    this.loadCategories();
   }
 
   ngOnDestroy(): void {
@@ -180,19 +180,19 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Carga todas las marcas
+   * Carga todas las categorías
    */
-  private loadBrands(): void {
+  private loadCategories(): void {
     this.isLoading = true;
     this.subscriptions.push(
-      this.productService.getAllBrands().subscribe({
-        next: (brands) => {
-          this.brands = brands || [];
+      this.productService.getAllCategories().subscribe({
+        next: (categories) => {
+          this.categories = categories || [];
           this.applyFilters();
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error loading brands:', error);
+          console.error('Error loading categories:', error);
           this.isLoading = false;
         }
       })
@@ -200,38 +200,38 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Aplica los filtros a la lista de marcas
+   * Aplica los filtros a la lista de categorías
    */
   applyFilters(): void {
-    let filtered = [...this.brands];
+    let filtered = [...this.categories];
 
     // Filtro por búsqueda
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(brand =>
-        brand.name.toLowerCase().includes(term) ||
-        brand.description?.toLowerCase().includes(term)
+      filtered = filtered.filter(category =>
+        category.name.toLowerCase().includes(term) ||
+        category.description?.toLowerCase().includes(term)
       );
     }
 
-    this.filteredBrands = filtered;
+    this.filteredCategories = filtered;
   }
 
   /**
-   * Abre el modal para crear una nueva marca
+   * Abre el modal para crear una nueva categoría
    */
-  openCreateBrandModal(): void {
+  openCreateCategoryModal(): void {
     this.modalMode = 'create';
-    this.selectedBrand = null;
+    this.selectedCategory = null;
     this.isModalOpen = true;
   }
 
   /**
-   * Edita una marca existente
+   * Edita una categoría existente
    */
-  editBrand(brand: Brand): void {
+  editCategory(category: Category): void {
     this.modalMode = 'edit';
-    this.selectedBrand = { ...brand };
+    this.selectedCategory = { ...category };
     this.isModalOpen = true;
   }
 
@@ -240,39 +240,39 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
    */
   closeModal(): void {
     this.isModalOpen = false;
-    this.selectedBrand = null;
+    this.selectedCategory = null;
   }
 
   /**
-   * Guarda o actualiza una marca
+   * Guarda o actualiza una categoría
    */
-  onSaveBrand(brand: Brand): void {
+  onSaveCategory(category: Category): void {
     if (this.modalMode === 'create') {
-      this.createBrand(brand);
+      this.createCategory(category);
     } else {
-      this.updateBrand(brand);
+      this.updateCategory(category);
     }
   }
 
   /**
-   * Crea una nueva marca
+   * Crea una nueva categoría
    */
-  private createBrand(brand: Brand): void {
+  private createCategory(category: Category): void {
     this.subscriptions.push(
-      this.productService.createBrand(brand).subscribe({
-        next: (newBrand) => {
+      this.productService.createCategory(category).subscribe({
+        next: (newCategory) => {
           this.closeModal();
-          this.toastService.success(`Marca "${brand.name}" creada exitosamente`);
-          this.loadBrands();
+          this.toastService.success(`Categoría "${category.name}" creada exitosamente`);
+          this.loadCategories();
         },
         error: (error) => {
-          console.error('Error al crear marca:', error);
-          this.toastService.error('Error al crear la marca. Por favor, intenta nuevamente.');
+          console.error('Error al crear categoría:', error);
+          this.toastService.error('Error al crear la categoría. Por favor, intenta nuevamente.');
           // ✅ Cerrar y reabrir el modal para resetear isSubmitting
           this.closeModal();
           setTimeout(() => {
             this.modalMode = 'create';
-            this.selectedBrand = brand;
+            this.selectedCategory = category;
             this.isModalOpen = true;
           }, 100);
         }
@@ -281,24 +281,24 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Actualiza una marca existente
+   * Actualiza una categoría existente
    */
-  private updateBrand(brand: Brand): void {
+  private updateCategory(category: Category): void {
     this.subscriptions.push(
-      this.productService.updateBrand(brand.id, brand).subscribe({
-        next: (updatedBrand) => {
+      this.productService.updateCategory(category.id, category).subscribe({
+        next: (updatedCategory) => {
           this.closeModal();
-          this.toastService.success(`Marca "${brand.name}" actualizada exitosamente`);
-          this.loadBrands();
+          this.toastService.success(`Categoría "${category.name}" actualizada exitosamente`);
+          this.loadCategories();
         },
         error: (error) => {
-          console.error('Error al actualizar marca:', error);
-          this.toastService.error('Error al actualizar la marca. Por favor, intenta nuevamente.');
+          console.error('Error al actualizar categoría:', error);
+          this.toastService.error('Error al actualizar la categoría. Por favor, intenta nuevamente.');
           // ✅ Cerrar y reabrir el modal para resetear isSubmitting
           this.closeModal();
           setTimeout(() => {
             this.modalMode = 'edit';
-            this.selectedBrand = brand;
+            this.selectedCategory = category;
             this.isModalOpen = true;
           }, 100);
         }
@@ -309,34 +309,34 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
   /**
    * Abre el modal de confirmación de eliminación
    */
-  onDeleteBrand(brandId: string): void {
-    const brand = this.brands.find(b => b.id === brandId);
-    if (brand) {
-      this.brandToDelete = brand;
+  onDeleteCategory(categoryId: string): void {
+    const category = this.categories.find(b => b.id === categoryId);
+    if (category) {
+      this.categoryToDelete = category;
       this.isDeleteModalOpen = true;
     }
   }
 
   /**
-   * Confirma la eliminación de la marca
+   * Confirma la eliminación de la categoría
    */
   confirmDelete(): void {
-    if (!this.brandToDelete) return;
+    if (!this.categoryToDelete) return;
 
-    const brandId = this.brandToDelete.id;
-    const brandName = this.brandToDelete.name;
-    
+    const categoryId = this.categoryToDelete.id;
+    const categoryName = this.categoryToDelete.name;
+
     this.subscriptions.push(
-      this.productService.deleteBrand(brandId).subscribe({
+      this.productService.deleteCategory(categoryId).subscribe({
         next: () => {
-          this.brands = this.brands.filter(b => b.id !== brandId);
+          this.categories = this.categories.filter(c => c.id !== categoryId);
           this.applyFilters();
           this.cancelDelete();
-          this.toastService.success(`Marca "${brandName}" eliminada exitosamente`);
+          this.toastService.success(`Categoría "${categoryName}" eliminada exitosamente`);
         },
         error: (error) => {
-          console.error('Error al eliminar marca:', error);
-          this.toastService.error('Error al eliminar la marca. Por favor, intenta nuevamente.');
+          console.error('Error al eliminar categoría:', error);
+          this.toastService.error('Error al eliminar la categoría. Por favor, intenta nuevamente.');
           this.cancelDelete();
         }
       })
@@ -348,22 +348,22 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
    */
   cancelDelete(): void {
     this.isDeleteModalOpen = false;
-    this.brandToDelete = null;
+    this.categoryToDelete = null;
   }
 
   /**
    * Obtiene el título del modal de eliminación
    */
   getDeleteTitle(): string {
-    return '¿Eliminar marca?';
+    return '¿Eliminar categoría?';
   }
 
   /**
    * Obtiene el mensaje del modal de eliminación
    */
   getDeleteMessage(): string {
-    if (this.brandToDelete) {
-      return `¿Estás seguro de que deseas eliminar la marca "${this.brandToDelete.name}"? Esta acción no se puede deshacer.`;
+    if (this.categoryToDelete) {
+      return `¿Estás seguro de que deseas eliminar la categoría "${this.categoryToDelete.name}"? Esta acción no se puede deshacer.`;
     }
     return 'Esta acción no se puede deshacer.';
   }
