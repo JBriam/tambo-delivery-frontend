@@ -49,6 +49,12 @@ export const API_ENDPOINTS = {
     CATEGORY_CREATE: '/admin/category/create',
     CATEGORY_UPDATE: '/admin/category/update',
     CATEGORY_DELETE: '/admin/category/delete',
+
+    // Descuentos
+    DISCOUNTS: '/admin/discount/get-all',
+    DISCOUNT_CREATE: '/admin/discount/create',
+    DISCOUNT_UPDATE: '/admin/discount/update',
+    DISCOUNT_DELETE: '/admin/discount/delete',
     
     // Productos
     PRODUCTS: '/admin/product',
@@ -65,10 +71,6 @@ export const API_ENDPOINTS = {
     ORDERS: '/admin/orders',
     ORDERS_ALL: '/admin/orders/get-all',
     ORDERS_STATISTICS: '/admin/orders/statistics',
-    
-    // Descuentos
-    DISCOUNTS: '/admin/discount',
-    DISCOUNTS_ALL: '/admin/discount/get-all',
     
     // Roles
     AUTHORITIES: '/admin/authority',

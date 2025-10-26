@@ -6,6 +6,7 @@ import { Product, ProductFilter } from '../../../models/product.model';
 import { ProductSection } from '../../../models/product-section.model';
 import { Category, CategoryType } from '../../../models/category.model';
 import { Brand } from '../../../models/brand.model';
+import { Discount } from '../../../models/discount.model';
 import { API_ENDPOINTS } from '../../../constants/app.constants';
 
 // DTOs para el backend Spring Boot
@@ -294,6 +295,54 @@ export class ProductService {
   deleteCategory(categoryId: string): Observable<any> {
     return this.http.delete(
       `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_DELETE}/${categoryId}`
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // ============================== ADMIN - DESCUENTOS ==============================
+
+  /**
+   * Obtener todos los descuentos (admin)
+   */
+  getAllDiscounts(): Observable<Discount[]> {
+    return this.http.get<Discount[]>(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.DISCOUNTS}`
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Crear descuento (admin)
+   */
+  createDiscount(discountData: { name: string; percentage: number; startDate?: Date; endDate?: Date; isActive: boolean }): Observable<Discount> {
+    return this.http.post<Discount>(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.DISCOUNT_CREATE}`,
+      discountData
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Actualizar descuento (admin)
+   */
+  updateDiscount(discountId: string, discountData: { name: string; percentage: number; startDate?: Date; endDate?: Date; isActive: boolean }): Observable<Discount> {
+    return this.http.put<Discount>(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.DISCOUNT_UPDATE}/${discountId}`,
+      discountData
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Eliminar descuento (admin)
+   */
+  deleteDiscount(discountId: string): Observable<any> {
+    return this.http.delete(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.DISCOUNT_DELETE}/${discountId}`
     ).pipe(
       catchError(this.handleError)
     );

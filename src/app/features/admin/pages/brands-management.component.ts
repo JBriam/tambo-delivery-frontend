@@ -14,14 +14,23 @@ import { ToastService } from '../../../shared/services/toast.service';
 @Component({
   selector: 'app-brands-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent, BrandModalComponent, ConfirmModalComponent, ToastComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ButtonComponent,
+    BrandModalComponent,
+    ConfirmModalComponent,
+    ToastComponent,
+  ],
   template: `
     <div class="p-6">
       <!-- Header -->
       <div class="flex justify-between items-center mb-8">
         <div>
           <h1 class="text-2xl font-bold text-gray-800">Gestión de Marcas</h1>
-          <p class="text-gray-600">Administra el catálogo de marcas de Tambo Delivery</p>
+          <p class="text-gray-600">
+            Administra el catálogo de marcas de Tambo Delivery
+          </p>
         </div>
         <div class="flex gap-3">
           <app-button
@@ -47,76 +56,86 @@ import { ToastService } from '../../../shared/services/toast.service';
               class="w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
             />
           </div>
+        </div>
       </div>
 
       <!-- Loading -->
       @if (isLoading) {
-        <div class="flex justify-center items-center py-12">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#a81b8d]"></div>
-        </div>
+      <div class="flex justify-center items-center py-12">
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#a81b8d]"
+        ></div>
+      </div>
       } @else {
-        <!-- Brands Table -->
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Nombre
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                @if (filteredBrands.length === 0) {
-                  <tr>
-                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                      @if (searchTerm) {
-                        No se encontraron marcas que coincidan con los filtros
-                      } @else {
-                        No hay marcas disponibles
-                      }
-                    </td>
-                  </tr>
-                } @else {
-                  @for (brand of filteredBrands; track brand.id) {
-                    <tr class="hover:bg-gray-50">
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                          <img 
-                            [src]="brand.imageUrl || '/assets/brands/brand-default.png'" 
-                            [alt]="brand.name"
-                            class="h-12 w-12 rounded-lg object-cover mr-4"
-                          />
-                          <div>
-                            <div class="text-sm font-medium text-gray-900">{{ brand.name }}</div>
-                            <div class="text-sm text-gray-500">{{ brand.description }}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                        <button
-                          (click)="editBrand(brand)"
-                          class="text-indigo-600 hover:text-indigo-900"
-                        >
-                          Editar
-                        </button>
-                        <button
-                          (click)="onDeleteBrand(brand.id)"
-                          class="text-red-600 hover:text-red-900"
-                        >
-                          Eliminar
-                        </button>
-                      </td>
-                    </tr>
-                  }
-                }
-              </tbody>
-            </table>
-          </div>
+      <!-- Brands Table -->
+      <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Nombre
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              @if (filteredBrands.length === 0) {
+              <tr>
+                <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                  @if (searchTerm) { No se encontraron marcas que coincidan con
+                  los filtros } @else { No hay marcas disponibles }
+                </td>
+              </tr>
+              } @else { @for (brand of filteredBrands; track brand.id) {
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <img
+                      [src]="
+                        brand.imageUrl || '/assets/brands/brand-default.png'
+                      "
+                      [alt]="brand.name"
+                      class="h-12 w-12 rounded-lg object-cover mr-4"
+                    />
+                    <div>
+                      <div class="text-sm font-medium text-gray-900">
+                        {{ brand.name }}
+                      </div>
+                      <div class="text-sm text-gray-500">
+                        {{ brand.description }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2"
+                >
+                  <button
+                    (click)="editBrand(brand)"
+                    class="text-indigo-600 hover:text-indigo-900"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    (click)="onDeleteBrand(brand.id)"
+                    class="text-red-600 hover:text-red-900"
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+              } }
+            </tbody>
+          </table>
         </div>
+      </div>
       }
     </div>
 
@@ -143,26 +162,26 @@ import { ToastService } from '../../../shared/services/toast.service';
 
     <!-- Toast Notifications -->
     <app-toast />
-  `
+  `,
 })
 export class BrandsManagementComponent implements OnInit, OnDestroy {
   brands: Brand[] = [];
   filteredBrands: Brand[] = [];
   isLoading = false;
-  
+
   // Filters
   searchTerm = '';
   selectedStatus = '';
-  
+
   // Modal
   isModalOpen = false;
   modalMode: 'create' | 'edit' = 'create';
   selectedBrand: Brand | null = null;
-  
+
   // Delete Modal
   isDeleteModalOpen = false;
   brandToDelete: Brand | null = null;
-  
+
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -176,7 +195,7 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   /**
@@ -194,7 +213,7 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Error loading brands:', error);
           this.isLoading = false;
-        }
+        },
       })
     );
   }
@@ -208,9 +227,10 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
     // Filtro por búsqueda
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(brand =>
-        brand.name.toLowerCase().includes(term) ||
-        brand.description?.toLowerCase().includes(term)
+      filtered = filtered.filter(
+        (brand) =>
+          brand.name.toLowerCase().includes(term) ||
+          brand.description?.toLowerCase().includes(term)
       );
     }
 
@@ -262,12 +282,16 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
       this.productService.createBrand(brand).subscribe({
         next: (newBrand) => {
           this.closeModal();
-          this.toastService.success(`Marca "${brand.name}" creada exitosamente`);
+          this.toastService.success(
+            `Marca "${brand.name}" creada exitosamente`
+          );
           this.loadBrands();
         },
         error: (error) => {
           console.error('Error al crear marca:', error);
-          this.toastService.error('Error al crear la marca. Por favor, intenta nuevamente.');
+          this.toastService.error(
+            'Error al crear la marca. Por favor, intenta nuevamente.'
+          );
           // ✅ Cerrar y reabrir el modal para resetear isSubmitting
           this.closeModal();
           setTimeout(() => {
@@ -275,7 +299,7 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
             this.selectedBrand = brand;
             this.isModalOpen = true;
           }, 100);
-        }
+        },
       })
     );
   }
@@ -288,12 +312,16 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
       this.productService.updateBrand(brand.id, brand).subscribe({
         next: (updatedBrand) => {
           this.closeModal();
-          this.toastService.success(`Marca "${brand.name}" actualizada exitosamente`);
+          this.toastService.success(
+            `Marca "${brand.name}" actualizada exitosamente`
+          );
           this.loadBrands();
         },
         error: (error) => {
           console.error('Error al actualizar marca:', error);
-          this.toastService.error('Error al actualizar la marca. Por favor, intenta nuevamente.');
+          this.toastService.error(
+            'Error al actualizar la marca. Por favor, intenta nuevamente.'
+          );
           // ✅ Cerrar y reabrir el modal para resetear isSubmitting
           this.closeModal();
           setTimeout(() => {
@@ -301,7 +329,7 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
             this.selectedBrand = brand;
             this.isModalOpen = true;
           }, 100);
-        }
+        },
       })
     );
   }
@@ -310,7 +338,7 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
    * Abre el modal de confirmación de eliminación
    */
   onDeleteBrand(brandId: string): void {
-    const brand = this.brands.find(b => b.id === brandId);
+    const brand = this.brands.find((b) => b.id === brandId);
     if (brand) {
       this.brandToDelete = brand;
       this.isDeleteModalOpen = true;
@@ -325,20 +353,24 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
 
     const brandId = this.brandToDelete.id;
     const brandName = this.brandToDelete.name;
-    
+
     this.subscriptions.push(
       this.productService.deleteBrand(brandId).subscribe({
         next: () => {
-          this.brands = this.brands.filter(b => b.id !== brandId);
+          this.brands = this.brands.filter((b) => b.id !== brandId);
           this.applyFilters();
           this.cancelDelete();
-          this.toastService.success(`Marca "${brandName}" eliminada exitosamente`);
+          this.toastService.success(
+            `Marca "${brandName}" eliminada exitosamente`
+          );
         },
         error: (error) => {
           console.error('Error al eliminar marca:', error);
-          this.toastService.error('Error al eliminar la marca. Por favor, intenta nuevamente.');
+          this.toastService.error(
+            'Error al eliminar la marca. Por favor, intenta nuevamente.'
+          );
           this.cancelDelete();
-        }
+        },
       })
     );
   }
