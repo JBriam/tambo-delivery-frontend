@@ -91,21 +91,16 @@ import { Category } from '../../models/category.model';
                       @for (category of categories; track category.id) {
                         <button
                           (click)="navigateToCategory(category.id)"
-                          class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#a81b8d] transition-colors flex items-center gap-3"
+                          class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#a81b8d] transition-colors flex items-center gap-3 cursor-pointer"
                         >
                           <div class="w-2 h-2 bg-[#a81b8d] rounded-full"></div>
-                          <div>
-                            <div class="font-medium">{{ category.name }}</div>
-                            @if (category.description) {
-                              <div class="text-xs text-gray-500">{{ category.description }}</div>
-                            }
-                          </div>
+                          <div class="font-medium">{{ category.name }}</div>
                         </button>
                       }
                       <!-- Ver todas las categorías -->
                       <div class="border-t border-gray-100 mt-2 pt-2">
                         <a
-                          routerLink="/productos"
+                          routerLink="/products"
                           (click)="closeCategoriesDropdown()"
                           class="w-full text-left px-4 py-2 text-sm text-[#a81b8d] hover:bg-gray-100 transition-colors flex items-center gap-3 font-medium"
                         >
@@ -120,7 +115,7 @@ import { Category } from '../../models/category.model';
                 }
               </div>
               <a
-                routerLink="/productos"
+                routerLink="/products"
                 routerLinkActive="text-indigo-600"
                 class="flex items-center gap-2 px-3 py-2 text-sm border-1 border-gray-300 hover:text-[#a81b8d] hover:border-[#a81b8d] rounded-lg transition-colors"
               >
@@ -177,7 +172,7 @@ import { Category } from '../../models/category.model';
                   <div class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
                     @for (result of searchResults; track result.id) {
                       <a
-                        [routerLink]="['/productos', result.id]"
+                        [routerLink]="['/products', result.id]"
                         (click)="clearSearch()"
                         class="flex items-center px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
                       >
@@ -411,14 +406,14 @@ import { Category } from '../../models/category.model';
 
               <!-- Enlaces principales -->
               <a
-                routerLink="/productos"
+                routerLink="/products"
                 (click)="closeMobileMenu()"
                 class="flex items-center gap-2 text-gray-700 hover:text-[#a81b8d] px-3 py-2 text-sm font-medium transition-colors"
               >
                 Todos los productos
               </a>
               <a
-                routerLink="/productos"
+                routerLink="/products"
                 (click)="closeMobileMenu()"
                 class="flex items-center gap-2 text-[#a81b8d] px-3 py-2 text-sm font-medium border-1 border-[#a81b8d] hover:bg-[#a81b8d] hover:text-white rounded-lg transition-colors mb-2"
               >
@@ -587,14 +582,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private setupCartSubscription(): void {
     // Obtener el estado inicial del carrito
     this.cartItemCount = this.cartService.getTotalItemCount();
-    console.log('🏠 Header: Initial cart count:', this.cartItemCount);
     
     // Suscribirse a los cambios del carrito
     this.subscriptions.push(
       this.cartService.cart$.subscribe(cart => {
-        console.log('🏠 Header: Received cart update:', cart);
         this.cartItemCount = cart.totalItems;
-        console.log('🏠 Header: Updated cartItemCount to:', this.cartItemCount);
       })
     );
   }
@@ -621,16 +613,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * Carga las categorías desde el backend
    */
   private loadCategories(): void {
-    console.log('🏠 Header: Loading categories...');
-    console.log('🏠 Header: User authenticated:', this.isAuthenticated);
-    console.log('🏠 Header: Current user:', this.currentUser);
-    console.log('🏠 Header: Token exists:', !!localStorage.getItem('authToken'));
     
     // Primero intentar obtener categorías públicas
-    console.log('🏠 Header: Trying to load categories from public endpoint...');
     this.productService.getPublicCategories().subscribe({
       next: (categories) => {
-        console.log('🏠 Header: Public categories loaded successfully:', categories);
         this.categories = categories || [];
       },
       error: (error) => {
@@ -638,25 +624,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
         
         // Si falla el endpoint público, intentar con el de admin (solo si el usuario está autenticado)
         if (this.isAuthenticated) {
-          console.log('🏠 Header: User is authenticated, trying admin endpoint...');
           this.productService.getAllCategories().subscribe({
             next: (categories) => {
-              console.log('🏠 Header: Admin categories loaded successfully:', categories);
               this.categories = categories || [];
             },
             error: (adminError) => {
-              console.error('🏠 Header: Error loading admin categories:', adminError);
-              console.error('🏠 Header: Admin error status:', adminError.status);
-              console.error('🏠 Header: Admin error message:', adminError.message);
               
               // Si ambos fallan, usar categorías por defecto
-              console.log('🏠 Header: Using fallback categories');
-              this.categories = this.getFallbackCategories();
+              // this.categories = this.getFallbackCategories();
             }
           });
         } else {
-          console.log('🏠 Header: User not authenticated, using fallback categories');
-          this.categories = this.getFallbackCategories();
+          // this.categories = this.getFallbackCategories();
         }
       }
     });
@@ -665,34 +644,34 @@ export class HeaderComponent implements OnInit, OnDestroy {
   /**
    * Obtiene categorías por defecto cuando no se pueden cargar desde el backend
    */
-  private getFallbackCategories(): Category[] {
-    return [
-      {
-        id: '1',
-        name: 'Bebidas',
-        description: 'Refrescos, jugos y más',
-        imageUrl: 'assets/categories/bebidas.webp'
-      },
-      {
-        id: '2',  
-        name: 'Comidas',
-        description: 'Snacks y comidas preparadas',
-        imageUrl: 'assets/categories/comidas.webp'
-      },
-      {
-        id: '3',
-        name: 'Despensa',
-        description: 'Productos de despensa',
-        imageUrl: 'assets/categories/despensa.webp'
-      },
-      {
-        id: '4',
-        name: 'Helados',
-        description: 'Helados y postres fríos',
-        imageUrl: 'assets/categories/helados.webp'
-      }
-    ];
-  }
+  // private getFallbackCategories(): Category[] {
+  //   return [
+  //     {
+  //       id: '1',
+  //       name: 'Bebidas',
+  //       description: 'Refrescos, jugos y más',
+  //       imageUrl: 'assets/categories/bebidas.webp'
+  //     },
+  //     {
+  //       id: '2',  
+  //       name: 'Comidas',
+  //       description: 'Snacks y comidas preparadas',
+  //       imageUrl: 'assets/categories/comidas.webp'
+  //     },
+  //     {
+  //       id: '3',
+  //       name: 'Despensa',
+  //       description: 'Productos de despensa',
+  //       imageUrl: 'assets/categories/despensa.webp'
+  //     },
+  //     {
+  //       id: '4',
+  //       name: 'Helados',
+  //       description: 'Helados y postres fríos',
+  //       imageUrl: 'assets/categories/helados.webp'
+  //     }
+  //   ];
+  // }
 
   /**
    * Alterna el dropdown de categorías
@@ -713,7 +692,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
    */
   navigateToCategory(categoryId: string): void {
     this.closeCategoriesDropdown();
-    this.router.navigate(['/productos'], { queryParams: { category: categoryId } });
+    this.router.navigate(['/products'], { queryParams: { category: categoryId } });
   }
 
   /**

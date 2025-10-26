@@ -377,6 +377,6 @@ export class RegisterComponent {
   }
 
   navigateToHome(): void {
-    this.router.navigate(['/inicio']);
+    this.router.navigate(['/home']);
   }
 }

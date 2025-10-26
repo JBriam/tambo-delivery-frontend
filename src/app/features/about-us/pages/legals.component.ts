@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-legales',
+  selector: 'app-legals',
   standalone: true,
   imports: [CommonModule],
   template: `
@@ -193,6 +193,6 @@ import { CommonModule } from '@angular/common';
     </div>
   `
 })
-export class LegalesComponent {
+export class LegalsComponent {
   constructor() {}
 }

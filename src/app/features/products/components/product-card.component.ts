@@ -32,7 +32,7 @@ import { Utils } from '../../../utils/common.utils';
 
       <!-- Imagen del producto -->
       <div class="relative aspect-square overflow-hidden bg-gray-100">
-        <a [routerLink]="['/productos', product.id]" class="block">
+        <a [routerLink]="['/products', product.id]" class="block">
           <img 
             [src]="product.thumbnail" 
             [alt]="product.name"
@@ -72,7 +72,7 @@ import { Utils } from '../../../utils/common.utils';
         <!-- Título del producto -->
         <div>
           <h3 class="text-base font-semibold text-gray-900 line-clamp-2 group-hover:text-[#a81b8d] transition-colors">
-            <a [routerLink]="['/productos', product.id]">
+            <a [routerLink]="['/products', product.id]">
               {{ product.name }}
             </a>
           </h3>

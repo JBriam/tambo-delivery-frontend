@@ -78,33 +78,33 @@ export const routes: Routes = [
   // Rutas directas para páginas del footer (acceso directo con URLs limpias)
   {
     path: 'legals',
-    loadComponent: () => import('./features/about-us/pages/legales.component').then(c => c.LegalesComponent)
+    loadComponent: () => import('./features/about-us/pages/legals.component').then(c => c.LegalsComponent)
   },
   // TODO: Agregar estas rutas cuando crees los componentes:
   // {
-  //   path: 'terminos',
-  //   loadComponent: () => import('./features/about-us/pages/terminos.component').then(c => c.TerminosComponent)
+  //   path: 'terms',
+  //   loadComponent: () => import('./features/about-us/pages/terms.component').then(c => c.TermsComponent)
   // },
   // {
-  //   path: 'zonas-despacho',
-  //   loadComponent: () => import('./features/about-us/pages/zonas-despacho.component').then(c => c.ZonasDespachoComponent)
+  //   path: 'dispatch-areas',
+  //   loadComponent: () => import('./features/about-us/pages/dispatch-areas.component').then(c => c.DispatchAreasComponent)
   // },
   // {
-  //   path: 'comprobantes',
-  //   loadComponent: () => import('./features/about-us/pages/comprobantes.component').then(c => c.ComprobantesComponent)
+  //   path: 'vouchers',
+  //   loadComponent: () => import('./features/about-us/pages/vouchers.component').then(c => c.VouchersComponent)
   // },
   // {
-  //   path: 'privacidad',
-  //   loadComponent: () => import('./features/about-us/pages/privacidad.component').then(c => c.PrivacidadComponent)
+  //   path: 'privacity',
+  //   loadComponent: () => import('./features/about-us/pages/privacity.component').then(c => c.PrivacityComponent)
   // },
   // {
-  //   path: 'contacto',
-  //   loadComponent: () => import('./features/about-us/pages/contacto.component').then(c => c.ContactoComponent)
+  //   path: 'contact',
+  //   loadComponent: () => import('./features/about-us/pages/contact.component').then(c => c.ContactoComponent)
   // },
   
   // Ruta 404
   {
     path: '**',
-    redirectTo: '/productos'
+    redirectTo: '/products'
   }
 ];

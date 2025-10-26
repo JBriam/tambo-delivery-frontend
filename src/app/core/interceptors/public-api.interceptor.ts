@@ -19,7 +19,6 @@ export const publicApiInterceptor: HttpInterceptorFn = (req, next) => {
   const isPublicRoute = publicRoutes.some(route => req.url.includes(route));
   
   if (isPublicRoute) {
-    console.log('🔓 [PublicApiInterceptor] Removiendo Authorization header de:', req.url);
     
     // Crear una nueva request sin el header Authorization
     const publicReq = req.clone({

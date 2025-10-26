@@ -6,6 +6,7 @@ import { Product, ProductFilter } from '../../../models/product.model';
 import { ProductSection } from '../../../models/product-section.model';
 import { Category, CategoryType } from '../../../models/category.model';
 import { Brand } from '../../../models/brand.model';
+import { Discount } from '../../../models/discount.model';
 import { API_ENDPOINTS } from '../../../constants/app.constants';
 
 // DTOs para el backend Spring Boot
@@ -51,11 +52,11 @@ export class ProductService {
     if (filter.newArrival !== undefined) params = params.set('newArrival', filter.newArrival.toString());
 
     const url = `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.PUBLIC.PRODUCTS}`;
-    console.log('🌐 [ProductService] GET:', url, 'params:', params.toString());
+    // console.log('🌐 [ProductService] GET:', url, 'params:', params.toString());
 
     return this.http.get<Product[]>(url, { params }).pipe(
       map((products: Product[]) => {
-        console.log('✅ [ProductService] Productos recibidos:', products?.length || 0);
+        // console.log('✅ [ProductService] Productos recibidos:', products?.length || 0);
         return products || [];
       }),
       catchError((error) => {
@@ -112,15 +113,15 @@ export class ProductService {
    * Obtener productos agrupados por categorías (para home page)
    */
   getProductsByCategories(limit: number = 6): Observable<{category: Category, products: Product[]}[]> {
-    console.log('🏠 [ProductService] Obteniendo productos por categorías con límite:', limit);
+    // console.log('🏠 [ProductService] Obteniendo productos por categorías con límite:', limit);
     
     return this.getPublicCategories().pipe(
       map((categories: Category[]) => {
-        console.log('📂 [ProductService] Categorías obtenidas:', categories.length);
+        // console.log('📂 [ProductService] Categorías obtenidas:', categories.length);
         return categories.sort((a, b) => a.name.localeCompare(b.name)); // Ordenar alfabéticamente
       }),
       switchMap((categories: Category[]) => {
-        console.log('🔄 [ProductService] Obteniendo productos para cada categoría...');
+        // console.log('🔄 [ProductService] Obteniendo productos para cada categoría...');
         const requests = categories.map((category: Category) => {
           // Usar el nuevo endpoint optimizado por categoría
           let params = new HttpParams()
@@ -131,9 +132,9 @@ export class ProductService {
           
           return this.http.get<Product[]>(url, { params }).pipe(
             map((products: Product[]) => {
-              console.log(`📦 [ProductService] Categoría "${category.name}" (ID: ${category.id}): ${products.length} productos encontrados`);
+              // console.log(`📦 [ProductService] Categoría "${category.name}" (ID: ${category.id}): ${products.length} productos encontrados`);
               if (products.length > 0) {
-                console.log(`📦 [ProductService] Primeros productos de "${category.name}":`, products.slice(0, 3).map(p => ({ id: p.id, name: p.name })));
+                // console.log(`📦 [ProductService] Primeros productos de "${category.name}":`, products.slice(0, 3).map(p => ({ id: p.id, name: p.name })));
               }
               return {
                 category,
@@ -258,18 +259,18 @@ export class ProductService {
    */
   getAllCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(
-      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORIES_ALL}`
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORIES}`
     ).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
-   * Crear categoría (admin)
+   * Crear categoría (admin) con tipos asociados
    */
-  createCategory(categoryData: { name: string; description?: string; imageUrl?: string }): Observable<Category> {
+  createCategory(categoryData: Category): Observable<Category> {
     return this.http.post<Category>(
-      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORIES}`,
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_CREATE}`,
       categoryData
     ).pipe(
       catchError(this.handleError)
@@ -277,11 +278,11 @@ export class ProductService {
   }
 
   /**
-   * Actualizar categoría (admin)
+   * Actualizar categoría (admin) con tipos asociados
    */
-  updateCategory(categoryId: string, categoryData: { name: string; description?: string; imageUrl?: string }): Observable<Category> {
+  updateCategory(categoryId: string, categoryData: Category): Observable<Category> {
     return this.http.put<Category>(
-      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORIES}/${categoryId}`,
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_UPDATE}/${categoryId}`,
       categoryData
     ).pipe(
       catchError(this.handleError)
@@ -293,7 +294,125 @@ export class ProductService {
    */
   deleteCategory(categoryId: string): Observable<any> {
     return this.http.delete(
-      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORIES}/${categoryId}`
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_DELETE}/${categoryId}`
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // ============================== ADMIN - TIPOS DE CATEGORÍAS ==============================
+
+  /**
+   * Obtener todos los tipos de categoría (admin)
+   */
+  getAllCategoryTypes(): Observable<CategoryType[]> {
+    return this.http.get<CategoryType[]>(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_TYPES}`
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+  
+  /**
+   * Obtener tipos de categoría por ID de categoría (admin)
+   */
+  getAllCategoryTypesByCategory(categoryId: string): Observable<CategoryType[]> {
+    return this.http.get<CategoryType[]>(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_TYPES_BY_CATEGORY}/${categoryId}`
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Obtener un tipo de categoría por ID (admin)
+   */
+  getCategoryTypeById(categoryTypeId: string): Observable<CategoryType> {
+    return this.http.get<CategoryType>(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_TYPES_BY_ID}/${categoryTypeId}`
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Crear tipo de categoría (admin)
+   */
+  createCategoryType(categoryData: { name: string; description?: string; }): Observable<CategoryType> {
+    return this.http.post<CategoryType>(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_TYPE_CREATE}`,
+      categoryData
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Actualizar tipo de categoría (admin)
+   */
+  updateCategoryType(categoryTypeId: string, categoryData: { name: string; description?: string; imageUrl?: string }): Observable<CategoryType> {
+    return this.http.put<CategoryType>(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_TYPE_UPDATE}/${categoryTypeId}`,
+      categoryData
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Eliminar tipo de categoría (admin)
+   */
+  deleteCategoryType(categoryTypeId: string): Observable<any> {
+    return this.http.delete(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_TYPE_DELETE}/${categoryTypeId}`
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // ============================== ADMIN - DESCUENTOS ==============================
+
+  /**
+   * Obtener todos los descuentos (admin)
+   */
+  getAllDiscounts(): Observable<Discount[]> {
+    return this.http.get<Discount[]>(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.DISCOUNTS}`
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Crear descuento (admin)
+   */
+  createDiscount(discountData: { name: string; percentage: number; startDate?: Date; endDate?: Date; isActive: boolean }): Observable<Discount> {
+    return this.http.post<Discount>(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.DISCOUNT_CREATE}`,
+      discountData
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Actualizar descuento (admin)
+   */
+  updateDiscount(discountId: string, discountData: { name: string; percentage: number; startDate?: Date; endDate?: Date; isActive: boolean }): Observable<Discount> {
+    return this.http.put<Discount>(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.DISCOUNT_UPDATE}/${discountId}`,
+      discountData
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Eliminar descuento (admin)
+   */
+  deleteDiscount(discountId: string): Observable<any> {
+    return this.http.delete(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.DISCOUNT_DELETE}/${discountId}`
     ).pipe(
       catchError(this.handleError)
     );

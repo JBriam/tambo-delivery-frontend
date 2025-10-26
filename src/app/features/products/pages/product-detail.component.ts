@@ -223,7 +223,7 @@ export class ProductDetailComponent implements OnInit {
       for (let i = 0; i < this.selectedQuantity; i++) {
         this.cartService.addToCart(this.product);
       }
-      console.log(`${this.selectedQuantity} unidad(es) de ${this.product.name} agregado(s) al carrito`);
+      // console.log(`${this.selectedQuantity} unidad(es) de ${this.product.name} agregado(s) al carrito`);
     }
   }
 

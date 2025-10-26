@@ -29,7 +29,7 @@ import { ButtonComponent } from '../../../shared/components/button.component';
             id="name"
             formControlName="name"
             placeholder="Ej: Coca-Cola, Sublime, etc."
-            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a81b8d] focus:border-transparent transition-all"
+            class="w-full px-3 py-2 text-sm placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
             [class.border-red-500]="brandForm.get('name')?.invalid && brandForm.get('name')?.touched"
           />
           @if (brandForm.get('name')?.invalid && brandForm.get('name')?.touched) {
@@ -54,7 +54,7 @@ import { ButtonComponent } from '../../../shared/components/button.component';
             formControlName="description"
             rows="3"
             placeholder="Descripción de la marca (opcional)"
-            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a81b8d] focus:border-transparent transition-all resize-none"
+            class="w-full px-3 py-2 text-sm placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
           ></textarea>
         </div>
 
@@ -68,7 +68,7 @@ import { ButtonComponent } from '../../../shared/components/button.component';
             id="imageUrl"
             formControlName="imageUrl"
             placeholder="https://ejemplo.com/imagen.jpg"
-            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a81b8d] focus:border-transparent transition-all"
+            class="w-full px-3 py-2 text-sm placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
             [class.border-red-500]="brandForm.get('imageUrl')?.invalid && brandForm.get('imageUrl')?.touched"
           />
           @if (brandForm.get('imageUrl')?.invalid && brandForm.get('imageUrl')?.touched) {

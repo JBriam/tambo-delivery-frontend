@@ -227,7 +227,7 @@ interface CategoryProducts {
           <!-- Ver todos los productos -->
           <div *ngIf="!isLoading && !error && categoryProducts.length > 0" class="text-center">
             <button
-              [routerLink]="['/productos']"
+              [routerLink]="['/products']"
               class="bg-[#a81b8d] hover:bg-[#8a1674] text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               Ver todos los productos
@@ -408,14 +408,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   loadProducts(): void {
-    console.log('[Home] Iniciando carga de productos por categorías...');
+    // console.log('[Home] Iniciando carga de productos por categorías...');
     this.isLoading = true;
     this.error = null;
 
     // Cargar productos agrupados por categorías (6 productos por categoría)
     this.productService.getProductsByCategories(6).subscribe({
       next: (categoryProducts) => {
-        console.log('[Home] Productos por categorías cargados exitosamente:', categoryProducts);
+        // console.log('[Home] Productos por categorías cargados exitosamente:', categoryProducts);
         this.categoryProducts = categoryProducts.filter(cp => cp.products.length > 0); // Solo mostrar categorías con productos
         this.isLoading = false;
       },
@@ -468,7 +468,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // Navegación a categoría específica
   navigateToCategory(categoryId: string): void {
-    this.router.navigate(['/productos'], { queryParams: { category: categoryId } });
+    this.router.navigate(['/products'], { queryParams: { category: categoryId } });
   }
 
   // TrackBy functions para optimizar el rendering

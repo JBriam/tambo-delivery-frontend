@@ -68,13 +68,10 @@ export class AuthService {
     
     // Si hay un token válido, intentar cargar el perfil del usuario
     if (this.token && !this.currentUser) {
-      console.log('🔐 AuthService: Found token without user data, loading profile...');
       this.loadCurrentUser().subscribe({
         next: (user) => {
-          console.log('🔐 AuthService: User profile loaded from token:', user);
         },
         error: (error) => {
-          console.error('🔐 AuthService: Error loading user profile from token, clearing auth data:', error);
           this.clearAuthData();
         }
       });
@@ -82,16 +79,13 @@ export class AuthService {
   }
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    console.log('🔐 AuthService: Sending login request to backend:', credentials);
     
     return this.http.post<LoginResponse>(
       `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.AUTH.LOGIN}`,
       credentials
     ).pipe(
       tap(response => {
-        console.log('🔐 AuthService: Login response received:', response);
         if (response.code === 200 && response.token) {
-          console.log('🔐 AuthService: Login successful, setting token');
           this.setAuthToken(response.token);
         }
       }),
@@ -106,17 +100,15 @@ export class AuthService {
     return this.login(credentials).pipe(
       switchMap(loginResponse => {
         if (loginResponse.code === 200) {
-          console.log('🔐 AuthService: Login successful, now loading profile...');
           // Agregar un pequeño delay para asegurar que el interceptor tenga el token
           return new Promise(resolve => setTimeout(resolve, 200)).then(() => {
             return this.loadCurrentUser().toPromise();
           }).then(user => {
-            console.log('🔐 AuthService: Profile loaded successfully, determining redirect route');
             const redirectRoute = this.getRedirectRouteForUser();
             return { success: true, redirectRoute };
           }).catch(error => {
             console.error('🔐 AuthService: Error loading profile, but login was successful:', error);
-            return { success: true, redirectRoute: '/productos' };
+            return { success: true, redirectRoute: '/products' };
           });
         } else {
           return of({ success: false, error: loginResponse.message });
@@ -130,16 +122,13 @@ export class AuthService {
   }
 
   register(userData: RegisterRequest): Observable<UserResponseDto> {
-    console.log('🔐 AuthService: Sending registration request to backend:', userData);
     
     return this.http.post<UserResponseDto>(
       `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.AUTH.REGISTER}`,
       userData
     ).pipe(
       tap(response => {
-        console.log('🔐 AuthService: Registration response received:', response);
         if (response.code === 200) {
-          console.log('🔐 AuthService: Registration successful');
           // Note: El registro exitoso no necesariamente incluye un token o login automático
           // Depende de la lógica de tu backend
         }
@@ -176,21 +165,16 @@ export class AuthService {
   }
 
   logout(): void {
-    console.log('🔐 AuthService: Logging out user');
     this.clearAuthData();
   }
 
   // Obtener el usuario actual desde el backend
   loadCurrentUser(): Observable<User> {
-    console.log('🔐 AuthService: Loading current user profile');
-    console.log('🔐 AuthService: Current token exists:', !!this.token);
-    console.log('🔐 AuthService: Token preview:', this.token?.substring(0, 20) + '...');
     
     return this.http.get<UserDetailsDto>(
       `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.USERS.PROFILE}`
     ).pipe(
       map(userDto => {
-        console.log('🔐 AuthService: Converting UserDetailsDto to User:', userDto);
         // Convertir UserDetailsDto a User
         const user: User = {
           id: '', // El backend no devuelve el ID en este endpoint
@@ -205,12 +189,9 @@ export class AuthService {
             authority: auth
           }))
         };
-        console.log('🔐 AuthService: Converted user:', user);
-        console.log('🔐 AuthService: User authorities:', user.authorities);
         return user;
       }),
       tap(user => {
-        console.log('🔐 AuthService: User profile processed:', user);
         this.setCurrentUser(user);
       }),
       catchError(this.handleError)
@@ -219,9 +200,7 @@ export class AuthService {
 
   // Métodos auxiliares
   private setAuthToken(token: string): void {
-    console.log('🔐 AuthService: Setting auth token in localStorage:', token.substring(0, 20) + '...');
     localStorage.setItem(APP_CONSTANTS.TOKEN_KEY, token);
-    console.log('🔐 AuthService: Token stored successfully. Verification:', !!localStorage.getItem(APP_CONSTANTS.TOKEN_KEY));
   }
 
   private setCurrentUser(user: User): void {
@@ -230,7 +209,6 @@ export class AuthService {
   }
 
   private clearAuthData(): void {
-    console.log('🔐 AuthService: Clearing auth data');
     localStorage.removeItem(APP_CONSTANTS.TOKEN_KEY);
     localStorage.removeItem(APP_CONSTANTS.USER_KEY);
     this.currentUserSubject.next(null);
@@ -240,15 +218,11 @@ export class AuthService {
     const token = localStorage.getItem(APP_CONSTANTS.TOKEN_KEY);
     const userStr = localStorage.getItem(APP_CONSTANTS.USER_KEY);
     
-    console.log('🔐 AuthService: Loading user from storage - token exists:', !!token, 'user exists:', !!userStr);
-    
     if (token && userStr) {
       try {
         const user = JSON.parse(userStr);
-        console.log('🔐 AuthService: User loaded from storage:', user);
         this.currentUserSubject.next(user);
       } catch (error) {
-        console.error('🔐 AuthService: Error parsing user from storage:', error);
         this.clearAuthData();
       }
     }
@@ -269,9 +243,7 @@ export class AuthService {
 
   get isAdmin(): boolean {
     const authorities = this.currentUser?.authorities || [];
-    console.log('🔐 AuthService: Checking admin status - authorities:', authorities);
     const isAdmin = authorities.some(auth => auth.authority === 'ADMIN');
-    console.log('🔐 AuthService: Is admin result:', isAdmin);
     return isAdmin;
   }
 
@@ -280,11 +252,9 @@ export class AuthService {
    */
   getRedirectRouteForUser(): string {
     if (this.isAdmin) {
-      console.log('🔐 AuthService: User is admin, redirecting to dashboard');
       return '/admin/dashboard';
     } else {
-      console.log('🔐 AuthService: User is regular user, redirecting to products');
-      return '/productos';
+      return '/products';
     }
   }
 

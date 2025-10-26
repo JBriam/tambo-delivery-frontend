@@ -45,9 +45,24 @@ export const API_ENDPOINTS = {
     BRAND_DELETE: '/admin/brand/delete',
     
     // Categorías
-    CATEGORIES: '/admin/category',
-    CATEGORIES_ALL: '/admin/category/get-all',
-    CATEGORY_BUTTONS: '/admin/category-button',
+    CATEGORIES: '/admin/category/get-all',
+    CATEGORY_CREATE: '/admin/category/create',
+    CATEGORY_UPDATE: '/admin/category/update',
+    CATEGORY_DELETE: '/admin/category/delete',
+
+    // Tipos de Categorías
+    CATEGORY_TYPES: '/admin/category-type/get-all', // Obtener todos los tipos de categoría
+    CATEGORY_TYPES_BY_CATEGORY: '/admin/category-type/by-category', // Obtener tipos de categoría por ID de categoría
+    CATEGORY_TYPES_BY_ID: '/admin/category-type', // Obtener un tipo de categoría por su ID
+    CATEGORY_TYPE_CREATE: '/admin/category-type/create',
+    CATEGORY_TYPE_UPDATE: '/admin/category-type/update',
+    CATEGORY_TYPE_DELETE: '/admin/category-type/delete',
+
+    // Descuentos
+    DISCOUNTS: '/admin/discount/get-all',
+    DISCOUNT_CREATE: '/admin/discount/create',
+    DISCOUNT_UPDATE: '/admin/discount/update',
+    DISCOUNT_DELETE: '/admin/discount/delete',
     
     // Productos
     PRODUCTS: '/admin/product',
@@ -64,10 +79,6 @@ export const API_ENDPOINTS = {
     ORDERS: '/admin/orders',
     ORDERS_ALL: '/admin/orders/get-all',
     ORDERS_STATISTICS: '/admin/orders/statistics',
-    
-    // Descuentos
-    DISCOUNTS: '/admin/discount',
-    DISCOUNTS_ALL: '/admin/discount/get-all',
     
     // Roles
     AUTHORITIES: '/admin/authority',

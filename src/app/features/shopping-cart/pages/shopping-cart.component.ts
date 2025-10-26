@@ -275,14 +275,14 @@ export class ShoppingCartComponent implements OnInit, OnDestroy {
   }
 
   goToProducts(): void {
-    this.router.navigate(['/productos']);
+    this.router.navigate(['/products']);
   }
 
   proceedToCheckout(): void {
     // Verificar si el usuario está autenticado
     if (!this.isAuthenticated) {
       // Guardar la URL de retorno y redirigir al login
-      const returnUrl = '/carrito/direccion';
+      const returnUrl = '/cart/direction';
       this.router.navigate(['/auth/login'], { 
         queryParams: { returnUrl: returnUrl },
         state: { message: 'Por favor, inicia sesión para continuar con tu compra' }
@@ -291,6 +291,6 @@ export class ShoppingCartComponent implements OnInit, OnDestroy {
     }
     
     // Si está autenticado, navegará a la página de dirección de entrega
-    this.router.navigate(['/carrito/direccion']);
+    this.router.navigate(['/cart/direction']);
   }
 }
