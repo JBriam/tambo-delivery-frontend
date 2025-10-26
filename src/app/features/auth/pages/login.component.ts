@@ -79,7 +79,7 @@ import { AuthService } from '../../../core/services/auth.service';
                     formControlName="userName"
                     required
                     class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                    placeholder="tu@email.com"
+                    placeholder="tu-correo@email.com"
                   />
                   @if (loginForm.get('userName')?.invalid &&
                   loginForm.get('userName')?.touched) {
@@ -282,7 +282,7 @@ export class LoginComponent implements OnInit {
   }
 
   navigateToRegister(): void {
-    this.router.navigate(['/auth/registro']);
+    this.router.navigate(['/auth/register']);
   }
 
   navigateToForgotPassword(): void {
@@ -295,6 +295,6 @@ export class LoginComponent implements OnInit {
   }
 
   navigateToHome(): void {
-    this.router.navigate(['/inicio']);
+    this.router.navigate(['/home']);
   }
 }
