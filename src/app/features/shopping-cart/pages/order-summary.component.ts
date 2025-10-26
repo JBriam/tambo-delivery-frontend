@@ -271,7 +271,7 @@ interface OrderSummary {
       <div class="mt-8 text-center">
         <p class="text-sm text-gray-500">
           ¿Tienes alguna pregunta sobre tu pedido? 
-          <a href="/contacto" class="text-[#a81b8d] hover:underline">Contáctanos</a>
+          <a href="/contact" class="text-[#a81b8d] hover:underline">Contáctanos</a>
         </p>
       </div>
     </div>
@@ -298,11 +298,11 @@ export class OrderSummaryComponent {
   }
 
   goToOrders(): void {
-    window.location.href = '/pedidos';
+    window.location.href = '/orders';
   }
 
   goToProducts(): void {
-    window.location.href = '/productos';
+    window.location.href = '/products';
   }
 
   shareOrder(): void {

@@ -2,34 +2,34 @@ import { Routes } from '@angular/router';
 
 export const ABOUT_US_ROUTES: Routes = [
   {
-    path: 'legales',
-    loadComponent: () => import('./pages/legales.component').then(c => c.LegalesComponent)
+    path: 'legals',
+    loadComponent: () => import('./pages/legals.component').then(c => c.LegalsComponent)
   },
-  // TODO: Crear estos componentes según necesites
+  // TODO: Agregar estas rutas cuando crees los componentes:
   // {
-  //   path: 'terminos',
-  //   loadComponent: () => import('./pages/terminos.component').then(c => c.TerminosComponent)
+  //   path: 'terms',
+  //   loadComponent: () => import('./features/about-us/pages/terms.component').then(c => c.TermsComponent)
   // },
   // {
-  //   path: 'zonas-despacho',
-  //   loadComponent: () => import('./pages/zonas-despacho.component').then(c => c.ZonasDespachoComponent)
+  //   path: 'dispatch-areas',
+  //   loadComponent: () => import('./features/about-us/pages/dispatch-areas.component').then(c => c.DispatchAreasComponent)
   // },
   // {
-  //   path: 'comprobantes',
-  //   loadComponent: () => import('./pages/comprobantes.component').then(c => c.ComprobantesComponent)
+  //   path: 'vouchers',
+  //   loadComponent: () => import('./features/about-us/pages/vouchers.component').then(c => c.VouchersComponent)
   // },
   // {
-  //   path: 'privacidad',
-  //   loadComponent: () => import('./pages/privacidad.component').then(c => c.PrivacidadComponent)
+  //   path: 'privacity',
+  //   loadComponent: () => import('./features/about-us/pages/privacity.component').then(c => c.PrivacityComponent)
   // },
   // {
-  //   path: 'contacto',
-  //   loadComponent: () => import('./pages/contacto.component').then(c => c.ContactoComponent)
+  //   path: 'contact',
+  //   loadComponent: () => import('./features/about-us/pages/contact.component').then(c => c.ContactComponent)
   // },
   // Ruta por defecto para /about-us
   {
     path: '',
-    redirectTo: 'legales',
+    redirectTo: 'legals',
     pathMatch: 'full'
   }
 ];

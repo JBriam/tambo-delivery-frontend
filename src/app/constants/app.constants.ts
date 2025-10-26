@@ -50,6 +50,14 @@ export const API_ENDPOINTS = {
     CATEGORY_UPDATE: '/admin/category/update',
     CATEGORY_DELETE: '/admin/category/delete',
 
+    // Tipos de Categorías
+    CATEGORY_TYPES: '/admin/category-type/get-all', // Obtener todos los tipos de categoría
+    CATEGORY_TYPES_BY_CATEGORY: '/admin/category-type/by-category', // Obtener tipos de categoría por ID de categoría
+    CATEGORY_TYPES_BY_ID: '/admin/category-type', // Obtener un tipo de categoría por su ID
+    CATEGORY_TYPE_CREATE: '/admin/category-type/create',
+    CATEGORY_TYPE_UPDATE: '/admin/category-type/update',
+    CATEGORY_TYPE_DELETE: '/admin/category-type/delete',
+
     // Descuentos
     DISCOUNTS: '/admin/discount/get-all',
     DISCOUNT_CREATE: '/admin/discount/create',

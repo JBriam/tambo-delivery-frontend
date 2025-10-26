@@ -275,7 +275,7 @@ export class ShoppingCartComponent implements OnInit, OnDestroy {
   }
 
   goToProducts(): void {
-    this.router.navigate(['/productos']);
+    this.router.navigate(['/products']);
   }
 
   proceedToCheckout(): void {

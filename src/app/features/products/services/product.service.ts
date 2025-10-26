@@ -266,9 +266,9 @@ export class ProductService {
   }
 
   /**
-   * Crear categoría (admin)
+   * Crear categoría (admin) con tipos asociados
    */
-  createCategory(categoryData: { name: string; description?: string; imageUrl?: string }): Observable<Category> {
+  createCategory(categoryData: Category): Observable<Category> {
     return this.http.post<Category>(
       `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_CREATE}`,
       categoryData
@@ -278,9 +278,9 @@ export class ProductService {
   }
 
   /**
-   * Actualizar categoría (admin)
+   * Actualizar categoría (admin) con tipos asociados
    */
-  updateCategory(categoryId: string, categoryData: { name: string; description?: string; imageUrl?: string }): Observable<Category> {
+  updateCategory(categoryId: string, categoryData: Category): Observable<Category> {
     return this.http.put<Category>(
       `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_UPDATE}/${categoryId}`,
       categoryData
@@ -295,6 +295,76 @@ export class ProductService {
   deleteCategory(categoryId: string): Observable<any> {
     return this.http.delete(
       `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_DELETE}/${categoryId}`
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // ============================== ADMIN - TIPOS DE CATEGORÍAS ==============================
+
+  /**
+   * Obtener todos los tipos de categoría (admin)
+   */
+  getAllCategoryTypes(): Observable<CategoryType[]> {
+    return this.http.get<CategoryType[]>(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_TYPES}`
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+  
+  /**
+   * Obtener tipos de categoría por ID de categoría (admin)
+   */
+  getAllCategoryTypesByCategory(categoryId: string): Observable<CategoryType[]> {
+    return this.http.get<CategoryType[]>(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_TYPES_BY_CATEGORY}/${categoryId}`
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Obtener un tipo de categoría por ID (admin)
+   */
+  getCategoryTypeById(categoryTypeId: string): Observable<CategoryType> {
+    return this.http.get<CategoryType>(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_TYPES_BY_ID}/${categoryTypeId}`
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Crear tipo de categoría (admin)
+   */
+  createCategoryType(categoryData: { name: string; description?: string; }): Observable<CategoryType> {
+    return this.http.post<CategoryType>(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_TYPE_CREATE}`,
+      categoryData
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Actualizar tipo de categoría (admin)
+   */
+  updateCategoryType(categoryTypeId: string, categoryData: { name: string; description?: string; imageUrl?: string }): Observable<CategoryType> {
+    return this.http.put<CategoryType>(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_TYPE_UPDATE}/${categoryTypeId}`,
+      categoryData
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Eliminar tipo de categoría (admin)
+   */
+  deleteCategoryType(categoryTypeId: string): Observable<any> {
+    return this.http.delete(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_TYPE_DELETE}/${categoryTypeId}`
     ).pipe(
       catchError(this.handleError)
     );

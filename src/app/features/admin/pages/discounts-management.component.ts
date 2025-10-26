@@ -37,7 +37,7 @@ import { ToastService } from '../../../shared/services/toast.service';
         <div class="flex gap-3">
           <app-button
             [config]="{
-              text: 'Añadir Descuento',
+              text: 'Crear Descuento',
               type: 'primary',
               size: 'md'
             }"

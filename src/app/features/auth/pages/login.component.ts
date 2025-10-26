@@ -243,7 +243,7 @@ export class LoginComponent implements OnInit {
         next: (result) => {
           console.log('🔐 Login: Login and profile result:', result);
           if (result.success) {
-            const redirectRoute = result.redirectRoute || '/productos';
+            const redirectRoute = result.redirectRoute || '/products';
             console.log('🔐 Login: Login successful, redirecting to:', redirectRoute);
             this.router.navigate([redirectRoute]);
           } else {

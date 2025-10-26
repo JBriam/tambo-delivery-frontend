@@ -4,9 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ProductService } from '../../products/services/product.service';
-import { Category } from '../../../models/category.model';
+import { Category, CategoryType } from '../../../models/category.model';
 import { ButtonComponent } from '../../../shared/components/button.component';
 import { CategoryModalComponent } from '../components/category-modal.component';
+import { CategoryTypeModalComponent } from '../components/category-type-modal.component';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal.component';
 import { ToastComponent } from '../../../shared/components/toast.component';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -19,6 +20,7 @@ import { ToastService } from '../../../shared/services/toast.service';
     FormsModule,
     ButtonComponent,
     CategoryModalComponent,
+    CategoryTypeModalComponent,
     ConfirmModalComponent,
     ToastComponent,
   ],
@@ -37,7 +39,7 @@ import { ToastService } from '../../../shared/services/toast.service';
         <div class="flex gap-3">
           <app-button
             [config]="{
-              text: 'Añadir Categoría',
+              text: 'Crear Categoría',
               type: 'primary',
               size: 'md'
             }"
@@ -83,6 +85,11 @@ import { ToastService } from '../../../shared/services/toast.service';
                 <th
                   class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
+                  Tipos
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Acciones
                 </th>
               </tr>
@@ -118,6 +125,13 @@ import { ToastService } from '../../../shared/services/toast.service';
                     </div>
                   </div>
                 </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                      {{ category.categoryTypes?.length || 0 }} Tipos
+                    </div>
+                  </div>
+                </td>
                 <td
                   class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2"
                 >
@@ -148,8 +162,21 @@ import { ToastService } from '../../../shared/services/toast.service';
       [isOpen]="isModalOpen"
       [mode]="modalMode"
       [category]="selectedCategory"
+      [categoryTypes]="selectedCategoryTypes"
       (closeModal)="closeModal()"
       (saveCategory)="onSaveCategory($event)"
+      (addType)="openTypeModal()"
+      (editTypeEvent)="openEditTypeModal($event)"
+      (removeTypeEvent)="removeType($event)"
+    />
+
+    <!-- Category Type Modal -->
+    <app-category-type-modal
+      [isOpen]="isTypeModalOpen"
+      [mode]="typeModalMode"
+      [categoryType]="selectedType"
+      (closeModal)="closeTypeModal()"
+      (saveType)="onSaveType($event)"
     />
 
     <!-- Delete Confirmation Modal -->
@@ -181,6 +208,12 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
   isModalOpen = false;
   modalMode: 'create' | 'edit' = 'create';
   selectedCategory: Category | null = null;
+  selectedCategoryTypes: CategoryType[] = [];
+
+  // Type Modal
+  isTypeModalOpen = false;
+  typeModalMode: 'create' | 'edit' = 'create';
+  selectedType: CategoryType | null = null;
 
   // Delete Modal
   isDeleteModalOpen = false;
@@ -247,6 +280,7 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
   openCreateCategoryModal(): void {
     this.modalMode = 'create';
     this.selectedCategory = null;
+    this.selectedCategoryTypes = [];
     this.isModalOpen = true;
   }
 
@@ -256,6 +290,8 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
   editCategory(category: Category): void {
     this.modalMode = 'edit';
     this.selectedCategory = { ...category };
+    // ✅ Cargar los tipos asociados desde la categoría
+    this.selectedCategoryTypes = category.categoryTypes ? [...category.categoryTypes] : [];
     this.isModalOpen = true;
   }
 
@@ -265,29 +301,37 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
   closeModal(): void {
     this.isModalOpen = false;
     this.selectedCategory = null;
+    this.selectedCategoryTypes = [];
   }
 
   /**
    * Guarda o actualiza una categoría
    */
-  onSaveCategory(category: Category): void {
+  onSaveCategory(data: { category: Category; types: CategoryType[] }): void {
+    const { category, types } = data;
     if (this.modalMode === 'create') {
-      this.createCategory(category);
+      this.createCategory(category, types);
     } else {
-      this.updateCategory(category);
+      this.updateCategory(category, types);
     }
   }
 
   /**
    * Crea una nueva categoría
    */
-  private createCategory(category: Category): void {
+  private createCategory(category: Category, types: CategoryType[]): void {
+    // ✅ Incluir los tipos en el objeto de categoría
+    const categoryWithTypes: Category = {
+      ...category,
+      categoryTypes: types
+    };
+
     this.subscriptions.push(
-      this.productService.createCategory(category).subscribe({
+      this.productService.createCategory(categoryWithTypes).subscribe({
         next: (newCategory) => {
           this.closeModal();
           this.toastService.success(
-            `Categoría "${category.name}" creada exitosamente`
+            `Categoría "${category.name}" creada exitosamente con ${types.length} tipo(s)`
           );
           this.loadCategories();
         },
@@ -301,6 +345,7 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
           setTimeout(() => {
             this.modalMode = 'create';
             this.selectedCategory = category;
+            this.selectedCategoryTypes = types;
             this.isModalOpen = true;
           }, 100);
         },
@@ -311,13 +356,19 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
   /**
    * Actualiza una categoría existente
    */
-  private updateCategory(category: Category): void {
+  private updateCategory(category: Category, types: CategoryType[]): void {
+    // ✅ Incluir los tipos actualizados en el objeto de categoría
+    const categoryWithTypes: Category = {
+      ...category,
+      categoryTypes: types
+    };
+
     this.subscriptions.push(
-      this.productService.updateCategory(category.id, category).subscribe({
+      this.productService.updateCategory(category.id, categoryWithTypes).subscribe({
         next: (updatedCategory) => {
           this.closeModal();
           this.toastService.success(
-            `Categoría "${category.name}" actualizada exitosamente`
+            `Categoría "${category.name}" actualizada exitosamente con ${types.length} tipo(s)`
           );
           this.loadCategories();
         },
@@ -331,6 +382,7 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
           setTimeout(() => {
             this.modalMode = 'edit';
             this.selectedCategory = category;
+            this.selectedCategoryTypes = types;
             this.isModalOpen = true;
           }, 100);
         },
@@ -385,6 +437,63 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
   cancelDelete(): void {
     this.isDeleteModalOpen = false;
     this.categoryToDelete = null;
+  }
+
+  /**
+   * Abre el modal para agregar un nuevo tipo
+   */
+  openTypeModal(): void {
+    this.typeModalMode = 'create';
+    this.selectedType = null;
+    this.isTypeModalOpen = true;
+  }
+
+  /**
+   * Abre el modal para editar un tipo existente
+   */
+  openEditTypeModal(type: CategoryType): void {
+    this.typeModalMode = 'edit';
+    this.selectedType = { ...type };
+    this.isTypeModalOpen = true;
+  }
+
+  /**
+   * Cierra el modal de tipo
+   */
+  closeTypeModal(): void {
+    this.isTypeModalOpen = false;
+    this.selectedType = null;
+  }
+
+  /**
+   * Guarda un tipo de categoría (agregar o editar)
+   */
+  onSaveType(type: CategoryType): void {
+    if (this.typeModalMode === 'create') {
+      // Agregar el nuevo tipo a la lista
+      this.selectedCategoryTypes = [...this.selectedCategoryTypes, type];
+      this.toastService.success(`Tipo "${type.name}" agregado exitosamente`);
+    } else {
+      // Actualizar el tipo existente
+      this.selectedCategoryTypes = this.selectedCategoryTypes.map((t) =>
+        t.id === type.id ? type : t
+      );
+      this.toastService.success(`Tipo "${type.name}" actualizado exitosamente`);
+    }
+    this.closeTypeModal();
+  }
+
+  /**
+   * Elimina un tipo de la lista
+   */
+  removeType(typeId: string): void {
+    const type = this.selectedCategoryTypes.find((t) => t.id === typeId);
+    if (type) {
+      this.selectedCategoryTypes = this.selectedCategoryTypes.filter(
+        (t) => t.id !== typeId
+      );
+      this.toastService.success(`Tipo "${type.name}" eliminado`);
+    }
   }
 
   /**

@@ -29,7 +29,7 @@ import { ButtonComponent } from '../../../shared/components/button.component';
         <div class="flex gap-3">
           <app-button
             [config]="{
-              text: 'Añadir Producto',
+              text: 'Crear Producto',
               type: 'primary',
               size: 'md'
             }"
