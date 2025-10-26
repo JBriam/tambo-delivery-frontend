@@ -123,7 +123,7 @@ export class ProductsListComponent implements OnInit {
 
     // Verificar si hay parámetros de consulta (query params)
     this.route.queryParams.subscribe(params => {
-      console.log('Query params:', params);
+      // console.log('Query params:', params);
       
       if (params['category'] && !this.selectedCategoryId) {
         this.selectedCategoryId = params['category'];
@@ -142,33 +142,33 @@ export class ProductsListComponent implements OnInit {
 
   private loadInitialData(): void {
     this.isLoading = true;
-    console.log('=== CARGANDO PRODUCTOS EN /products ===');
-    console.log('🔍 Filtro actual:', this.currentFilter);
+    // console.log('=== CARGANDO PRODUCTOS EN /products ===');
+    // console.log('🔍 Filtro actual:', this.currentFilter);
     
     // Cargar productos con el filtro actual
     this.productService.getProducts(this.currentFilter).subscribe({
       next: (products) => {
         this.products = products || [];
-        console.log('✅ Productos cargados desde backend:', this.products.length, 'productos');
+        // console.log('✅ Productos cargados desde backend:', this.products.length, 'productos');
         
         if (this.currentFilter.categoryId) {
-          console.log(`📂 Filtrando por categoría: ${this.currentFilter.categoryId}`);
+          // console.log(`📂 Filtrando por categoría: ${this.currentFilter.categoryId}`);
           const filteredProducts = this.products.filter(p => p.category?.id === this.currentFilter.categoryId);
-          console.log(`🎯 Productos de la categoría ${this.currentFilter.categoryId}:`, filteredProducts.length, 'productos');
+          // console.log(`🎯 Productos de la categoría ${this.currentFilter.categoryId}:`, filteredProducts.length, 'productos');
           this.products = filteredProducts;
         }
         
         if (this.currentFilter.name) {
-          console.log(`🔍 Filtrando por búsqueda: "${this.currentFilter.name}"`);
+          // console.log(`🔍 Filtrando por búsqueda: "${this.currentFilter.name}"`);
           const searchTerm = this.currentFilter.name.toLowerCase();
           this.products = this.products.filter(p => 
             p.name.toLowerCase().includes(searchTerm) ||
             p.description.toLowerCase().includes(searchTerm)
           );
-          console.log(`🎯 Productos que coinciden con "${this.currentFilter.name}":`, this.products.length);
+          // console.log(`🎯 Productos que coinciden con "${this.currentFilter.name}":`, this.products.length);
         }
         
-        console.log('📦 Productos finales a mostrar:', this.products);
+        // console.log('📦 Productos finales a mostrar:', this.products);
         this.isLoading = false;
       },
       error: (error) => {
@@ -183,7 +183,7 @@ export class ProductsListComponent implements OnInit {
     this.productService.getPublicCategories().subscribe({
       next: (categories) => {
         this.categories = categories || [];
-        console.log('Categorías cargadas:', this.categories);
+        // console.log('Categorías cargadas:', this.categories);
       },
       error: (error) => {
         console.error('Error loading categories:', error);
@@ -245,11 +245,11 @@ export class ProductsListComponent implements OnInit {
   }
 
   addToCart(product: Product): void {
-    console.log('📦 ProductsList: Adding product to cart:', product);
+    // console.log('📦 ProductsList: Adding product to cart:', product);
     this.cartService.addToCart(product);
-    console.log('📦 ProductsList: Product added to cart successfully');
+    // console.log('📦 ProductsList: Product added to cart successfully');
     // TODO: Mostrar notificación toast en lugar de alert
-    console.log(`${product.name} agregado al carrito`);
+    // console.log(`${product.name} agregado al carrito`);
   }
 
   formatCurrency(amount: number): string {
@@ -258,12 +258,12 @@ export class ProductsListComponent implements OnInit {
 
   addToWishlist(product: Product): void {
     // TODO: Implementar servicio de favoritos
-    console.log(`${product.name} agregado a favoritos`);
+    // console.log(`${product.name} agregado a favoritos`);
   }
 
   quickView(product: Product): void {
     // TODO: Implementar modal de vista rápida
-    console.log(`Vista rápida de ${product.name}`);
+    // console.log(`Vista rápida de ${product.name}`);
   }
 
   /**

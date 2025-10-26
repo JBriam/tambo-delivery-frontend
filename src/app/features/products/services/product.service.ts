@@ -52,11 +52,11 @@ export class ProductService {
     if (filter.newArrival !== undefined) params = params.set('newArrival', filter.newArrival.toString());
 
     const url = `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.PUBLIC.PRODUCTS}`;
-    console.log('🌐 [ProductService] GET:', url, 'params:', params.toString());
+    // console.log('🌐 [ProductService] GET:', url, 'params:', params.toString());
 
     return this.http.get<Product[]>(url, { params }).pipe(
       map((products: Product[]) => {
-        console.log('✅ [ProductService] Productos recibidos:', products?.length || 0);
+        // console.log('✅ [ProductService] Productos recibidos:', products?.length || 0);
         return products || [];
       }),
       catchError((error) => {
@@ -113,15 +113,15 @@ export class ProductService {
    * Obtener productos agrupados por categorías (para home page)
    */
   getProductsByCategories(limit: number = 6): Observable<{category: Category, products: Product[]}[]> {
-    console.log('🏠 [ProductService] Obteniendo productos por categorías con límite:', limit);
+    // console.log('🏠 [ProductService] Obteniendo productos por categorías con límite:', limit);
     
     return this.getPublicCategories().pipe(
       map((categories: Category[]) => {
-        console.log('📂 [ProductService] Categorías obtenidas:', categories.length);
+        // console.log('📂 [ProductService] Categorías obtenidas:', categories.length);
         return categories.sort((a, b) => a.name.localeCompare(b.name)); // Ordenar alfabéticamente
       }),
       switchMap((categories: Category[]) => {
-        console.log('🔄 [ProductService] Obteniendo productos para cada categoría...');
+        // console.log('🔄 [ProductService] Obteniendo productos para cada categoría...');
         const requests = categories.map((category: Category) => {
           // Usar el nuevo endpoint optimizado por categoría
           let params = new HttpParams()
@@ -132,9 +132,9 @@ export class ProductService {
           
           return this.http.get<Product[]>(url, { params }).pipe(
             map((products: Product[]) => {
-              console.log(`📦 [ProductService] Categoría "${category.name}" (ID: ${category.id}): ${products.length} productos encontrados`);
+              // console.log(`📦 [ProductService] Categoría "${category.name}" (ID: ${category.id}): ${products.length} productos encontrados`);
               if (products.length > 0) {
-                console.log(`📦 [ProductService] Primeros productos de "${category.name}":`, products.slice(0, 3).map(p => ({ id: p.id, name: p.name })));
+                // console.log(`📦 [ProductService] Primeros productos de "${category.name}":`, products.slice(0, 3).map(p => ({ id: p.id, name: p.name })));
               }
               return {
                 category,

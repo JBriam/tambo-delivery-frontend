@@ -408,14 +408,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   loadProducts(): void {
-    console.log('[Home] Iniciando carga de productos por categorías...');
+    // console.log('[Home] Iniciando carga de productos por categorías...');
     this.isLoading = true;
     this.error = null;
 
     // Cargar productos agrupados por categorías (6 productos por categoría)
     this.productService.getProductsByCategories(6).subscribe({
       next: (categoryProducts) => {
-        console.log('[Home] Productos por categorías cargados exitosamente:', categoryProducts);
+        // console.log('[Home] Productos por categorías cargados exitosamente:', categoryProducts);
         this.categoryProducts = categoryProducts.filter(cp => cp.products.length > 0); // Solo mostrar categorías con productos
         this.isLoading = false;
       },
