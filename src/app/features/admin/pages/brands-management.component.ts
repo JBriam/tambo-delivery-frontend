@@ -99,7 +99,7 @@ import { ToastService } from '../../../shared/services/toast.service';
                   <div class="flex items-center">
                     <img
                       [src]="
-                        brand.imageUrl || '/assets/brands/brand-default.png'
+                        brand.imageUrl || '/assets/images/brand-default.png'
                       "
                       [alt]="brand.name"
                       class="h-12 w-12 rounded-lg object-cover mr-4"
@@ -119,15 +119,43 @@ import { ToastService } from '../../../shared/services/toast.service';
                 >
                   <button
                     (click)="editBrand(brand)"
-                    class="text-indigo-600 hover:text-indigo-900"
+                    type="button"
+                    class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors cursor-pointer"
+                    title="Editar tipo"
                   >
-                    Editar
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
                   </button>
                   <button
                     (click)="onDeleteBrand(brand.id)"
-                    class="text-red-600 hover:text-red-900"
+                    type="button"
+                    class="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
+                    title="Eliminar tipo"
                   >
-                    Eliminar
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
                   </button>
                 </td>
               </tr>
@@ -288,7 +316,6 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
           this.loadBrands();
         },
         error: (error) => {
-          console.error('Error al crear marca:', error);
           this.toastService.error(
             'Error al crear la marca. Por favor, intenta nuevamente.'
           );
@@ -318,7 +345,7 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
           this.loadBrands();
         },
         error: (error) => {
-          console.error('Error al actualizar marca:', error);
+          console.error('❌ Error al actualizar marca:', error);
           this.toastService.error(
             'Error al actualizar la marca. Por favor, intenta nuevamente.'
           );

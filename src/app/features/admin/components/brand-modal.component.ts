@@ -173,8 +173,8 @@ export class BrandModalComponent implements OnInit, OnChanges {
     const brandData: Brand = {
       id: this.brand?.id || '',
       name: this.brandForm.value.name.trim(),
-      description: this.brandForm.value.description?.trim() || undefined,
-      imageUrl: this.brandForm.value.imageUrl?.trim() || undefined
+      description: this.brandForm.value.description || '',
+      imageUrl: this.brandForm.value.imageUrl || ''
     };
 
     this.saveBrand.emit(brandData);
