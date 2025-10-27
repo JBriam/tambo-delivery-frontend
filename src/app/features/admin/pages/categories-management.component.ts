@@ -130,7 +130,10 @@ import { ToastService } from '../../../shared/services/toast.service';
                     <div
                       class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full"
                     >
-                      {{ category.categoryTypes?.length || 0 }} Tipos
+                      @if (category.categoryTypes?.length == 1) {
+                      {{ category.categoryTypes?.length }} tipo } @else if
+                      (category.categoryTypes?.length == 0) { Ninguno } @else{
+                      {{ category.categoryTypes?.length }} tipos}
                     </div>
                   </div>
                 </td>

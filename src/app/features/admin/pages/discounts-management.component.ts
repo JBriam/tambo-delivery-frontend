@@ -1,15 +1,20 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, LOCALE_ID } from '@angular/core';
+import { CommonModule, registerLocaleData } from '@angular/common';
+import localeEs from '@angular/common/locales/es';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 import { ProductService } from '../../products/services/product.service';
 import { Discount } from '../../../models/discount.model';
+import { Product } from '../../../models/product.model';
 import { ButtonComponent } from '../../../shared/components/button.component';
 import { DiscountModalComponent } from '../components/discount-modal.component';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal.component';
 import { ToastComponent } from '../../../shared/components/toast.component';
 import { ToastService } from '../../../shared/services/toast.service';
+
+// Registrar locale español
+registerLocaleData(localeEs);
 
 @Component({
   selector: 'app-discount-management',
@@ -22,6 +27,7 @@ import { ToastService } from '../../../shared/services/toast.service';
     ConfirmModalComponent,
     ToastComponent,
   ],
+  providers: [{ provide: LOCALE_ID, useValue: 'es' }],
   template: `
     <div class="p-6">
       <!-- Header -->
@@ -98,6 +104,11 @@ import { ToastService } from '../../../shared/services/toast.service';
                 <th
                   class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
+                  Productos asociados
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Estado
                 </th>
                 <th
@@ -142,7 +153,7 @@ import { ToastService } from '../../../shared/services/toast.service';
                     <div
                       class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full"
                     >
-                      {{ discount.startDate | date }}
+                      {{ discount.startDate | date : 'dd MMMM yyyy' }}
                     </div>
                   </div>
                 </td>
@@ -151,7 +162,19 @@ import { ToastService } from '../../../shared/services/toast.service';
                     <div
                       class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full"
                     >
-                      {{ discount.endDate | date }}
+                      {{ discount.endDate | date : 'dd MMMM yyyy' }}
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div
+                      class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full"
+                    >
+                      @if (discount.products?.length == 1) {
+                      {{ discount.products?.length }} producto } @else if
+                      (discount.products?.length == 0) { Ninguno } @else{
+                      {{ discount.products?.length }} productos}
                     </div>
                   </div>
                 </td>
@@ -224,6 +247,7 @@ import { ToastService } from '../../../shared/services/toast.service';
         [isOpen]="isModalOpen"
         [mode]="modalMode"
         [discount]="selectedDiscount"
+        [products]="availableProducts"
         (closeModal)="closeModal()"
         (saveDiscount)="onSaveDiscount($event)"
       />
@@ -248,6 +272,7 @@ import { ToastService } from '../../../shared/services/toast.service';
 export class DiscountsManagementComponent implements OnInit, OnDestroy {
   discounts: Discount[] = [];
   filteredDiscounts: Discount[] = [];
+  availableProducts: Product[] = []; // ✅ Lista de productos disponibles
   isLoading = false;
 
   // Filters
@@ -272,11 +297,89 @@ export class DiscountsManagementComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.loadDiscounts();
+    this.loadInitialData();
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
+  }
+
+  /**
+   * Carga datos iniciales (descuentos y productos)
+   */
+  private loadInitialData(): void {
+    this.isLoading = true;
+    this.subscriptions.push(
+      forkJoin({
+        discounts: this.productService.getAllDiscounts(),
+        products: this.productService.getAllProductsAdmin(),
+      }).subscribe({
+        next: ({ discounts, products }) => {
+          this.discounts = discounts || [];
+          this.availableProducts = products || [];
+          this.checkAndDeactivateExpiredDiscounts(); // ✅ Verificar descuentos vencidos
+          this.applyFilters();
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error loading data:', error);
+          this.isLoading = false;
+        },
+      })
+    );
+  }
+
+  /**
+   * ✅ Verifica y desactiva automáticamente los descuentos vencidos
+   */
+  private checkAndDeactivateExpiredDiscounts(): void {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalizar a medianoche
+
+    const expiredDiscounts = this.discounts.filter((discount) => {
+      if (!discount.endDate || !discount.isActive) return false;
+
+      const endDate = new Date(discount.endDate);
+      endDate.setHours(0, 0, 0, 0);
+
+      return endDate < today; // Si la fecha de fin ya pasó
+    });
+
+    if (expiredDiscounts.length > 0) {
+      console.log(
+        `⏰ Se encontraron ${expiredDiscounts.length} descuentos vencidos. Desactivando...`
+      );
+
+      // Desactivar cada descuento vencido
+      expiredDiscounts.forEach((discount) => {
+        const updatedDiscount = { ...discount, isActive: false };
+
+        this.subscriptions.push(
+          this.productService
+            .updateDiscount(discount.id, updatedDiscount)
+            .subscribe({
+              next: () => {
+                console.log(
+                  `✅ Descuento "${discount.name}" desactivado automáticamente`
+                );
+                // Actualizar en la lista local
+                const index = this.discounts.findIndex(
+                  (d) => d.id === discount.id
+                );
+                if (index > -1) {
+                  this.discounts[index].isActive = false;
+                }
+              },
+              error: (error) => {
+                console.error(
+                  `❌ Error al desactivar descuento "${discount.name}":`,
+                  error
+                );
+              },
+            })
+        );
+      });
+    }
   }
 
   /**
@@ -288,6 +391,7 @@ export class DiscountsManagementComponent implements OnInit, OnDestroy {
       this.productService.getAllDiscounts().subscribe({
         next: (discounts) => {
           this.discounts = discounts || [];
+          this.checkAndDeactivateExpiredDiscounts(); // ✅ Verificar vencimientos
           this.applyFilters();
           this.isLoading = false;
         },
@@ -347,20 +451,35 @@ export class DiscountsManagementComponent implements OnInit, OnDestroy {
   /**
    * Guarda o actualiza un descuento
    */
-  onSaveDiscount(discount: Discount): void {
+  onSaveDiscount(event: { discount: Discount; productIds: string[] }): void {
     if (this.modalMode === 'create') {
-      this.createDiscount(discount);
+      this.createDiscount(event.discount, event.productIds);
     } else {
-      this.updateDiscount(discount);
+      this.updateDiscount(event.discount, event.productIds);
     }
   }
 
   /**
-   * Crea una nueva descuento
+   * Crea un nuevo descuento
    */
-  private createDiscount(discount: Discount): void {
+  private createDiscount(discount: Discount, productIds: string[]): void {
+    console.log('📤 Creando descuento con productos:', {
+      discount,
+      productIds,
+    });
+
+    // ✅ Construir payload según DTO del backend
+    const payload = {
+      name: discount.name,
+      percentage: discount.percentage,
+      startDate: discount.startDate,
+      endDate: discount.endDate,
+      isActive: discount.isActive,
+      productIds: productIds,
+    };
+
     this.subscriptions.push(
-      this.productService.createDiscount(discount).subscribe({
+      this.productService.createDiscount(payload).subscribe({
         next: (newDiscount) => {
           this.closeModal();
           this.toastService.success(
@@ -388,9 +507,24 @@ export class DiscountsManagementComponent implements OnInit, OnDestroy {
   /**
    * Actualiza un descuento existente
    */
-  private updateDiscount(discount: Discount): void {
+  private updateDiscount(discount: Discount, productIds: string[]): void {
+    console.log('📤 Actualizando descuento con productos:', {
+      discount,
+      productIds,
+    });
+
+    // ✅ Construir payload según DTO del backend
+    const payload = {
+      name: discount.name,
+      percentage: discount.percentage,
+      startDate: discount.startDate,
+      endDate: discount.endDate,
+      isActive: discount.isActive,
+      productIds: productIds,
+    };
+
     this.subscriptions.push(
-      this.productService.updateDiscount(discount.id, discount).subscribe({
+      this.productService.updateDiscount(discount.id, payload).subscribe({
         next: (updatedDiscount) => {
           this.closeModal();
           this.toastService.success(
