@@ -127,8 +127,13 @@ import { ToastService } from '../../../shared/services/toast.service';
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
-                    <div class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                      {{ category.categoryTypes?.length || 0 }} Tipos
+                    <div
+                      class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full"
+                    >
+                      @if (category.categoryTypes?.length == 1) {
+                      {{ category.categoryTypes?.length }} tipo } @else if
+                      (category.categoryTypes?.length == 0) { Ninguno } @else{
+                      {{ category.categoryTypes?.length }} tipos}
                     </div>
                   </div>
                 </td>
@@ -137,15 +142,43 @@ import { ToastService } from '../../../shared/services/toast.service';
                 >
                   <button
                     (click)="editCategory(category)"
-                    class="text-indigo-600 hover:text-indigo-900"
+                    type="button"
+                    class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors cursor-pointer"
+                    title="Editar tipo"
                   >
-                    Editar
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
                   </button>
                   <button
                     (click)="onDeleteCategory(category.id)"
-                    class="text-red-600 hover:text-red-900"
+                    type="button"
+                    class="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
+                    title="Eliminar tipo"
                   >
-                    Eliminar
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
                   </button>
                 </td>
               </tr>
@@ -291,7 +324,9 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
     this.modalMode = 'edit';
     this.selectedCategory = { ...category };
     // ✅ Cargar los tipos asociados desde la categoría
-    this.selectedCategoryTypes = category.categoryTypes ? [...category.categoryTypes] : [];
+    this.selectedCategoryTypes = category.categoryTypes
+      ? [...category.categoryTypes]
+      : [];
     this.isModalOpen = true;
   }
 
@@ -323,7 +358,7 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
     // ✅ Incluir los tipos en el objeto de categoría
     const categoryWithTypes: Category = {
       ...category,
-      categoryTypes: types
+      categoryTypes: types,
     };
 
     this.subscriptions.push(
@@ -360,33 +395,35 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
     // ✅ Incluir los tipos actualizados en el objeto de categoría
     const categoryWithTypes: Category = {
       ...category,
-      categoryTypes: types
+      categoryTypes: types,
     };
 
     this.subscriptions.push(
-      this.productService.updateCategory(category.id, categoryWithTypes).subscribe({
-        next: (updatedCategory) => {
-          this.closeModal();
-          this.toastService.success(
-            `Categoría "${category.name}" actualizada exitosamente con ${types.length} tipo(s)`
-          );
-          this.loadCategories();
-        },
-        error: (error) => {
-          console.error('Error al actualizar categoría:', error);
-          this.toastService.error(
-            'Error al actualizar la categoría. Por favor, intenta nuevamente.'
-          );
-          // ✅ Cerrar y reabrir el modal para resetear isSubmitting
-          this.closeModal();
-          setTimeout(() => {
-            this.modalMode = 'edit';
-            this.selectedCategory = category;
-            this.selectedCategoryTypes = types;
-            this.isModalOpen = true;
-          }, 100);
-        },
-      })
+      this.productService
+        .updateCategory(category.id, categoryWithTypes)
+        .subscribe({
+          next: (updatedCategory) => {
+            this.closeModal();
+            this.toastService.success(
+              `Categoría "${category.name}" actualizada exitosamente con ${types.length} tipo(s)`
+            );
+            this.loadCategories();
+          },
+          error: (error) => {
+            console.error('Error al actualizar categoría:', error);
+            this.toastService.error(
+              'Error al actualizar la categoría. Por favor, intenta nuevamente.'
+            );
+            // ✅ Cerrar y reabrir el modal para resetear isSubmitting
+            this.closeModal();
+            setTimeout(() => {
+              this.modalMode = 'edit';
+              this.selectedCategory = category;
+              this.selectedCategoryTypes = types;
+              this.isModalOpen = true;
+            }, 100);
+          },
+        })
     );
   }
 

@@ -163,7 +163,7 @@ export class ProductService {
    */
   getAllProductsAdmin(): Observable<Product[]> {
     return this.http.get<Product[]>(
-      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.PRODUCTS_ALL}`
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.PRODUCTS}`
     ).pipe(
       catchError(this.handleError)
     );

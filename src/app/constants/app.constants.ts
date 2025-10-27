@@ -65,8 +65,7 @@ export const API_ENDPOINTS = {
     DISCOUNT_DELETE: '/admin/discount/delete',
     
     // Productos
-    PRODUCTS: '/admin/product',
-    PRODUCTS_ALL: '/admin/product/get-all',
+    PRODUCTS: '/admin/product/get-all',
     PRODUCT_SECTIONS: '/admin/product-section',
     
     // Usuarios
