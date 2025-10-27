@@ -357,8 +357,8 @@ export class CategoryModalComponent implements OnInit, OnChanges {
     const categoryData: Category = {
       id: this.category?.id || '',
       name: this.categoryForm.value.name.trim(),
-      description: this.categoryForm.value.description?.trim() || undefined,
-      imageUrl: this.categoryForm.value.imageUrl?.trim() || undefined,
+      description: this.categoryForm.value.description || '',
+      imageUrl: this.categoryForm.value.imageUrl || '',
     };
 
     this.saveCategory.emit({

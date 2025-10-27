@@ -135,7 +135,7 @@ export class CategoryTypeModalComponent implements OnInit, OnChanges {
     const typeData: CategoryType = {
       id: this.categoryType?.id || this.generateTempId(),
       name: this.typeForm.value.name.trim(),
-      description: this.typeForm.value.description?.trim() || undefined
+      description: this.typeForm.value.description || ''
     };
 
     this.saveType.emit(typeData);
