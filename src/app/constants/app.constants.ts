@@ -66,8 +66,17 @@ export const API_ENDPOINTS = {
     
     // Productos
     PRODUCTS: '/admin/product/get-all',
-    PRODUCT_SECTIONS: '/admin/product-section',
-    
+    PRODUCT_BY_ID: '/admin/product', // Obtener un producto por su ID
+    PRODUCT_CREATE: '/admin/product/create',
+    PRODUCT_UPDATE: '/admin/product/update',
+    PRODUCT_DELETE: '/admin/product/delete',
+
+    // Secciones de productos
+    PRODUCT_SECTIONS: '/admin/product-sections',
+    PRODUCT_SECTION_CREATE: '/admin/product-sections/create',
+    PRODUCT_SECTION_UPDATE: '/admin/product-sections/update',
+    PRODUCT_SECTION_DELETE: '/admin/product-sections/delete',
+
     // Usuarios
     USERS: '/admin/users',
     USERS_CREATE: '/admin/users/create',

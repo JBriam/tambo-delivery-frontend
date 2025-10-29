@@ -2,14 +2,20 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError, forkJoin } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { Product, ProductFilter } from '../../../models/product.model';
+import { 
+  Product, 
+  ProductFilter, 
+  CreateProductCompleteDto,
+  ProductPhase1Data,
+  ProductResource
+} from '../../../models/product.model';
 import { ProductSection } from '../../../models/product-section.model';
 import { Category, CategoryType } from '../../../models/category.model';
 import { Brand } from '../../../models/brand.model';
 import { Discount } from '../../../models/discount.model';
 import { API_ENDPOINTS } from '../../../constants/app.constants';
 
-// DTOs para el backend Spring Boot
+// DTOs para el backend Spring Boot (mantener compatibilidad)
 export interface CreateProductRequest {
   slug: string;
   name: string;
@@ -26,6 +32,8 @@ export interface CreateProductRequest {
 
 export interface UpdateProductRequest extends CreateProductRequest {
   id: string;
+  resources?: ProductResource[];
+  discountIds?: string[];
 }
 
 @Injectable({
@@ -170,11 +178,12 @@ export class ProductService {
   }
 
   /**
-   * Crear producto (admin)
+   * Crear producto completo en una sola petición (admin)
+   * Soporta datos básicos, recursos/imágenes y asignación de descuentos
    */
-  createProduct(productData: CreateProductRequest): Observable<Product> {
+  createProductComplete(productData: CreateProductCompleteDto): Observable<Product> {
     return this.http.post<Product>(
-      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.PRODUCTS}`,
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.PRODUCT_CREATE}`,
       productData
     ).pipe(
       catchError(this.handleError)
@@ -186,7 +195,7 @@ export class ProductService {
    */
   updateProduct(productId: string, productData: UpdateProductRequest): Observable<Product> {
     return this.http.put<Product>(
-      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.PRODUCTS}/${productId}`,
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.PRODUCT_UPDATE}/${productId}`,
       productData
     ).pipe(
       catchError(this.handleError)
@@ -198,7 +207,7 @@ export class ProductService {
    */
   deleteProduct(productId: string): Observable<any> {
     return this.http.delete(
-      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.PRODUCTS}/${productId}`
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.PRODUCT_DELETE}/${productId}`
     ).pipe(
       catchError(this.handleError)
     );

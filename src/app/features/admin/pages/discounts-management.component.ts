@@ -483,7 +483,7 @@ export class DiscountsManagementComponent implements OnInit, OnDestroy {
         next: (newDiscount) => {
           this.closeModal();
           this.toastService.success(
-            `Descuento "${newDiscount.name}" creado exitosamente`
+            `Descuento "${payload.name}" creado exitosamente`
           );
           this.loadDiscounts();
         },
@@ -528,7 +528,7 @@ export class DiscountsManagementComponent implements OnInit, OnDestroy {
         next: (updatedDiscount) => {
           this.closeModal();
           this.toastService.success(
-            `Descuento "${updatedDiscount.name}" actualizado exitosamente`
+            `Descuento "${payload.name}" actualizado exitosamente`
           );
           this.loadDiscounts();
         },

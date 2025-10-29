@@ -432,12 +432,20 @@ export class DiscountModalComponent implements OnInit, OnChanges {
 
   /**
    * Formatear fecha para input type="date" (YYYY-MM-DD)
+   * Corrige problemas de zona horaria usando UTC para evitar el desfase de un día
    */
-  private formatDateForInput(date: Date): string {
+  private formatDateForInput(date: Date | string): string {
+    // Si ya es un string en formato YYYY-MM-DD, retornarlo directamente
+    if (typeof date === 'string') {
+      // Extraer solo la parte de la fecha (YYYY-MM-DD) ignorando la hora
+      return date.split('T')[0];
+    }
+    
+    // Si es un Date object, usar UTC para evitar problemas de zona horaria
     const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
+    const year = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
 
