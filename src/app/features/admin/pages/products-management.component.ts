@@ -46,7 +46,7 @@ import { ToastService } from '../../../shared/services/toast.service';
         <div>
           <h1 class="text-2xl font-bold text-gray-800">Gestión de Productos</h1>
           <p class="text-gray-600">
-            Administra el catálogo de productos de Tambo Delivery
+            Administra los productos de Tambo Delivery
           </p>
         </div>
         <div class="flex gap-3">
@@ -70,18 +70,18 @@ import { ToastService } from '../../../shared/services/toast.service';
               [(ngModel)]="searchTerm"
               (input)="applyFilters()"
               placeholder="Buscar productos..."
-              class="w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
+              class="w-full px-3 py-2 text-sm placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
             />
           </div>
           <div>
             <select
               [(ngModel)]="selectedCategoryId"
               (change)="applyFilters()"
-              class="w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
+              class="w-full px-3 py-2 text-sm text-gray-500 placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d] cursor-pointer"
             >
               <option value="">Todas las categorías</option>
               @for (category of categories; track category.id) {
-              <option [value]="category.id">{{ category.name }}</option>
+              <option [value]="category.id" class="text-gray-900">{{ category.name }}</option>
               }
             </select>
           </div>
@@ -89,11 +89,11 @@ import { ToastService } from '../../../shared/services/toast.service';
             <select
               [(ngModel)]="selectedStatus"
               (change)="applyFilters()"
-              class="w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
+              class="w-full px-3 py-2 text-sm text-gray-500 placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d] cursor-pointer"
             >
               <option value="">Todos los estados</option>
-              <option value="active">Activos</option>
-              <option value="inactive">Inactivos</option>
+              <option value="active" class="text-gray-900">Activos</option>
+              <option value="inactive" class="text-gray-900">Inactivos</option>
             </select>
           </div>
         </div>
@@ -146,7 +146,7 @@ import { ToastService } from '../../../shared/services/toast.service';
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              @if (filteredProducts.length === 0) {
+              @if (paginatedProducts.length === 0) {
               <tr>
                 <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                   @if (searchTerm || selectedCategoryId || selectedStatus) { No
@@ -154,23 +154,68 @@ import { ToastService } from '../../../shared/services/toast.service';
                   { No hay productos disponibles }
                 </td>
               </tr>
-              } @else { @for (product of filteredProducts; track product.id) {
-              <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <img
-                      [src]="
-                        product.thumbnail || '/assets/images/product-default.png'
-                      "
-                      [alt]="product.name"
-                      class="h-12 w-12 rounded-lg object-cover mr-4"
-                    />
-                    <div>
-                      <div class="text-sm font-medium text-gray-900">
-                        {{ product.name }}
+              } @else { @for (product of paginatedProducts; track product.id) {
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-4">
+                    <!-- Imagen del producto -->
+                    <div class="relative flex-shrink-0">
+                      <img
+                        [src]="product.thumbnail || '/assets/images/no-image.webp'"
+                        [alt]="product.name"
+                        class="h-16 w-16 rounded-lg object-cover border border-gray-200 shadow-sm"
+                      />
+                      <!-- Badge de descuento sobre la imagen -->
+                      @if (product.discountPercentage && product.discountPercentage > 0) {
+                        <span class="absolute -top-2 -right-2 inline-flex items-center justify-center w-7 h-7 text-xs font-bold bg-red-500 text-white rounded-full shadow-md">
+                          -{{ product.discountPercentage }}%
+                        </span>
+                      }
+                      <!-- Badge de nuevo -->
+                      @if (product.isNewArrival) {
+                        <span class="absolute -bottom-1 -right-1 inline-flex items-center px-1.5 py-0.5 text-xs font-semibold bg-blue-500 text-white rounded shadow-sm">
+                          Nuevo
+                        </span>
+                      }
+                    </div>
+                    
+                    <!-- Info del producto -->
+                    <div class="flex-1 min-w-0">
+                      <!-- Nombre del producto -->
+                      <div class="flex items-center gap-2 mb-1">
+                        <h4 class="text-sm font-semibold text-gray-900 truncate">
+                          {{ product.name }}
+                        </h4>
                       </div>
-                      <div class="text-sm text-gray-500">
-                        {{ product.brand.name }}
+                      
+                      <!-- Marca con ícono -->
+                      <div class="flex items-center gap-1 mb-1">
+                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                        </svg>
+                        <span class="text-xs font-medium text-gray-600">{{ product.brand.name }}</span>
+                      </div>
+                      
+                      <!-- Descuento o estado sin descuento -->
+                      <div class="flex items-center gap-2">
+                        @if (product.discountPercentage && product.discountPercentage > 0) {
+                          <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold bg-red-50 text-red-700 border border-red-200 rounded">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"></path>
+                              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"></path>
+                            </svg>
+                            {{ product.discountPercentage }}% OFF
+                          </span>
+                          @if (product.discountedPrice) {
+                            <span class="text-xs text-gray-500">
+                              Ahorro: <span class="font-semibold text-green-600">S/ {{ (product.price - product.discountedPrice).toFixed(2) }}</span>
+                            </span>
+                          }
+                        } @else {
+                          <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-600 rounded">
+                            Sin descuento
+                          </span>
+                        }
                       </div>
                     </div>
                   </div>
@@ -182,10 +227,26 @@ import { ToastService } from '../../../shared/services/toast.service';
                     {{ product.category.name }}
                   </span>
                 </td>
-                <td
-                  class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
-                >
-                  S/ {{ product.price.toFixed(2) }}
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex flex-col">
+                    @if (product.discountPercentage && product.discountPercentage > 0 && product.discountedPrice) {
+                      <!-- Precio con descuento -->
+                      <div class="flex items-center gap-2">
+                        <span class="text-sm font-bold text-red-600">
+                          S/ {{ product.discountedPrice.toFixed(2) }}
+                        </span>
+                      </div>
+                      <!-- Precio original tachado -->
+                      <span class="text-xs text-gray-400 line-through">
+                        S/ {{ product.price.toFixed(2) }}
+                      </span>
+                    } @else {
+                      <!-- Precio normal -->
+                      <span class="text-sm font-semibold text-gray-900">
+                        S/ {{ product.price.toFixed(2) }}
+                      </span>
+                    }
+                  </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span
@@ -262,6 +323,121 @@ import { ToastService } from '../../../shared/services/toast.service';
             </tbody>
           </table>
         </div>
+
+        <!-- Pagination Controls -->
+        @if (filteredProducts.length > 0) {
+          <div class="bg-gray-50 px-4 py-3 border-t border-gray-200 sm:px-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <!-- Info de productos mostrados -->
+              <div class="flex items-center gap-4">
+                <p class="text-sm text-gray-700">
+                  Mostrando 
+                  <span class="font-semibold">{{ getStartIndex() }}</span>
+                  a
+                  <span class="font-semibold">{{ getEndIndex() }}</span>
+                  de
+                  <span class="font-semibold">{{ filteredProducts.length }}</span>
+                  productos
+                </p>
+                
+                <!-- Selector de items por página -->
+                <div class="flex items-center gap-2">
+                  <label for="itemsPerPage" class="text-sm text-gray-700">Por página:</label>
+                  <select
+                    id="itemsPerPage"
+                    [(ngModel)]="itemsPerPage"
+                    (change)="onItemsPerPageChange()"
+                    class="px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#a81b8d] focus:border-[#a81b8d] cursor-pointer"
+                  >
+                    <option [value]="10">10</option>
+                    <option [value]="25">25</option>
+                    <option [value]="50">50</option>
+                    <option [value]="100">100</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Botones de navegación -->
+              <nav class="flex items-center gap-2" aria-label="Pagination">
+                <!-- Botón Primera página -->
+                <button
+                  (click)="goToPage(1)"
+                  [disabled]="currentPage === 1"
+                  class="relative inline-flex items-center px-2 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  [class.text-gray-700]="currentPage !== 1"
+                  [class.text-gray-400]="currentPage === 1"
+                  title="Primera página"
+                >
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                  </svg>
+                </button>
+
+                <!-- Botón Página anterior -->
+                <button
+                  (click)="goToPage(currentPage - 1)"
+                  [disabled]="currentPage === 1"
+                  class="relative inline-flex items-center px-2 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  [class.text-gray-700]="currentPage !== 1"
+                  [class.text-gray-400]="currentPage === 1"
+                  title="Página anterior"
+                >
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+
+                <!-- Números de página -->
+                <div class="hidden sm:flex gap-1">
+                  @for (page of getPageNumbers(); track page) {
+                    <button
+                      (click)="goToPage(page)"
+                      class="relative inline-flex items-center px-4 py-2 border text-sm font-medium rounded-md transition-colors"
+                      [class]="page === currentPage 
+                        ? 'z-10 bg-[#a81b8d] border-[#a81b8d] text-white' 
+                        : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'"
+                    >
+                      {{ page }}
+                    </button>
+                  }
+                </div>
+
+                <!-- Página actual en móvil -->
+                <div class="sm:hidden px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 rounded-md">
+                  {{ currentPage }} / {{ totalPages }}
+                </div>
+
+                <!-- Botón Página siguiente -->
+                <button
+                  (click)="goToPage(currentPage + 1)"
+                  [disabled]="currentPage === totalPages"
+                  class="relative inline-flex items-center px-2 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  [class.text-gray-700]="currentPage !== totalPages"
+                  [class.text-gray-400]="currentPage === totalPages"
+                  title="Página siguiente"
+                >
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+
+                <!-- Botón Última página -->
+                <button
+                  (click)="goToPage(totalPages)"
+                  [disabled]="currentPage === totalPages"
+                  class="relative inline-flex items-center px-2 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  [class.text-gray-700]="currentPage !== totalPages"
+                  [class.text-gray-400]="currentPage === totalPages"
+                  title="Última página"
+                >
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </nav>
+            </div>
+          </div>
+        }
       </div>
       }
     </div>
@@ -334,6 +510,12 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
   searchTerm = '';
   selectedCategoryId = '';
   selectedStatus = '';
+
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 25;
+  totalPages = 1;
+  paginatedProducts: Product[] = [];
 
   // Modal states for 3-phase product creation/edit
   isPhase1ModalOpen = false;
@@ -472,6 +654,89 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
     }
 
     this.filteredProducts = filtered;
+    
+    // Reset a la primera página cuando se aplican filtros
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
+  /**
+   * Actualiza la paginación basándose en los productos filtrados
+   */
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.filteredProducts.length / this.itemsPerPage);
+    
+    // Asegurar que currentPage está en rango válido
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = Math.max(1, this.totalPages);
+    }
+    
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedProducts = this.filteredProducts.slice(startIndex, endIndex);
+  }
+
+  /**
+   * Cambia a una página específica
+   */
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
+    }
+  }
+
+  /**
+   * Cambia el número de items por página
+   */
+  onItemsPerPageChange(): void {
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
+  /**
+   * Obtiene el array de números de página para mostrar
+   */
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxPagesToShow = 5;
+    
+    if (this.totalPages <= maxPagesToShow) {
+      // Mostrar todas las páginas si son pocas
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Mostrar páginas alrededor de la página actual
+      const halfRange = Math.floor(maxPagesToShow / 2);
+      let startPage = Math.max(1, this.currentPage - halfRange);
+      let endPage = Math.min(this.totalPages, startPage + maxPagesToShow - 1);
+      
+      // Ajustar si estamos cerca del final
+      if (endPage - startPage < maxPagesToShow - 1) {
+        startPage = Math.max(1, endPage - maxPagesToShow + 1);
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+    }
+    
+    return pages;
+  }
+
+  /**
+   * Obtiene el índice inicial de los productos mostrados
+   */
+  getStartIndex(): number {
+    return this.filteredProducts.length === 0 ? 0 : (this.currentPage - 1) * this.itemsPerPage + 1;
+  }
+
+  /**
+   * Obtiene el índice final de los productos mostrados
+   */
+  getEndIndex(): number {
+    return Math.min(this.currentPage * this.itemsPerPage, this.filteredProducts.length);
   }
 
   // ==================== MODAL METHODS - 3 PHASE CREATION ====================

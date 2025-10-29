@@ -61,7 +61,7 @@ registerLocaleData(localeEs);
               [(ngModel)]="searchTerm"
               (input)="applyFilters()"
               placeholder="Buscar descuento..."
-              class="w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
+              class="w-full px-3 py-2 text-sm placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
             />
           </div>
         </div>

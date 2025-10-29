@@ -241,7 +241,7 @@ import { User } from '../../models/user.model';
           <div class="absolute bottom-4 left-3 right-3">
             <button
               (click)="logout()"
-              class="w-full flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors duration-150"
+              class="w-full flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors duration-150 cursor-pointer"
             >
               <svg
                 class="w-5 h-5 mr-3"
@@ -377,6 +377,6 @@ export class AdminLayoutComponent implements OnInit {
    */
   logout(): void {
     this.authService.logout();
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(['/home']);
   }
 }

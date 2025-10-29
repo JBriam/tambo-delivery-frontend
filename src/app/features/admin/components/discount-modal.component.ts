@@ -277,7 +277,7 @@ import { ButtonComponent } from '../../../shared/components/button.component';
                     <img
                       [src]="
                         product.thumbnail ||
-                        '/assets/images/product-default.png'
+                        '/assets/images/no-image.webp'
                       "
                       [alt]="product.name"
                       class="w-12 h-12 object-cover rounded"

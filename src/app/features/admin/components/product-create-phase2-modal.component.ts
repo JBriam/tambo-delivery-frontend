@@ -106,18 +106,18 @@ import { ProductResource } from '../../../models/product.model';
                     <input
                       type="text"
                       [(ngModel)]="resource.name"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a81b8d]"
+                      class="w-full px-3 py-2 placeholder-gray-400 border text-sm border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
                       placeholder="Nombre de la imagen"
                     />
                     <input
                       type="url"
                       [(ngModel)]="resource.url"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a81b8d]"
+                      class="w-full px-3 py-2 placeholder-gray-400 border text-sm border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
                       placeholder="URL de la imagen"
                     />
                     <select
                       [(ngModel)]="resource.type"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a81b8d]"
+                      class="w-full px-3 py-2 placeholder-gray-400 border text-sm border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
                     >
                       <option value="IMAGE">Imagen</option>
                       <option value="VIDEO">Video</option>

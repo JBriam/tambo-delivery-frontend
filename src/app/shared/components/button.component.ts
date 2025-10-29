@@ -14,23 +14,58 @@ export interface ButtonConfig {
   template: `
     <button
       [class]="buttonClasses"
-      [disabled]="config.disabled || config.loading"
-      (click)="onClick()"
+      [disabled]="isDisabled || isLoading"
+      (click)="onClickHandler()"
     >
-      @if (config.loading) {
+      @if (isLoading) {
         <span class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></span>
       }
-      @if (config.icon && !config.loading) {
-        <span [class]="config.icon + ' mr-2'"></span>
+      @if (iconClass && !isLoading) {
+        <span [class]="iconClass + ' mr-2'"></span>
       }
-      {{ config.text }}
+      {{ buttonText }}
     </button>
   `,
   standalone: true
 })
 export class ButtonComponent {
-  @Input() config!: ButtonConfig;
+  // Soporte para configuración por objeto
+  @Input() config?: ButtonConfig;
+  
+  // Soporte para propiedades individuales
+  @Input() text?: string;
+  @Input() type?: 'primary' | 'secondary' | 'danger' | 'success';
+  @Input() size?: 'sm' | 'md' | 'lg';
+  @Input() disabled?: boolean;
+  @Input() loading?: boolean;
+  @Input() icon?: string;
+  
   @Output() buttonClick = new EventEmitter<void>();
+  @Output() onClick = new EventEmitter<void>();
+
+  get buttonText(): string {
+    return this.config?.text || this.text || '';
+  }
+
+  get buttonType(): 'primary' | 'secondary' | 'danger' | 'success' {
+    return this.config?.type || this.type || 'primary';
+  }
+
+  get buttonSize(): 'sm' | 'md' | 'lg' {
+    return this.config?.size || this.size || 'md';
+  }
+
+  get isDisabled(): boolean {
+    return this.config?.disabled || this.disabled || false;
+  }
+
+  get isLoading(): boolean {
+    return this.config?.loading || this.loading || false;
+  }
+
+  get iconClass(): string | undefined {
+    return this.config?.icon || this.icon;
+  }
 
   get buttonClasses(): string {
     const baseClasses = 'inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
@@ -48,21 +83,22 @@ export class ButtonComponent {
       success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500'
     };
 
-    const disabledClasses = (this.config.disabled || this.config.loading) 
+    const disabledClasses = (this.isDisabled || this.isLoading) 
       ? 'opacity-50 cursor-not-allowed' 
       : '';
 
     return [
       baseClasses,
-      sizeClasses[this.config.size || 'md'],
-      typeClasses[this.config.type || 'primary'],
+      sizeClasses[this.buttonSize],
+      typeClasses[this.buttonType],
       disabledClasses
     ].join(' ');
   }
 
-  onClick(): void {
-    if (!this.config.disabled && !this.config.loading) {
+  onClickHandler(): void {
+    if (!this.isDisabled && !this.isLoading) {
       this.buttonClick.emit();
+      this.onClick.emit();
     }
   }
 }

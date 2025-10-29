@@ -5,6 +5,7 @@ export interface UserDetailsDto {
   phoneNumber?: string;
   email: string;
   authorityList: string[];
+  enabled: boolean;
 }
 
 export interface UserRequestDtoAdmin {

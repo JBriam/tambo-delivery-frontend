@@ -194,7 +194,7 @@ interface CategoryProducts {
               <div class="flex justify-between items-center mb-8">
                 <div>
                   <h3 class="text-2xl font-bold text-gray-800 mb-2">{{ categoryData.category.name }}</h3>
-                  <p *ngIf="categoryData.category.description" class="text-gray-600">{{ categoryData.category.description }}</p>
+                  <!-- <p *ngIf="categoryData.category.description" class="text-gray-600">{{ categoryData.category.description }}</p> -->
                 </div>
                 <button
                   (click)="navigateToCategory(categoryData.category.id)"

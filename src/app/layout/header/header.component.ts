@@ -86,16 +86,70 @@ import { Category } from '../../models/category.model';
 
                 <!-- Dropdown Menu -->
                 @if (isCategoriesDropdownOpen) {
-                  <div class="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                  <div class="absolute top-full left-0 mt-2 w-50 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[500px] overflow-y-auto">
                     <div class="py-2">
                       @for (category of categories; track category.id) {
-                        <button
-                          (click)="navigateToCategory(category.id)"
-                          class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#a81b8d] transition-colors flex items-center gap-3 cursor-pointer"
+                        <div 
+                          class="relative"
+                          (mouseenter)="onCategoryHover(category.id, $event)"
+                          (mouseleave)="hoveredCategoryId = null"
                         >
-                          <div class="w-2 h-2 bg-[#a81b8d] rounded-full"></div>
-                          <div class="font-medium">{{ category.name }}</div>
-                        </button>
+                          <!-- Categoría Principal -->
+                          <button
+                            #categoryButton
+                            (click)="category.categoryTypes && category.categoryTypes.length > 0 ? null : navigateToCategory(category.id)"
+                            class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#a81b8d] transition-colors flex items-center justify-between"
+                            [class.cursor-pointer]="!category.categoryTypes || category.categoryTypes.length === 0"
+                            [class.cursor-default]="category.categoryTypes && category.categoryTypes.length > 0"
+                          >
+                            <div class="flex items-center gap-3">
+                              <div class="w-2 h-2 bg-[#a81b8d] rounded-full"></div>
+                              <div class="font-semibold">{{ category.name }}</div>
+                            </div>
+                            @if (category.categoryTypes && category.categoryTypes.length > 0) {
+                              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                              </svg>
+                            }
+                          </button>
+                          
+                          <!-- Submenu de tipos de categoría (aparece al lado) -->
+                          @if (category.categoryTypes && category.categoryTypes.length > 0 && hoveredCategoryId === category.id) {
+                            <div 
+                              class="fixed w-45 bg-white rounded-lg shadow-2xl border border-gray-200 z-[60] max-h-[400px] overflow-y-auto"
+                              [style.left.px]="submenuPosition.left"
+                              [style.top.px]="submenuPosition.top"
+                            >
+                              <div class="py-2">                                
+                                <!-- Lista de tipos -->
+                                @for (type of category.categoryTypes; track type.id) {
+                                  <button
+                                    (click)="navigateToCategoryType(category.id, type.id)"
+                                    class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-[#fef2f9] hover:text-[#a81b8d] transition-all flex items-center gap-2 cursor-pointer border-l-2 border-transparent hover:border-[#a81b8d]"
+                                  >
+                                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                    <span class="font-medium">{{ type.name }}</span>
+                                  </button>
+                                }
+                                
+                                <!-- Ver todos de esta categoría -->
+                                <div class="border-t border-gray-100 mt-1 bg-gray-50">
+                                  <button
+                                    (click)="navigateToCategory(category.id)"
+                                    class="w-full text-left px-4 py-2.5 text-xs text-[#a81b8d] hover:bg-[#fef2f9] transition-colors font-semibold flex items-center gap-2 cursor-pointer"
+                                  >
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                    </svg>
+                                    Ver todos de {{ category.name }}
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          }
+                        </div>
                       }
                       <!-- Ver todas las categorías -->
                       <div class="border-t border-gray-100 mt-2 pt-2">
@@ -107,7 +161,7 @@ import { Category } from '../../models/category.model';
                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                           </svg>
-                          Ver todos los productos
+                          Ver todos
                         </a>
                       </div>
                     </div>
@@ -166,7 +220,7 @@ import { Category } from '../../models/category.model';
                   (focus)="onSearchFocus()"
                   (blur)="onSearchBlur()"
                   placeholder="Buscar productos..."
-                  class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#a81b8d] focus:border-[#a81b8d] text-sm"
+                  class="w-full pl-10 pr-4 py-2 border-1 border-gray-300 rounded-lg focus:outline-none focus:ring-[#a81b8d] focus:border-[#a81b8d] text-sm"
                 />
                 @if (searchTerm && searchResults.length > 0) {
                   <div class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
@@ -177,13 +231,13 @@ import { Category } from '../../models/category.model';
                         class="flex items-center px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
                       >
                         <img
-                          [src]="result.thumbnail"
+                          [src]="result.thumbnail || 'assets/images/no-image.webp'"
                           [alt]="result.name"
                           class="w-10 h-10 rounded-lg object-cover mr-3"
                         />
                         <div class="flex-1">
-                          <div class="font-medium text-gray-900">{{ result.name }}</div>
-                          <div class="text-sm text-gray-600">{{ result.category.name }} • S/ {{ result.price.toFixed(2) }}</div>
+                          <div class="text-sm font-medium text-gray-900">{{ result.name }}</div>
+                          <div class="text-xs text-gray-600">{{ result.category.name }} • S/ {{ result.price.toFixed(2) }}</div>
                         </div>
                       </a>
                     }
@@ -544,6 +598,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isMobileMenuOpen = false;
   isCategoriesDropdownOpen = false;
   isProfileDropdownOpen = false; // Nueva propiedad para el dropdown del perfil
+  hoveredCategoryId: string | null = null; // Para controlar el submenu
+  submenuPosition = { left: 0, top: 0 }; // Posición fija del submenu
   categories: Category[] = [];
   cartItemCount = 0;
   
@@ -642,38 +698,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Obtiene categorías por defecto cuando no se pueden cargar desde el backend
-   */
-  // private getFallbackCategories(): Category[] {
-  //   return [
-  //     {
-  //       id: '1',
-  //       name: 'Bebidas',
-  //       description: 'Refrescos, jugos y más',
-  //       imageUrl: 'assets/categories/bebidas.webp'
-  //     },
-  //     {
-  //       id: '2',  
-  //       name: 'Comidas',
-  //       description: 'Snacks y comidas preparadas',
-  //       imageUrl: 'assets/categories/comidas.webp'
-  //     },
-  //     {
-  //       id: '3',
-  //       name: 'Despensa',
-  //       description: 'Productos de despensa',
-  //       imageUrl: 'assets/categories/despensa.webp'
-  //     },
-  //     {
-  //       id: '4',
-  //       name: 'Helados',
-  //       description: 'Helados y postres fríos',
-  //       imageUrl: 'assets/categories/helados.webp'
-  //     }
-  //   ];
-  // }
-
-  /**
    * Alterna el dropdown de categorías
    */
   toggleCategoriesDropdown(): void {
@@ -685,6 +709,37 @@ export class HeaderComponent implements OnInit, OnDestroy {
    */
   closeCategoriesDropdown(): void {
     this.isCategoriesDropdownOpen = false;
+    this.hoveredCategoryId = null;
+  }
+
+  /**
+   * Maneja cuando el mouse entra sobre una categoría
+   * Calcula y guarda la posición del submenu una sola vez
+   */
+  onCategoryHover(categoryId: string, event: MouseEvent): void {
+    this.hoveredCategoryId = categoryId;
+    
+    // Calcular la posición del submenu basándose en el elemento actual
+    const target = event.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    
+    // Obtener la posición del dropdown principal
+    const dropdownElement = document.querySelector('.absolute.top-full.left-0.mt-2');
+    if (dropdownElement) {
+      const dropdownRect = dropdownElement.getBoundingClientRect();
+      
+      this.submenuPosition = {
+        left: dropdownRect.right + 4, // 4px de separación
+        top: rect.top // Alineado con el item de la categoría
+      };
+    }
+  }
+
+  /**
+   * Maneja cuando el mouse sale de una categoría
+   */
+  onCategoryMouseLeave(): void {
+    this.hoveredCategoryId = null;
   }
 
   /**
@@ -693,6 +748,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
   navigateToCategory(categoryId: string): void {
     this.closeCategoriesDropdown();
     this.router.navigate(['/products'], { queryParams: { category: categoryId } });
+  }
+
+  /**
+   * Navega a productos filtrados por tipo de categoría
+   */
+  navigateToCategoryType(categoryId: string, categoryTypeId: string): void {
+    this.closeCategoriesDropdown();
+    this.router.navigate(['/products'], { 
+      queryParams: { 
+        category: categoryId,
+        categoryType: categoryTypeId 
+      } 
+    });
   }
 
   /**
