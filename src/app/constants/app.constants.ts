@@ -66,8 +66,23 @@ export const API_ENDPOINTS = {
     
     // Productos
     PRODUCTS: '/admin/product/get-all',
-    PRODUCT_SECTIONS: '/admin/product-section',
-    
+    PRODUCT_BY_ID: '/admin/product', // Obtener un producto por su ID
+    PRODUCT_CREATE: '/admin/product/create',
+    PRODUCT_UPDATE: '/admin/product/update',
+    PRODUCT_DELETE: '/admin/product/delete',
+
+    // Secciones de productos
+    PRODUCT_SECTIONS: '/admin/product-sections',
+    PRODUCT_SECTION_CREATE: '/admin/product-sections/create',
+    PRODUCT_SECTION_UPDATE: '/admin/product-sections/update',
+    PRODUCT_SECTION_DELETE: '/admin/product-sections/delete',
+
+    // Roles
+    ROLES: '/admin/role',
+    ROL_CREATE: '/admin/role/create',
+    ROL_UPDATE: '/admin/role/update',
+    ROL_DELETE: '/admin/role/delete',
+
     // Usuarios
     USERS: '/admin/users',
     USERS_CREATE: '/admin/users/create',
@@ -78,10 +93,6 @@ export const API_ENDPOINTS = {
     ORDERS: '/admin/orders',
     ORDERS_ALL: '/admin/orders/get-all',
     ORDERS_STATISTICS: '/admin/orders/statistics',
-    
-    // Roles
-    AUTHORITIES: '/admin/authority',
-    AUTHORITIES_ALL: '/admin/authority/get-all',
     
     // Imágenes slider
     SLIDER_IMAGES: '/admin/slider-image',
