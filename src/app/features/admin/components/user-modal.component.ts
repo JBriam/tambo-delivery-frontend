@@ -6,6 +6,7 @@ import {
   OnInit,
   OnChanges,
   SimpleChanges,
+  OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -15,8 +16,11 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { ModalComponent } from '../../../shared/components/modal.component';
 import { ButtonComponent } from '../../../shared/components/button.component';
+import { RoleService } from '../../../services/role.service';
+import { Role } from '../../../models/role.model';
 
 export interface User {
   email: string;
@@ -69,15 +73,15 @@ export interface UserFormData {
           </h3>
           
           <div class="grid grid-cols-2 gap-4">
-            <!-- Nombre -->
+            <!-- Nombres -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Nombre <span class="text-red-500">*</span>
+                Nombres <span class="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 formControlName="firstName"
-                placeholder="Ej: Juan"
+                placeholder="Ej: Juan Diego"
                 class="w-full px-3 py-2 text-sm placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
                 [class.border-red-500]="
                   userForm.get('firstName')?.invalid &&
@@ -90,15 +94,15 @@ export interface UserFormData {
               }
             </div>
 
-            <!-- Apellido -->
+            <!-- Apellidos -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Apellido <span class="text-red-500">*</span>
+                Apellidos <span class="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 formControlName="lastName"
-                placeholder="Ej: Pérez"
+                placeholder="Ej: Pérez Gómez"
                 class="w-full px-3 py-2 text-sm placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
                 [class.border-red-500]="
                   userForm.get('lastName')?.invalid &&
@@ -209,20 +213,33 @@ export interface UserFormData {
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Roles <span class="text-red-500">*</span>
             </label>
-            <div class="space-y-2">
-              @for (role of availableRoles; track role.value) {
-                <label class="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    [value]="role.value"
-                    [checked]="isRoleSelected(role.value)"
-                    (change)="toggleRole(role.value)"
-                    class="w-4 h-4 text-[#a81b8d] border-gray-300 rounded focus:ring-[#a81b8d]"
-                  />
-                  <span class="ml-2 text-sm text-gray-700">{{ role.label }}</span>
-                </label>
-              }
-            </div>
+            
+            <!-- Loading state -->
+            @if (isLoadingRoles) {
+              <div class="flex items-center justify-center py-4">
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#a81b8d]"></div>
+                <span class="ml-2 text-sm text-gray-500">Cargando roles...</span>
+              </div>
+            } @else if (availableRoles.length === 0) {
+              <div class="text-sm text-gray-500 py-2">
+                No hay roles disponibles
+              </div>
+            } @else {
+              <div class="space-y-2">
+                @for (role of availableRoles; track role.code) {
+                  <label class="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      [value]="role.code"
+                      [checked]="isRoleSelected(role.code)"
+                      (change)="toggleRole(role.code)"
+                      class="w-4 h-4 text-[#a81b8d] border-gray-300 rounded focus:ring-[#a81b8d]"
+                    />
+                    <span class="ml-2 text-sm text-gray-700">{{ role.code }}</span>
+                  </label>
+                }
+              </div>
+            }
             @if (selectedRoles.length === 0 && userForm.touched) {
               <p class="mt-1 text-sm text-red-600">Selecciona al menos un rol</p>
             }
@@ -269,7 +286,7 @@ export interface UserFormData {
     </app-modal>
   `,
 })
-export class UserModalComponent implements OnInit, OnChanges {
+export class UserModalComponent implements OnInit, OnChanges, OnDestroy {
   @Input() isOpen = false;
   @Input() mode: 'create' | 'edit' = 'create';
   @Input() user: User | null = null;
@@ -280,16 +297,50 @@ export class UserModalComponent implements OnInit, OnChanges {
   userForm!: FormGroup;
   isSubmitting = false;
   selectedRoles: string[] = [];
+  availableRoles: { code: string; description: string }[] = [];
+  isLoadingRoles = false;
 
-  availableRoles = [
-    { value: 'ADMIN', label: 'Administrador' },
-    { value: 'USER', label: 'Cliente' },
-  ];
+  private subscriptions: Subscription[] = [];
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+    private roleService: RoleService
+  ) {}
 
   ngOnInit(): void {
     this.initForm();
+    this.loadRoles();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  /**
+   * Carga los roles desde la base de datos
+   */
+  private loadRoles(): void {
+    this.isLoadingRoles = true;
+    this.subscriptions.push(
+      this.roleService.getAllRoles().subscribe({
+        next: (roles: Role[]) => {
+          this.availableRoles = roles.map(role => ({
+            code: role.roleCode,
+            description: role.roleDescription
+          }));
+          this.isLoadingRoles = false;
+        },
+        error: (error) => {
+          console.error('Error loading roles:', error);
+          this.isLoadingRoles = false;
+          // Fallback a roles por defecto en caso de error
+          this.availableRoles = [
+            { code: 'ADMIN', description: 'Administrador' },
+            { code: 'USER', description: 'Cliente' },
+          ];
+        }
+      })
+    );
   }
 
   ngOnChanges(changes: SimpleChanges): void {

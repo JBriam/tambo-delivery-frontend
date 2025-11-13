@@ -51,7 +51,7 @@ import { Cart, CartItem, CartSummary } from '../../../models/cart.model';
                   <!-- Imagen del producto -->
                   <div class="flex-shrink-0">
                     <img 
-                      [src]="item.product.thumbnail || '/assets/products/placeholder.webp'" 
+                      [src]="item.product.thumbnail || '/assets/images/no-image.webp'" 
                       [alt]="item.product.name"
                       class="h-20 w-20 object-cover rounded-md border"
                       onerror="this.src='assets/images/placeholder-product.webp'"
@@ -73,7 +73,7 @@ import { Cart, CartItem, CartSummary } from '../../../models/cart.model';
                     <!-- Botón eliminar -->
                     <button 
                       (click)="removeItem(item.product.id)"
-                      class="text-gray-400 hover:text-red-500 transition-colors"
+                      class="text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
                       title="Eliminar producto"
                     >
                       <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -86,7 +86,7 @@ import { Cart, CartItem, CartSummary } from '../../../models/cart.model';
                       <button 
                         (click)="decreaseQuantity(item.product.id)"
                         [disabled]="item.quantity <= 1"
-                        class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                       >
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
@@ -97,7 +97,7 @@ import { Cart, CartItem, CartSummary } from '../../../models/cart.model';
                       
                       <button 
                         (click)="increaseQuantity(item.product.id)"
-                        class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                        class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 cursor-pointer"
                       >
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>

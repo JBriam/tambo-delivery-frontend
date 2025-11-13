@@ -105,6 +105,6 @@ export const routes: Routes = [
   // Ruta 404
   {
     path: '**',
-    redirectTo: '/products'
+    redirectTo: '/home'
   }
 ];
