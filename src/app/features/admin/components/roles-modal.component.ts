@@ -92,33 +92,6 @@ import { Role, RoleRequestDto } from '../../../models/role.model';
                   </p>
                 }
               </div>
-
-              <!-- Authority -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Autoridad <span class="text-red-500">*</span>
-                </label>
-                <select
-                  formControlName="authority"
-                  class="w-full px-3 py-2 text-sm placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
-                  [class.border-red-500]="
-                    roleForm.get('authority')?.invalid &&
-                    roleForm.get('authority')?.touched
-                  "
-                >
-                  <option value="">Seleccione una autoridad</option>
-                  <option value="USER">Usuario (USER)</option>
-                  <option value="ADMIN">Administrador (ADMIN)</option>
-                </select>
-                @if (roleForm.get('authority')?.invalid && roleForm.get('authority')?.touched) {
-                  <p class="mt-1 text-sm text-red-600">
-                    Debe seleccionar una autoridad
-                  </p>
-                }
-                <p class="mt-1 text-xs text-gray-500">
-                  La autoridad determina el nivel de permisos base del rol
-                </p>
-              </div>
             </div>
 
             <!-- Botones del formulario -->
@@ -135,7 +108,7 @@ import { Role, RoleRequestDto } from '../../../models/role.model';
               <button
                 type="submit"
                 [disabled]="roleForm.invalid || isSubmitting"
-                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {{ editingRole ? 'Actualizar' : 'Crear' }} Rol
               </button>
@@ -170,14 +143,6 @@ import { Role, RoleRequestDto } from '../../../models/role.model';
                         <h4 class="text-sm font-semibold text-gray-900">
                           {{ role.roleCode }}
                         </h4>
-                        <span 
-                          [ngClass]="{
-                            'bg-purple-100 text-purple-800': role.authority === 'ADMIN',
-                            'bg-blue-100 text-blue-800': role.authority === 'USER'
-                          }"
-                          class="px-2 py-0.5 text-xs font-semibold rounded-full">
-                          {{ role.authority }}
-                        </span>
                       </div>
                       <p class="text-sm text-gray-600">
                         {{ role.roleDescription }}
@@ -189,7 +154,7 @@ import { Role, RoleRequestDto } from '../../../models/role.model';
                     <div class="flex items-center gap-2 ml-4">
                       <button
                         (click)="editRole(role)"
-                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
                         title="Editar rol"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -198,7 +163,7 @@ import { Role, RoleRequestDto } from '../../../models/role.model';
                       </button>
                       <button
                         (click)="confirmDeleteRole(role)"
-                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                         title="Eliminar rol"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -281,8 +246,7 @@ export class RolesModalComponent implements OnInit, OnDestroy {
   private createRoleForm(): FormGroup {
     return this.fb.group({
       roleCode: ['', [Validators.required, Validators.minLength(2)]],
-      roleDescription: ['', [Validators.required, Validators.minLength(3)]],
-      authority: ['', Validators.required]
+      roleDescription: ['', [Validators.required, Validators.minLength(3)]]
     });
   }
 
@@ -321,8 +285,7 @@ export class RolesModalComponent implements OnInit, OnDestroy {
     
     const roleData: RoleRequestDto = {
       roleCode: this.roleForm.value.roleCode.toUpperCase().trim(),
-      roleDescription: this.roleForm.value.roleDescription.trim(),
-      authority: this.roleForm.value.authority
+      roleDescription: this.roleForm.value.roleDescription.trim()
     };
 
     const operation = this.editingRole
@@ -356,8 +319,7 @@ export class RolesModalComponent implements OnInit, OnDestroy {
     this.editingRole = role;
     this.roleForm.patchValue({
       roleCode: role.roleCode,
-      roleDescription: role.roleDescription,
-      authority: role.authority
+      roleDescription: role.roleDescription
     });
   }
 
