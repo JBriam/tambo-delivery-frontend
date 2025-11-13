@@ -54,9 +54,7 @@ import { AuthService } from '../../../core/services/auth.service';
               >
                 {{ successMessage }}
               </div>
-              }
-              
-              @if (errorMessage) {
+              } @if (errorMessage) {
               <div
                 class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"
               >
@@ -78,7 +76,7 @@ import { AuthService } from '../../../core/services/auth.service';
                     type="email"
                     formControlName="userName"
                     required
-                    class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                    class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-0 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 sm:text-sm"
                     placeholder="tu-correo@email.com"
                   />
                   @if (loginForm.get('userName')?.invalid &&
@@ -96,15 +94,55 @@ import { AuthService } from '../../../core/services/auth.service';
                   >
                     Contraseña
                   </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    formControlName="password"
-                    required
-                    class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                    placeholder="Contraseña"
-                  />
+                  <div
+                    class="flex items-center appearance-none mt-1 px-3 py-2 border border-gray-300 rounded-md focus-within:outline-none focus-within:ring-0 focus-within:ring-indigo-500 focus-within:border-indigo-500 transition-all duration-200"
+                  >
+                    <input
+                      id="password"
+                      name="password"
+                      [type]="showPassword ? 'text' : 'password'"
+                      formControlName="password"
+                      required
+                      class="appearance-none w-full focus:outline-none placeholder-gray-500 text-gray-900 sm:text-sm"
+                      placeholder="Contraseña"
+                    />
+                    <button type="button" class="ml-3 cursor-pointer" (click)="togglePasswordVisibility()">
+                      @if (showPassword) {
+                      <svg
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="w-5 h-5 text-gray-400"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
+                        />
+                      </svg>
+                      } @else {
+                      <svg
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="w-5 h-5 text-gray-400"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
+                        />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                        />
+                      </svg>
+                      }
+                    </button>
+                  </div>
                   @if (loginForm.get('password')?.invalid &&
                   loginForm.get('password')?.touched) {
                   <p class="mt-1 text-sm text-red-600">
@@ -168,10 +206,13 @@ import { AuthService } from '../../../core/services/auth.service';
                 </p>
               </div>
               <div class="text-center mt-4 text-[#6b7280] text-sm m-0">
-                  <u><a (click)="navigateToHome()"
+                <u
+                  ><a
+                    (click)="navigateToHome()"
                     class="text-[#667eea] text-sm text-decoration-none cursor-pointer hover:text-[#3353e4]"
                     >Volver al inicio</a
-                  ></u>
+                  ></u
+                >
               </div>
             </form>
           </div>
@@ -206,6 +247,7 @@ export class LoginComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
   successMessage = '';
+  showPassword = false; // Variable para controlar visibilidad de contraseña
 
   constructor(
     private fb: FormBuilder,
@@ -221,7 +263,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     // Leer mensajes de query parameters
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       if (params['message']) {
         this.successMessage = params['message'];
         // Limpiar el mensaje después de 5 segundos
@@ -237,14 +279,20 @@ export class LoginComponent implements OnInit {
       this.isLoading = true;
       this.errorMessage = '';
 
-      console.log('🔐 Login: Sending login request with:', this.loginForm.value);
+      console.log(
+        '🔐 Login: Sending login request with:',
+        this.loginForm.value
+      );
 
       this.authService.loginAndLoadProfile(this.loginForm.value).subscribe({
         next: (result) => {
           console.log('🔐 Login: Login and profile result:', result);
           if (result.success) {
             const redirectRoute = result.redirectRoute || '/home';
-            console.log('🔐 Login: Login successful, redirecting to:', redirectRoute);
+            console.log(
+              '🔐 Login: Login successful, redirecting to:',
+              redirectRoute
+            );
             this.router.navigate([redirectRoute]);
           } else {
             this.errorMessage = result.error || 'Error al iniciar sesión';
@@ -253,15 +301,20 @@ export class LoginComponent implements OnInit {
         error: (error: any) => {
           console.error('🔐 Login: Login error:', error);
           if (error.status === 401) {
-            if (error.error?.message && error.error.message.includes('deshabilitado')) {
-              this.errorMessage = 'Tu cuenta no está verificada. Por favor revisa tu email y usa el código de verificación que te enviamos.';
+            if (
+              error.error?.message &&
+              error.error.message.includes('deshabilitado')
+            ) {
+              this.errorMessage =
+                'Tu cuenta no está verificada. Por favor revisa tu email y usa el código de verificación que te enviamos.';
               // Opcionalmente, redirigir a la página de verificación después de unos segundos
               setTimeout(() => {
                 this.router.navigate(['/auth/verify'], {
-                  queryParams: { 
+                  queryParams: {
                     email: this.loginForm.value.userName,
-                    message: 'Por favor ingresa el código de verificación que te enviamos por email.' 
-                  }
+                    message:
+                      'Por favor ingresa el código de verificación que te enviamos por email.',
+                  },
                 });
               }, 3000);
             } else {
@@ -279,6 +332,11 @@ export class LoginComponent implements OnInit {
         },
       });
     }
+  }
+
+  // Método para mostrar/ocultar la contraseña
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   navigateToRegister(): void {

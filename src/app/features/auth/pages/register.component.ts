@@ -71,7 +71,7 @@ import { AuthService } from '../../../core/services/auth.service';
                     formControlName="firstName"
                     required
                     class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                    placeholder="Tu nombre"
+                    placeholder="Tus nombres"
                   />
                 </div>
 
@@ -89,7 +89,7 @@ import { AuthService } from '../../../core/services/auth.service';
                     formControlName="lastName"
                     required
                     class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                    placeholder="Tu apellido"
+                    placeholder="Tus apellidos"
                   />
                 </div>
 
@@ -107,7 +107,7 @@ import { AuthService } from '../../../core/services/auth.service';
                     formControlName="email"
                     required
                     class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                    placeholder="tu@email.com"
+                    placeholder="tu-correo@email.com"
                   />
                 </div>
 
@@ -125,7 +125,7 @@ import { AuthService } from '../../../core/services/auth.service';
                     formControlName="phoneNumber"
                     required
                     class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                    placeholder="+51 999 999 999"
+                    placeholder="987654321"
                   />
                   @if (registerForm.get('phoneNumber')?.invalid &&
                   registerForm.get('phoneNumber')?.touched) {
@@ -142,15 +142,55 @@ import { AuthService } from '../../../core/services/auth.service';
                   >
                     Contraseña
                   </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    formControlName="password"
-                    required
-                    class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                    placeholder="Mínimo 6 caracteres"
-                  />
+                  <div
+                    class="flex items-center appearance-none mt-1 px-3 py-2 border border-gray-300 rounded-md focus-within:outline-none focus-within:ring-0 focus-within:ring-indigo-500 focus-within:border-indigo-500 transition-all duration-200"
+                  >
+                    <input
+                      id="password"
+                      name="password"
+                      [type]="showPassword ? 'text' : 'password'"
+                      formControlName="password"
+                      required
+                      class="appearance-none w-full focus:outline-none placeholder-gray-500 text-gray-900 sm:text-sm"
+                      placeholder="Mínimo 6 caracteres"
+                    />
+                    <button type="button" class="ml-3 cursor-pointer" (click)="togglePasswordVisibility()">
+                      @if (showPassword) {
+                      <svg
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="w-5 h-5 text-gray-400"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
+                        />
+                      </svg>
+                      } @else {
+                      <svg
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="w-5 h-5 text-gray-400"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
+                        />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                        />
+                      </svg>
+                      }
+                    </button>
+                  </div>
                 </div>
 
                 <div>
@@ -160,15 +200,55 @@ import { AuthService } from '../../../core/services/auth.service';
                   >
                     Confirmar Contraseña
                   </label>
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    formControlName="confirmPassword"
-                    required
-                    class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                    placeholder="Confirma tu contraseña"
-                  />
+                  <div
+                    class="flex items-center appearance-none mt-1 px-3 py-2 border border-gray-300 rounded-md focus-within:outline-none focus-within:ring-0 focus-within:ring-indigo-500 focus-within:border-indigo-500 transition-all duration-200"
+                  >
+                    <input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      [type]="showPassword ? 'text' : 'password'"
+                      formControlName="confirmPassword"
+                      required
+                      class="appearance-none w-full focus:outline-none placeholder-gray-500 text-gray-900 sm:text-sm"
+                      placeholder="Confirma tu contraseña"
+                    />
+                    <button type="button" class="ml-3 cursor-pointer" (click)="togglePasswordVisibility()">
+                      @if (showPassword) {
+                      <svg
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="w-5 h-5 text-gray-400"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
+                        />
+                      </svg>
+                      } @else {
+                      <svg
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="w-5 h-5 text-gray-400"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
+                        />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                        />
+                      </svg>
+                      }
+                    </button>
+                  </div>
                   @if (registerForm.get('confirmPassword')?.invalid &&
                   registerForm.get('confirmPassword')?.touched) {
                   <p class="mt-1 text-sm text-red-600">
@@ -258,6 +338,7 @@ export class RegisterComponent {
   registerForm: FormGroup;
   isLoading = false;
   errorMessage = '';
+  showPassword = false; // Variable para controlar visibilidad de contraseña
 
   constructor(
     private fb: FormBuilder,
@@ -370,6 +451,11 @@ export class RegisterComponent {
         }
       });
     }
+  }
+
+  // Método para mostrar/ocultar la contraseña
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   navigateToLogin(): void {
