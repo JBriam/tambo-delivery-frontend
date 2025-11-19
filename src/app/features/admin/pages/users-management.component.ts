@@ -36,10 +36,9 @@ import { ToastService } from '../../../shared/services/toast.service';
           <button
             type="button"
             (click)="openRolesModal()"
-            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+            class="cursor-pointer px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
           >
             <svg
-              xmlns="http://www.w3.org/2000/svg"
               class="h-5 w-5 inline-block mr-2 -mt-1"
               viewBox="0 0 20 20"
               fill="currentColor"
@@ -53,10 +52,9 @@ import { ToastService } from '../../../shared/services/toast.service';
           <button
             type="button"
             (click)="openCreateModal()"
-            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+            class="cursor-pointer px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
           >
             <svg
-              xmlns="http://www.w3.org/2000/svg"
               class="h-5 w-5 inline-block mr-2 -mt-1"
               viewBox="0 0 20 20"
               fill="currentColor"
@@ -184,11 +182,13 @@ import { ToastService } from '../../../shared/services/toast.service';
                       *ngFor="let role of user.authorityList"
                       [ngClass]="{
                         'bg-purple-100 text-purple-800': role === 'ADMIN',
-                        'bg-blue-100 text-blue-800': role === 'USER'
+                        'bg-blue-100 text-blue-800': role === 'USER',
+                        'bg-green-100 text-green-800': role !== 'ADMIN' && role !== 'USER'
                       }"
                       class="px-2 py-1 text-xs font-semibold rounded-full"
                     >
-                      {{ role === 'ADMIN' ? 'Admin' : 'Usuario' }}
+                      <!-- {{ role === 'ADMIN' ? 'Admin' : 'Usuario' }} -->
+                      {{ role || 'Sin rol' }}
                     </span>
                   </div>
                 </td>
@@ -204,40 +204,63 @@ import { ToastService } from '../../../shared/services/toast.service';
                   </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button
-                    (click)="editUser(user)"
-                    class="text-blue-600 hover:text-blue-900 mr-3 cursor-pointer"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-5 w-5 inline"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
+                  <div class="flex items-center gap-3">
+                    <button
+                      (click)="editUser(user)"
+                      class="text-blue-600 hover:text-blue-900 cursor-pointer"
+                      title="Editar usuario"
+                    >
+                      <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
                     >
                       <path
-                        d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                       />
                     </svg>
-                    Editar
-                  </button>
-                  <button
-                    (click)="confirmDelete(user)"
-                    class="text-red-600 hover:text-red-900 cursor-pointer"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-5 w-5 inline"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
+                    </button>
+                    <button
+                      (click)="confirmToggleStatus(user)"
+                      [ngClass]="{
+                        'text-green-600 hover:text-green-900': !user.enabled,
+                        'text-orange-600 hover:text-orange-900': user.enabled
+                      }"
+                      class="cursor-pointer"
+                      [title]="user.enabled ? 'Desactivar usuario' : 'Activar usuario'"
                     >
-                      <path
-                        fill-rule="evenodd"
-                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                    Eliminar
-                  </button>
+                      <svg
+                        *ngIf="!user.enabled"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5 inline"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                      <svg
+                        *ngIf="user.enabled"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5 inline"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 </td>
               </tr>
               <tr *ngIf="filteredUsers.length === 0">
@@ -290,22 +313,28 @@ import { ToastService } from '../../../shared/services/toast.service';
       (closeModal)="closeRolesModal()"
     />
 
-    <!-- Confirm Delete Modal -->
+    <!-- Confirm Toggle Status Modal -->
     <app-confirm-modal
       *ngIf="isDeleteModalOpen"
       [isOpen]="isDeleteModalOpen"
-      title="Eliminar Usuario"
+      [title]="userToDelete?.enabled ? 'Desactivar Usuario' : 'Activar Usuario'"
       [message]="
-        '¿Estás seguro de que deseas eliminar al usuario ' +
-        userToDelete?.firstName +
-        ' ' +
-        userToDelete?.lastName +
-        '? Esta acción no se puede deshacer.'
+        userToDelete?.enabled
+          ? '¿Estás seguro de que deseas desactivar al usuario ' +
+            userToDelete?.firstName +
+            ' ' +
+            userToDelete?.lastName +
+            '? El usuario no podrá acceder al sistema.'
+          : '¿Estás seguro de que deseas activar al usuario ' +
+            userToDelete?.firstName +
+            ' ' +
+            userToDelete?.lastName +
+            '? El usuario podrá acceder al sistema nuevamente.'
       "
-      confirmText="Eliminar"
+      [confirmText]="userToDelete?.enabled ? 'Desactivar' : 'Activar'"
       cancelText="Cancelar"
-      type="danger"
-      (confirm)="deleteUser()"
+      [type]="userToDelete?.enabled ? 'danger' : 'warning'"
+      (confirm)="toggleUserStatus()"
       (cancel)="closeDeleteModal()"
     />
 
@@ -317,6 +346,7 @@ import { ToastService } from '../../../shared/services/toast.service';
 export class UsersManagementComponent implements OnInit, OnDestroy {
   users: UserDetailsDto[] = [];
   filteredUsers: UserDetailsDto[] = [];
+  private subscriptions: Subscription[] = [];
 
   searchTerm = '';
   roleFilter = '';
@@ -462,9 +492,9 @@ export class UsersManagementComponent implements OnInit, OnDestroy {
         : this.userAdminService.updateUser(this.selectedUser!.email, userData);
 
     const sub = operation.subscribe({
-      next: () => {
+      next: (response) => {
         this.toastService.show(
-          `Usuario ${
+          response.message || `Usuario ${
             this.modalMode === 'create' ? 'creado' : 'actualizado'
           } exitosamente`,
           'success'
@@ -473,24 +503,22 @@ export class UsersManagementComponent implements OnInit, OnDestroy {
         this.loadUsers();
       },
       error: (error) => {
-        // Verificar si el error es en realidad un éxito (backend devolviendo 400 pero usuario creado)
-        if (error.isActuallySuccess) {
-          console.warn('Usuario creado a pesar del error 400 del backend');
-          this.toastService.show(
-            error.successMessage ||
-              `Usuario ${
-                this.modalMode === 'create' ? 'creado' : 'actualizado'
-              } exitosamente`,
-            'success'
-          );
-          this.closeModal();
-          this.loadUsers();
-        } else {
-          this.toastService.show(
-            error.message || 'Error al guardar el usuario',
-            'error'
-          );
+        console.error('Error al guardar usuario:', error);
+        
+        // Manejar diferentes tipos de errores
+        let errorMessage = 'Error al guardar el usuario';
+        
+        if (error.message) {
+          if (error.message.includes('constraint') || error.message.includes('Duplicate entry') || error.message.includes('UK096w0jnvgjp70hpgqx5v1tbr')) {
+            errorMessage = 'El email ya está registrado. Por favor, usa otro email.';
+          } else if (error.message.includes('email')) {
+            errorMessage = 'El email ya existe en el sistema.';
+          } else {
+            errorMessage = error.message;
+          }
         }
+        
+        this.toastService.show(errorMessage, 'error');
       },
     });
 
@@ -498,11 +526,19 @@ export class UsersManagementComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Abre el modal de confirmación para eliminar
+   * Abre el modal de confirmación para cambiar el estado del usuario
    */
-  confirmDelete(user: UserDetailsDto): void {
+  confirmToggleStatus(user: UserDetailsDto): void {
     this.userToDelete = user;
     this.isDeleteModalOpen = true;
+  }
+
+  /**
+   * Cancela el cambio de estado y cierra el modal
+   */
+  cancelDelete(): void {
+    this.isDeleteModalOpen = false;
+    this.userToDelete = null;
   }
 
   /**
@@ -514,17 +550,91 @@ export class UsersManagementComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Elimina un usuario
+   * Alterna el estado de un usuario (activar/desactivar)
    */
-  deleteUser(): void {
+  toggleUserStatus(): void {
     if (!this.userToDelete) return;
 
-    // TODO: Implementar cuando el backend tenga el endpoint DELETE
-    this.toastService.show(
-      'La funcionalidad de eliminar usuarios aún no está disponible en el backend',
-      'warning'
+    const userEmail = this.userToDelete.email;
+    const wasEnabled = this.userToDelete.enabled;
+
+    this.subscriptions.push(
+      this.userAdminService.toggleUserStatus(userEmail).subscribe({
+        next: (response) => {
+          // Actualizar el usuario en la lista
+          const userIndex = this.users.findIndex((u) => u.email === userEmail);
+          if (userIndex !== -1) {
+            this.users[userIndex].enabled = !wasEnabled;
+          }
+          this.applyFilters();
+          this.closeDeleteModal();
+          
+          const statusText = !wasEnabled ? 'activado' : 'desactivado';
+          this.toastService.success(
+            response.message || `Usuario ${statusText} exitosamente`
+          );
+        },
+        error: (error) => {
+          console.error('Error al cambiar estado del usuario:', error);
+          this.toastService.error(
+            error.message || 'Error al cambiar el estado del usuario. Por favor, intenta nuevamente.'
+          );
+          this.closeDeleteModal();
+        },
+      })
     );
-    this.closeDeleteModal();
+  }
+
+  /**
+   * Activa un usuario (usado si se necesita activación directa)
+   */
+  activateUser(email: string): void {
+    this.subscriptions.push(
+      this.userAdminService.activateUser(email).subscribe({
+        next: (response) => {
+          const userIndex = this.users.findIndex((u) => u.email === email);
+          if (userIndex !== -1) {
+            this.users[userIndex].enabled = true;
+          }
+          this.applyFilters();
+          this.toastService.success(
+            response.message || 'Usuario activado exitosamente'
+          );
+        },
+        error: (error) => {
+          console.error('Error al activar usuario:', error);
+          this.toastService.error(
+            error.message || 'Error al activar el usuario.'
+          );
+        },
+      })
+    );
+  }
+
+  /**
+   * Desactiva un usuario (usado si se necesita desactivación directa)
+   */
+  deactivateUser(email: string): void {
+    this.subscriptions.push(
+      this.userAdminService.deleteUser(email).subscribe({
+        next: (response) => {
+          const userIndex = this.users.findIndex((u) => u.email === email);
+          if (userIndex !== -1) {
+            this.users[userIndex].enabled = false;
+          }
+          this.applyFilters();
+          this.toastService.success(
+            response.message || 'Usuario desactivado exitosamente'
+          );
+        },
+        error: (error) => {
+          console.error('Error al desactivar usuario:', error);
+          this.toastService.error(
+            error.message || 'Error al desactivar el usuario.'
+          );
+        },
+      })
+    );
   }
 
   /**

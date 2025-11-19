@@ -68,7 +68,7 @@ export class ButtonComponent {
   }
 
   get buttonClasses(): string {
-    const baseClasses = 'inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
+    const baseClasses = 'cursor-pointer inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
     
     const sizeClasses = {
       sm: 'px-3 py-1.5 text-sm',

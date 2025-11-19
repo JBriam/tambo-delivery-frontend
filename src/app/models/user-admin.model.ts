@@ -29,6 +29,7 @@ export interface UserTableData {
   phoneNumber?: string;
   roles: string;
   profileImageUrl?: string;
+  enabled: boolean;
 }
 
 // Opciones para los roles disponibles

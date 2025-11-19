@@ -88,6 +88,9 @@ export const API_ENDPOINTS = {
     USERS_CREATE: '/admin/users/create',
     USERS_UPDATE: '/admin/users/update', // Requiere /{email}
     USERS_BY_EMAIL: '/admin/users', // Requiere /{email}
+    USERS_DELETE: '/admin/users/delete', // Desactivar usuario, requiere /{email}
+    USERS_ACTIVATE: '/admin/users/activate', // Activar usuario, requiere /{email}
+    USERS_TOGGLE_STATUS: '/admin/users/toggle-status', // Alternar estado activo/inactivo, requiere /{email}
     
     // Pedidos
     ORDERS: '/admin/orders',

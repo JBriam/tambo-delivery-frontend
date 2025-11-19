@@ -81,7 +81,7 @@ import { AuthService } from '../../../core/services/auth.service';
                 <button
                   type="submit"
                   [disabled]="isLoading || verifyForm.invalid"
-                  class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#a81b8d] hover:bg-[#8e1578] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#a81b8d] disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="cursor-pointer group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#a81b8d] hover:bg-[#8e1578] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#a81b8d] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   @if (isLoading) {
                     <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -102,7 +102,7 @@ import { AuthService } from '../../../core/services/auth.service';
               <button
                 (click)="resendCode()"
                 [disabled]="isResending"
-                class="text-[#667eea] hover:text-[#3353e4] font-medium disabled:opacity-50"
+                class="cursor-pointer text-[#667eea] hover:text-[#3353e4] font-medium disabled:opacity-50"
               >
                 {{ isResending ? 'Reenviando...' : 'Reenviar código' }}
               </button>
@@ -113,7 +113,7 @@ import { AuthService } from '../../../core/services/auth.service';
               🔧 Modo desarrollo: 
               <button
                 (click)="getDevCode()"
-                class="text-yellow-700 hover:text-yellow-900 font-medium underline"
+                class="cursor-pointer text-yellow-700 hover:text-yellow-900 font-medium underline"
               >
                 Obtener código de verificación
               </button>
@@ -122,7 +122,7 @@ import { AuthService } from '../../../core/services/auth.service';
             <div class="text-center mt-4">
               <button
                 (click)="goToLogin()"
-                class="text-[#667eea] text-sm hover:text-[#3353e4]"
+                class="cursor-pointer text-[#667eea] text-sm hover:text-[#3353e4]"
               >
                 Volver al login
               </button>
