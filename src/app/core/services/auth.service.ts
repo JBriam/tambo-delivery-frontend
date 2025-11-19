@@ -108,7 +108,7 @@ export class AuthService {
             return { success: true, redirectRoute };
           }).catch(error => {
             console.error('🔐 AuthService: Error loading profile, but login was successful:', error);
-            return { success: true, redirectRoute: '/products' };
+            return { success: true, redirectRoute: '/home' };
           });
         } else {
           return of({ success: false, error: loginResponse.message });
@@ -254,7 +254,7 @@ export class AuthService {
     if (this.isAdmin) {
       return '/admin/dashboard';
     } else {
-      return '/products';
+      return '/home';
     }
   }
 

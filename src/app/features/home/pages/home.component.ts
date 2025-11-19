@@ -209,6 +209,9 @@ interface CategoryProducts {
                 <app-product-card
                   *ngFor="let product of categoryData.products; trackBy: trackByProduct"
                   [product]="product"
+                  (addToCart)="addToCart($event)"
+                  (addToWishlist)="addToWishlist($event)"
+                  (quickView)="quickView($event)"
                 ></app-product-card>
               </div>
             </div>
@@ -469,6 +472,23 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Navegación a categoría específica
   navigateToCategory(categoryId: string): void {
     this.router.navigate(['/products'], { queryParams: { category: categoryId } });
+  }
+
+  // Métodos para manejar eventos del ProductCard
+  addToCart(product: Product): void {
+    this.cartService.addToCart(product);
+    // console.log('Producto agregado al carrito:', product.name);
+  }
+
+  addToWishlist(product: Product): void {
+    // console.log('Producto agregado a favoritos:', product.name);
+    // Implementar lógica de favoritos en el futuro
+  }
+
+  quickView(product: Product): void {
+    // console.log('Vista rápida del producto:', product.name);
+    // Navegar al detalle del producto
+    this.router.navigate(['/products', product.id]);
   }
 
   // TrackBy functions para optimizar el rendering

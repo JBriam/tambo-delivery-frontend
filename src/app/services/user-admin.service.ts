@@ -62,6 +62,42 @@ export class UserAdminService {
   }
 
   /**
+   * Desactiva un usuario (soft delete)
+   */
+  deleteUser(email: string): Observable<UserAdminResponse> {
+    const url = `${this.baseUrl}${API_ENDPOINTS.ADMIN.USERS_DELETE}/${email}`;
+    
+    return this.http.delete<UserAdminResponse>(url)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  /**
+   * Activa un usuario previamente desactivado
+   */
+  activateUser(email: string): Observable<UserAdminResponse> {
+    const url = `${this.baseUrl}${API_ENDPOINTS.ADMIN.USERS_ACTIVATE}/${email}`;
+    
+    return this.http.put<UserAdminResponse>(url, {})
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  /**
+   * Alterna el estado de un usuario (activar/desactivar)
+   */
+  toggleUserStatus(email: string): Observable<UserAdminResponse> {
+    const url = `${this.baseUrl}${API_ENDPOINTS.ADMIN.USERS_TOGGLE_STATUS}/${email}`;
+    
+    return this.http.put<UserAdminResponse>(url, {})
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  /**
    * Convierte UserDetailsDto a UserTableData para mostrar en tabla
    */
   mapToTableData(users: UserDetailsDto[]): UserTableData[] {
@@ -76,7 +112,8 @@ export class UserAdminService {
         email: user.email,
         phoneNumber: user.phoneNumber,
         roles: roles,
-        profileImageUrl: user.profileImageUrl
+        profileImageUrl: user.profileImageUrl,
+        enabled: user.enabled
       };
     });
   }

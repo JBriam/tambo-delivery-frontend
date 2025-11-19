@@ -8,11 +8,12 @@ import { ProductService } from '../../features/products/services/product.service
 import { CartService } from '../../services/cart.service';
 import { Product } from '../../models/product.model';
 import { Category } from '../../models/category.model';
+import { ConfirmModalComponent } from '../../shared/components/confirm-modal.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, ConfirmModalComponent],
   template: `
     <header class="fixed top-0 left-0 right-0 z-50">
       <!-- Encabezado promocional -->
@@ -251,7 +252,7 @@ import { Category } from '../../models/category.model';
               <!-- Botón menú móvil -->
               <button
                 (click)="toggleMobileMenu()"
-                class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#a81b8d]"
+                class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#a81b8d] cursor-pointer"
               >
                 <svg
                   class="h-6 w-6"
@@ -270,7 +271,7 @@ import { Category } from '../../models/category.model';
 
               <!-- Carrito -->
               <a
-                routerLink="/carrito"
+                routerLink="/cart"
                 class="relative text-gray-900 hover:text-[#a81b8d] px-3 py-2 text-sm font-medium flex items-center gap-2"
               >
                 <svg
@@ -300,7 +301,7 @@ import { Category } from '../../models/category.model';
                   <!-- Ícono de perfil para no autenticados -->
                   <a
                     routerLink="/auth/login"
-                    class="text-gray-900 hover:text-[#a81b8d] px-3 py-2 flex items-center"
+                    class="text-gray-900 hover:text-[#a81b8d] px-3 py-2 flex items-center cursor-pointer"
                     title="Iniciar sesión"
                   >
                     <svg
@@ -322,7 +323,7 @@ import { Category } from '../../models/category.model';
                   <!-- Dropdown para usuarios autenticados -->
                   <button
                     (click)="toggleProfileDropdown()"
-                    class="flex items-center gap-2 text-gray-900 hover:text-[#a81b8d] px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
+                    class="flex items-center gap-2 text-gray-900 hover:text-[#a81b8d] px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -371,7 +372,7 @@ import { Category } from '../../models/category.model';
                         <a
                           routerLink="/pedidos"
                           (click)="closeProfileDropdown()"
-                          class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#a81b8d] transition-colors"
+                          class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#a81b8d] transition-colors cursor-pointer"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
@@ -382,7 +383,7 @@ import { Category } from '../../models/category.model';
                         <a
                           routerLink="/perfil"
                           (click)="closeProfileDropdown()"
-                          class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#a81b8d] transition-colors"
+                          class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#a81b8d] transition-colors cursor-pointer"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
@@ -395,8 +396,8 @@ import { Category } from '../../models/category.model';
 
                         <!-- Cerrar sesión -->
                         <button
-                          (click)="logout(); closeProfileDropdown()"
-                          class="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+                          (click)="confirmLogout(); closeProfileDropdown()"
+                          class="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors cursor-pointer"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
@@ -501,7 +502,7 @@ import { Category } from '../../models/category.model';
                 </svg>
               </a>
               <a
-                routerLink="/carrito"
+                routerLink="/cart"
                 (click)="closeMobileMenu()"
                 class="relative text-gray-900 hover:text-indigo-600 px-3 py-2 text-sm font-medium flex items-center gap-2"
               >
@@ -574,7 +575,7 @@ import { Category } from '../../models/category.model';
                 
                 <!-- Cerrar sesión -->
                 <button
-                  (click)="logout(); closeMobileMenu()"
+                  (click)="confirmLogout(); closeMobileMenu()"
                   class="w-full flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 text-sm font-medium transition-colors"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -589,6 +590,17 @@ import { Category } from '../../models/category.model';
         </div>
       </div>
     </header>
+
+    <!-- Modal de confirmación para cerrar sesión -->
+    <app-confirm-modal
+      [isOpen]="isLogoutModalOpen"
+      [title]="'Cerrar Sesión'"
+      [message]="'¿Estás seguro de que deseas cerrar sesión?'"
+      [confirmText]="'Cerrar Sesión'"
+      [cancelText]="'Cancelar'"
+      (confirm)="onConfirmLogout()"
+      (cancel)="closeLogoutModal()"
+    />
   `,
   styles: [],
 })
@@ -600,6 +612,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isProfileDropdownOpen = false; // Nueva propiedad para el dropdown del perfil
   hoveredCategoryId: string | null = null; // Para controlar el submenu
   submenuPosition = { left: 0, top: 0 }; // Posición fija del submenu
+  isLogoutModalOpen = false; // Modal de confirmación de cierre de sesión
   categories: Category[] = [];
   cartItemCount = 0;
   
@@ -799,9 +812,34 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.isMobileMenuOpen = false;
   }
 
+  /**
+   * Abre el modal de confirmación para cerrar sesión
+   */
+  confirmLogout(): void {
+    this.isLogoutModalOpen = true;
+  }
+
+  /**
+   * Cierra el modal de confirmación de logout
+   */
+  closeLogoutModal(): void {
+    this.isLogoutModalOpen = false;
+  }
+
+  /**
+   * Confirma el cierre de sesión
+   */
+  onConfirmLogout(): void {
+    this.isLogoutModalOpen = false;
+    this.logout();
+  }
+
+  /**
+   * Cierra sesión del usuario
+   */
   logout(): void {
     this.authService.logout();
-    window.location.href = '/products';
+    window.location.href = '/home';
   }
 
   /**

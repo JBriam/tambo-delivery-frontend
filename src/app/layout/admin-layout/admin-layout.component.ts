@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { User } from '../../models/user.model';
+import { ConfirmModalComponent } from '../../shared/components/confirm-modal.component';
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet],
+  imports: [CommonModule, RouterOutlet, ConfirmModalComponent],
   template: `
     <div class="flex h-screen bg-gray-100">
       <!-- Sidebar -->
@@ -240,7 +241,7 @@ import { User } from '../../models/user.model';
           <!-- Logout Button -->
           <div class="absolute bottom-4 left-3 right-3">
             <button
-              (click)="logout()"
+              (click)="confirmLogout()"
               class="w-full flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors duration-150 cursor-pointer"
             >
               <svg
@@ -299,12 +300,24 @@ import { User } from '../../models/user.model';
         </main>
       </div>
     </div>
+
+    <!-- Modal de confirmación para cerrar sesión -->
+    <app-confirm-modal
+      [isOpen]="isLogoutModalOpen"
+      [title]="'Cerrar Sesión'"
+      [message]="'¿Estás seguro de que deseas cerrar sesión?'"
+      [confirmText]="'Cerrar Sesión'"
+      [cancelText]="'Cancelar'"
+      (confirm)="onConfirmLogout()"
+      (cancel)="closeLogoutModal()"
+    />
   `,
   styles: [],
 })
 export class AdminLayoutComponent implements OnInit {
   currentUser: User | null = null;
   currentRoute = '';
+  isLogoutModalOpen = false; // Modal de confirmación de cierre de sesión
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -370,6 +383,28 @@ export class AdminLayoutComponent implements OnInit {
     };
 
     return routeMap[this.currentRoute] || 'Panel de Administración';
+  }
+
+  /**
+   * Abre el modal de confirmación para cerrar sesión
+   */
+  confirmLogout(): void {
+    this.isLogoutModalOpen = true;
+  }
+
+  /**
+   * Cierra el modal de confirmación de logout
+   */
+  closeLogoutModal(): void {
+    this.isLogoutModalOpen = false;
+  }
+
+  /**
+   * Confirma el cierre de sesión
+   */
+  onConfirmLogout(): void {
+    this.isLogoutModalOpen = false;
+    this.logout();
   }
 
   /**
