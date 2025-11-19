@@ -104,15 +104,17 @@ import { ToastService } from '../../../shared/services/toast.service';
       </div>
 
       <!-- Loading Spinner -->
-      <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      @if (isLoading) {
+      <div class="flex justify-center items-center py-12">
         <div
           class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
         ></div>
       </div>
+      }
 
       <!-- Users Table -->
+      @if (!isLoading) {
       <div
-        *ngIf="!isLoading"
         class="bg-white rounded-lg shadow overflow-hidden"
       >
         <div class="overflow-x-auto">
@@ -147,7 +149,8 @@ import { ToastService } from '../../../shared/services/toast.service';
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr *ngFor="let user of filteredUsers" class="hover:bg-gray-50">
+              @for (user of filteredUsers; track user.email) {
+              <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
                     <div class="flex-shrink-0 h-10 w-10">
@@ -178,8 +181,8 @@ import { ToastService } from '../../../shared/services/toast.service';
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex flex-wrap gap-1">
+                    @for (role of user.authorityList; track role) {
                     <span
-                      *ngFor="let role of user.authorityList"
                       [ngClass]="{
                         'bg-purple-100 text-purple-800': role === 'ADMIN',
                         'bg-blue-100 text-blue-800': role === 'USER',
@@ -190,6 +193,7 @@ import { ToastService } from '../../../shared/services/toast.service';
                       <!-- {{ role === 'ADMIN' ? 'Admin' : 'Usuario' }} -->
                       {{ role || 'Sin rol' }}
                     </span>
+                    }
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -233,8 +237,8 @@ import { ToastService } from '../../../shared/services/toast.service';
                       class="cursor-pointer"
                       [title]="user.enabled ? 'Desactivar usuario' : 'Activar usuario'"
                     >
+                      @if (!user.enabled) {
                       <svg
-                        *ngIf="!user.enabled"
                         xmlns="http://www.w3.org/2000/svg"
                         class="h-5 w-5 inline"
                         viewBox="0 0 20 20"
@@ -246,8 +250,9 @@ import { ToastService } from '../../../shared/services/toast.service';
                           clip-rule="evenodd"
                         />
                       </svg>
+                      }
+                      @if (user.enabled) {
                       <svg
-                        *ngIf="user.enabled"
                         xmlns="http://www.w3.org/2000/svg"
                         class="h-5 w-5 inline"
                         viewBox="0 0 20 20"
@@ -259,11 +264,14 @@ import { ToastService } from '../../../shared/services/toast.service';
                           clip-rule="evenodd"
                         />
                       </svg>
+                      }
                     </button>
                   </div>
                 </td>
               </tr>
-              <tr *ngIf="filteredUsers.length === 0">
+              }
+              @if (filteredUsers.length === 0) {
+              <tr>
                 <td colspan="5" class="px-6 py-8 text-center text-gray-500">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -282,40 +290,45 @@ import { ToastService } from '../../../shared/services/toast.service';
                   No se encontraron usuarios
                 </td>
               </tr>
+              }
             </tbody>
           </table>
         </div>
       </div>
+      }
 
       <!-- Results Info -->
+      @if (!isLoading && filteredUsers.length > 0) {
       <div
-        *ngIf="!isLoading && filteredUsers.length > 0"
         class="mt-4 text-sm text-gray-600 text-center"
       >
         Mostrando {{ filteredUsers.length }} de {{ users.length }} usuarios
       </div>
+      }
     </div>
 
     <!-- User Modal -->
+    @if (isModalOpen) {
     <app-user-modal
-      *ngIf="isModalOpen"
       [isOpen]="isModalOpen"
       [mode]="modalMode"
       [user]="selectedUser"
       (closeModal)="closeModal()"
       (saveUser)="handleSave($event)"
     />
+    }
 
     <!-- Roles Modal -->
+    @if (isRolesModalOpen) {
     <app-roles-modal
-      *ngIf="isRolesModalOpen"
       [isOpen]="isRolesModalOpen"
       (closeModal)="closeRolesModal()"
     />
+    }
 
     <!-- Confirm Toggle Status Modal -->
+    @if (isDeleteModalOpen) {
     <app-confirm-modal
-      *ngIf="isDeleteModalOpen"
       [isOpen]="isDeleteModalOpen"
       [title]="userToDelete?.enabled ? 'Desactivar Usuario' : 'Activar Usuario'"
       [message]="
@@ -337,6 +350,7 @@ import { ToastService } from '../../../shared/services/toast.service';
       (confirm)="toggleUserStatus()"
       (cancel)="closeDeleteModal()"
     />
+    }
 
     <!-- Toast Notifications -->
     <app-toast />
@@ -614,7 +628,7 @@ export class UsersManagementComponent implements OnInit, OnDestroy {
   /**
    * Desactiva un usuario (usado si se necesita desactivación directa)
    */
-  deactivateUser(email: string): void {
+  desactivateUser(email: string): void {
     this.subscriptions.push(
       this.userAdminService.deleteUser(email).subscribe({
         next: (response) => {
