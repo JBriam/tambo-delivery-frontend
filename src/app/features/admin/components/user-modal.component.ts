@@ -272,15 +272,13 @@ export interface UserFormData {
             (buttonClick)="onClose()"
           />
 
-          <app-button
-            [config]="{
-              text: isSubmitting ? 'Guardando...' : mode === 'create' ? 'Crear Usuario' : 'Guardar Cambios',
-              type: 'primary',
-              size: 'md',
-              disabled: userForm.invalid || isSubmitting || selectedRoles.length === 0
-            }"
-            (buttonClick)="onSubmit()"
-          />
+          <button
+            type="submit"
+            [disabled]="userForm.invalid || isSubmitting || selectedRoles.length === 0"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ isSubmitting ? 'Guardando...' : mode === 'create' ? 'Crear Usuario' : 'Guardar Cambios' }}
+          </button>
         </div>
       </form>
     </app-modal>
