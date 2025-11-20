@@ -190,6 +190,6 @@ export class BrandModalComponent implements OnInit, OnChanges {
 
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    img.src = '/assets/brands/brand-default.png';
+    img.src = '/assets/images/brand-default.png';
   }
 }
