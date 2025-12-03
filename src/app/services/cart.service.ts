@@ -4,11 +4,11 @@ import { Product } from '../models/product.model';
 import { Cart, CartItem, CartSummary } from '../models/cart.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CartService {
   private readonly CART_STORAGE_KEY = 'tambo-cart';
-  private readonly DELIVERY_FEE = 5.00;
+  private readonly DELIVERY_FEE = 5.0;
 
   private cartSubject = new BehaviorSubject<Cart>(this.getCartFromStorage());
   public cart$ = this.cartSubject.asObservable();
@@ -29,24 +29,37 @@ export class CartService {
    * Añade un producto al carrito o incrementa su cantidad si ya existe
    */
   addToCart(product: Product, quantity: number = 1): void {
-    console.log('🛒 CartService: Adding to cart:', product.name, 'quantity:', quantity);
+    console.log(
+      '🛒 CartService: Adding to cart:',
+      product.name,
+      'quantity:',
+      quantity
+    );
     const currentCart = this.getCurrentCart();
     console.log('🛒 CartService: Current cart before adding:', currentCart);
-    
-    const existingItemIndex = currentCart.items.findIndex(item => item.product.id === product.id);
+
+    const existingItemIndex = currentCart.items.findIndex(
+      (item) => item.product.id === product.id
+    );
+
+    // Obtener el precio efectivo (con descuento si existe)
+    const effectivePrice = this.getEffectivePrice(product);
 
     if (existingItemIndex > -1) {
       // El producto ya existe, incrementar cantidad
       currentCart.items[existingItemIndex].quantity += quantity;
-      currentCart.items[existingItemIndex].subtotal = 
-        currentCart.items[existingItemIndex].quantity * currentCart.items[existingItemIndex].product.price;
-      console.log('🛒 CartService: Product already exists, updated quantity:', currentCart.items[existingItemIndex].quantity);
+      currentCart.items[existingItemIndex].subtotal =
+        currentCart.items[existingItemIndex].quantity * effectivePrice;
+      console.log(
+        '🛒 CartService: Product already exists, updated quantity:',
+        currentCart.items[existingItemIndex].quantity
+      );
     } else {
       // Añadir nuevo producto
       const newItem: CartItem = {
         product,
         quantity,
-        subtotal: product.price * quantity
+        subtotal: effectivePrice * quantity,
       };
       currentCart.items.push(newItem);
       console.log('🛒 CartService: Added new product to cart:', newItem);
@@ -60,7 +73,9 @@ export class CartService {
    */
   removeFromCart(productId: string): void {
     const currentCart = this.getCurrentCart();
-    currentCart.items = currentCart.items.filter(item => item.product.id !== productId);
+    currentCart.items = currentCart.items.filter(
+      (item) => item.product.id !== productId
+    );
     this.updateCart(currentCart);
   }
 
@@ -69,12 +84,15 @@ export class CartService {
    */
   incrementQuantity(productId: string): void {
     const currentCart = this.getCurrentCart();
-    const itemIndex = currentCart.items.findIndex(item => item.product.id === productId);
-    
+    const itemIndex = currentCart.items.findIndex(
+      (item) => item.product.id === productId
+    );
+
     if (itemIndex > -1) {
       currentCart.items[itemIndex].quantity++;
-      currentCart.items[itemIndex].subtotal = 
-        currentCart.items[itemIndex].quantity * currentCart.items[itemIndex].product.price;
+      currentCart.items[itemIndex].subtotal =
+        currentCart.items[itemIndex].quantity *
+        this.getEffectivePrice(currentCart.items[itemIndex].product);
       this.updateCart(currentCart);
     }
   }
@@ -84,13 +102,16 @@ export class CartService {
    */
   decrementQuantity(productId: string): void {
     const currentCart = this.getCurrentCart();
-    const itemIndex = currentCart.items.findIndex(item => item.product.id === productId);
-    
+    const itemIndex = currentCart.items.findIndex(
+      (item) => item.product.id === productId
+    );
+
     if (itemIndex > -1) {
       if (currentCart.items[itemIndex].quantity > 1) {
         currentCart.items[itemIndex].quantity--;
-        currentCart.items[itemIndex].subtotal = 
-          currentCart.items[itemIndex].quantity * currentCart.items[itemIndex].product.price;
+        currentCart.items[itemIndex].subtotal =
+          currentCart.items[itemIndex].quantity *
+          this.getEffectivePrice(currentCart.items[itemIndex].product);
         this.updateCart(currentCart);
       } else {
         // Si la cantidad es 1, remover el producto del carrito
@@ -109,12 +130,14 @@ export class CartService {
     }
 
     const currentCart = this.getCurrentCart();
-    const itemIndex = currentCart.items.findIndex(item => item.product.id === productId);
-    
+    const itemIndex = currentCart.items.findIndex(
+      (item) => item.product.id === productId
+    );
+
     if (itemIndex > -1) {
       currentCart.items[itemIndex].quantity = quantity;
-      currentCart.items[itemIndex].subtotal = 
-        quantity * currentCart.items[itemIndex].product.price;
+      currentCart.items[itemIndex].subtotal =
+        quantity * this.getEffectivePrice(currentCart.items[itemIndex].product);
       this.updateCart(currentCart);
     }
   }
@@ -123,7 +146,9 @@ export class CartService {
    * Obtiene la cantidad de un producto específico en el carrito
    */
   getProductQuantity(productId: string): number {
-    const item = this.getCurrentCart().items.find(item => item.product.id === productId);
+    const item = this.getCurrentCart().items.find(
+      (item) => item.product.id === productId
+    );
     return item ? item.quantity : 0;
   }
 
@@ -131,7 +156,9 @@ export class CartService {
    * Verifica si un producto está en el carrito
    */
   isProductInCart(productId: string): boolean {
-    return this.getCurrentCart().items.some(item => item.product.id === productId);
+    return this.getCurrentCart().items.some(
+      (item) => item.product.id === productId
+    );
   }
 
   /**
@@ -141,12 +168,12 @@ export class CartService {
     const cart = this.getCurrentCart();
     const subtotal = cart.totalPrice;
     const deliveryFee = cart.items.length > 0 ? this.DELIVERY_FEE : 0;
-    
+
     return {
       itemCount: cart.totalItems,
       subtotal,
       deliveryFee,
-      total: subtotal + deliveryFee
+      total: subtotal + deliveryFee,
     };
   }
 
@@ -158,7 +185,7 @@ export class CartService {
       items: [],
       totalItems: 0,
       totalPrice: 0,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
     this.updateCart(emptyCart);
   }
@@ -189,17 +216,28 @@ export class CartService {
    */
   private updateCart(cart: Cart): void {
     console.log('🛒 CartService: Updating cart:', cart);
-    
+
     // Recalcular totales
-    cart.totalItems = cart.items.reduce((total, item) => total + item.quantity, 0);
-    cart.totalPrice = cart.items.reduce((total, item) => total + item.subtotal, 0);
+    cart.totalItems = cart.items.reduce(
+      (total, item) => total + item.quantity,
+      0
+    );
+    cart.totalPrice = cart.items.reduce(
+      (total, item) => total + item.subtotal,
+      0
+    );
     cart.updatedAt = new Date();
 
-    console.log('🛒 CartService: Cart after recalculation - totalItems:', cart.totalItems, 'totalPrice:', cart.totalPrice);
+    console.log(
+      '🛒 CartService: Cart after recalculation - totalItems:',
+      cart.totalItems,
+      'totalPrice:',
+      cart.totalPrice
+    );
 
     // Guardar en localStorage
     this.saveCartToStorage(cart);
-    
+
     // Emitir el nuevo estado
     console.log('🛒 CartService: Emitting new cart state to subscribers');
     this.cartSubject.next(cart);
@@ -225,7 +263,7 @@ export class CartService {
         if (parsedCart && Array.isArray(parsedCart.items)) {
           return {
             ...parsedCart,
-            updatedAt: new Date(parsedCart.updatedAt)
+            updatedAt: new Date(parsedCart.updatedAt),
           };
         }
       }
@@ -238,7 +276,7 @@ export class CartService {
       items: [],
       totalItems: 0,
       totalPrice: 0,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
   }
 
@@ -251,5 +289,12 @@ export class CartService {
     } catch (error) {
       console.error('Error saving cart to storage:', error);
     }
+  }
+
+  /**
+   * Obtiene el precio efectivo de un producto (con descuento si está disponible)
+   */
+  private getEffectivePrice(product: Product): number {
+    return product.discountedPrice || product.price;
   }
 }
