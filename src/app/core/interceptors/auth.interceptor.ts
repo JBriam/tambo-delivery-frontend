@@ -24,10 +24,12 @@ export class AuthInterceptor implements HttpInterceptor {
       
       return next.handle(authReq).pipe(
         catchError((error: HttpErrorResponse) => {
-          // Si el token expiró, limpiar datos de autenticación
-          if (error.status === 401) {
+          // Si el token expiró en endpoints críticos (no /order), hacer logout
+          if (error.status === 401 && !req.url.includes('/api/order')) {
+            console.warn('Token expirado en:', req.url);
             this.authService.logout();
           }
+          // Para /api/order, dejar que el componente maneje el reintento
           return throwError(() => error);
         })
       );

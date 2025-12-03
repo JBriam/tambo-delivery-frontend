@@ -10,7 +10,10 @@ export interface Order {
   deliveryMethod: DeliveryMethod;
   totalAmount: number;
   orderStatus: OrderStatus;
-  orderItems: OrderItem[];
+  orderItems?: OrderItem[]; // Para crear pedidos
+  orderItemList?: OrderItem[]; // Para recibir del backend
+  shipmentNumber?: string; // Código de seguimiento
+  expectedDeliveryDate?: Date;
   discount?: Discount;
   payment?: Payment;
   deliveryPerson?: DeliveryPerson;
@@ -23,8 +26,9 @@ export interface OrderItem {
   id?: string;
   product: Product;
   quantity: number;
-  price: number;
-  subtotal: number;
+  price?: number; // Para crear pedidos
+  itemPrice?: number; // Precio que retorna el backend
+  subtotal?: number;
 }
 
 export interface Discount {
@@ -68,40 +72,49 @@ export enum OrderStatus {
   PREPARING = 'PREPARING',
   OUT_FOR_DELIVERY = 'OUT_FOR_DELIVERY',
   DELIVERED = 'DELIVERED',
-  CANCELLED = 'CANCELLED'
+  CANCELLED = 'CANCELLED',
 }
 
 export enum DeliveryMethod {
-  HOME_DELIVERY = 'HOME_DELIVERY',
-  PICKUP = 'PICKUP'
+  DELIVERY = 'DELIVERY', // Entrega a domicilio
+  STORE = 'STORE', // Recojo en tienda
 }
 
 export enum PaymentMethod {
-  CASH = 'CASH',
-  CARD = 'CARD',
-  DIGITAL_WALLET = 'DIGITAL_WALLET',
-  PAYPAL = 'PAYPAL'
+  EFECTIVO = 'EFECTIVO',
+  YAPE = 'YAPE',
+  TRANSFERENCIA = 'TRANSFERENCIA',
+  TARJETA_CREDITO = 'TARJETA_CREDITO',
+  TARJETA_DEBITO = 'TARJETA_DEBITO',
+  PAYPAL = 'PAYPAL',
 }
 
 export enum PaymentStatus {
   PENDING = 'PENDING',
   COMPLETED = 'COMPLETED',
   FAILED = 'FAILED',
-  REFUNDED = 'REFUNDED'
+  REFUNDED = 'REFUNDED',
 }
 
 export enum DeliveryStatus {
   PREPARING = 'PREPARING',
   ON_THE_WAY = 'ON_THE_WAY',
-  DELIVERED = 'DELIVERED'
+  DELIVERED = 'DELIVERED',
 }
 
 // DTOs para requests
 export interface OrderRequest {
+  orderDate?: Date; // Fecha del pedido (opcional, el backend la genera si no viene)
   deliveryMethod: DeliveryMethod;
   paymentMethod: PaymentMethod;
-  orderItems: OrderItemRequest[];
+  orderItemRequests: OrderItemRequest[]; // Backend espera orderItemRequests, no orderItems
+  totalAmount: number; // Monto total del pedido (requerido por la BD)
   discountCode?: string;
+  receiptType: string; // Tipo de comprobante: 'BOLETA' o 'FACTURA'
+  docType: string; // Tipo de documento: 'DNI', 'RUC', 'CE', etc.
+  docNumber: number; // Número de documento
+  ruc?: string; // RUC (solo para facturas)
+  razonSocial?: string; // Razón social (solo para facturas)
   deliveryAddress?: {
     firstName: string;
     lastName: string;
@@ -119,4 +132,5 @@ export interface OrderRequest {
 export interface OrderItemRequest {
   productId: string;
   quantity: number;
+  itemPrice?: number; // Precio unitario (opcional, el backend lo toma del producto si no viene)
 }
