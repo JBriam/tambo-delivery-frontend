@@ -413,7 +413,7 @@ interface TrackingStep {
           </div>
 
           <!-- Acciones -->
-          <div class="space-y-3">
+          <div class="gap-3 flex">
             <app-button
               [config]="{
                 text: 'Descargar boleta',
@@ -1000,7 +1000,7 @@ export class OrderTrackingComponent implements OnInit, OnDestroy {
       </head>
       <body>
         <div class="header">
-          <div class="logo">TAMBO+</div>
+          <div class="logo">TAMBO DELIVERY</div>
           <div class="subtitle">Boleta Electrónica</div>
         </div>
 
@@ -1072,9 +1072,7 @@ export class OrderTrackingComponent implements OnInit, OnDestroy {
         </div>
 
         <div class="footer">
-          <p>Gracias por tu compra en Tambo+</p>
-          <p>Para consultas: 01-651-1111 | soporte@tambo.com.pe</p>
-          <p>www.tambo.com.pe</p>
+          <p>Gracias por tu compra en Tambo Delivery</p>
         </div>
       </body>
       </html>

@@ -94,8 +94,7 @@ export const API_ENDPOINTS = {
     
     // Pedidos
     ORDERS: '/admin/orders',
-    ORDERS_ALL: '/admin/orders/get-all',
-    ORDERS_STATISTICS: '/admin/orders/statistics',
+    ORDERS_EXPORT_EXCEL: '/admin/export/all-orders/excel',
     
     // Imágenes slider
     SLIDER_IMAGES: '/admin/slider-image',

@@ -1,11 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProductService } from '../../products/services/product.service';
 import { OrderService } from '../../orders/services/order.service';
+import { AdminService } from '../services/admin.service';
 import { User } from '../../../models/user.model';
+import { Order } from '../../../models/order.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -116,29 +118,28 @@ import { User } from '../../../models/user.model';
         <div>
           <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Pedidos Recientes</h2>
-            <div class="space-y-3">
-              <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
-                <div>
-                  <p class="font-medium text-gray-800">#12345</p>
-                  <p class="text-sm text-gray-600">Juan Pérez</p>
-                </div>
-                <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">Pendiente</span>
+            @if (recentOrders.length > 0) {
+              <div class="space-y-3">
+                @for (order of recentOrders; track order.id) {
+                  <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                    <div>
+                      <p class="font-medium text-gray-800">#{{ order.id }}</p>
+                      <p class="text-sm text-gray-600">{{ order.user?.firstName }} {{ order.user?.lastName }}</p>
+                    </div>
+                    <span 
+                      class="px-2 py-1 rounded-full text-xs font-medium"
+                      [ngClass]="getOrderStatusClass(order.orderStatus)"
+                    >
+                      {{ getOrderStatusText(order.orderStatus) }}
+                    </span>
+                  </div>
+                }
               </div>
-              <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
-                <div>
-                  <p class="font-medium text-gray-800">#12344</p>
-                  <p class="text-sm text-gray-600">Ana García</p>
-                </div>
-                <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Completado</span>
+            } @else {
+              <div class="text-center text-gray-500 py-4">
+                <p>No hay pedidos recientes</p>
               </div>
-              <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
-                <div>
-                  <p class="font-medium text-gray-800">#12343</p>
-                  <p class="text-sm text-gray-600">Carlos López</p>
-                </div>
-                <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">En proceso</span>
-              </div>
-            </div>
+            }
           </div>
         </div>
       </div>
@@ -193,8 +194,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     totalUsers: 0
   };
 
-  // Actividades recientes (vacío hasta implementar servicio)
-  recentActivities: any[] = [];
+  // Pedidos recientes
+  recentOrders: Order[] = [];
 
   private subscriptions: Subscription[] = [];
 
@@ -202,6 +203,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private productService: ProductService,
     private orderService: OrderService,
+    private adminService: AdminService,
     private router: Router
   ) {}
 
@@ -236,18 +238,64 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private loadDashboardData(): void {
     this.isLoading = true;
     
-    // Cargar estadísticas de productos
-    this.productService.getProducts().subscribe({
-      next: (products) => {
-        this.stats.totalProducts = products.length;
-      },
-      error: (error) => console.error('Error loading products stats:', error)
-    });
+    // Cargar todas las estadísticas en paralelo
+    forkJoin({
+      orderStats: this.adminService.getOrderStatistics(),
+      totalProducts: this.adminService.getTotalProducts(),
+      totalUsers: this.adminService.getTotalUsers(),
+      allOrders: this.orderService.getAllOrders()
+    }).subscribe({
+      next: (data) => {
+        // Actualizar estadísticas
+        this.stats = {
+          ordersToday: data.orderStats.ordersToday || 0,
+          salesToday: data.orderStats.salesToday || 0,
+          totalProducts: data.totalProducts || 0,
+          totalUsers: data.totalUsers || 0
+        };
 
-    // TODO: Implementar APIs para obtener estadísticas reales de órdenes, ventas y usuarios
-    // Se necesita implementar servicios para obtener estos datos del backend
-    // Mientras tanto, mantener los valores en 0 hasta implementar las APIs correspondientes
-    this.isLoading = false;
+        // Obtener los 3 pedidos más recientes
+        this.recentOrders = data.allOrders
+          .sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime())
+          .slice(0, 3);
+
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading dashboard data:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  /**
+   * Obtiene la clase CSS para el estado del pedido
+   */
+  getOrderStatusClass(status: string): string {
+    const statusClasses: Record<string, string> = {
+      'PENDING': 'bg-yellow-100 text-yellow-700',
+      'CONFIRMED': 'bg-blue-100 text-blue-700',
+      'PREPARING': 'bg-purple-100 text-purple-700',
+      'OUT_FOR_DELIVERY': 'bg-orange-100 text-orange-700',
+      'DELIVERED': 'bg-green-100 text-green-700',
+      'CANCELLED': 'bg-red-100 text-red-700'
+    };
+    return statusClasses[status] || 'bg-gray-100 text-gray-700';
+  }
+
+  /**
+   * Obtiene el texto del estado del pedido
+   */
+  getOrderStatusText(status: string): string {
+    const statusTexts: Record<string, string> = {
+      'PENDING': 'Pendiente',
+      'CONFIRMED': 'Confirmado',
+      'PREPARING': 'En Preparación',
+      'OUT_FOR_DELIVERY': 'En Camino',
+      'DELIVERED': 'Entregado',
+      'CANCELLED': 'Cancelado'
+    };
+    return statusTexts[status] || status;
   }
 
   /**

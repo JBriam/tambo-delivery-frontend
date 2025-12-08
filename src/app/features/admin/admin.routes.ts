@@ -38,6 +38,10 @@ export const ADMIN_ROUTES: Routes = [
       {
         path: 'users',
         loadComponent: () => import('./pages/users-management.component').then(c => c.UsersManagementComponent)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./pages/admin-profile.component').then(c => c.AdminProfileComponent)
       }
     ]
   }
