@@ -10,6 +10,7 @@ import { BrandModalComponent } from '../components/brand-modal.component';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal.component';
 import { ToastComponent } from '../../../shared/components/toast.component';
 import { ToastService } from '../../../shared/services/toast.service';
+import { ReportService } from '../../../shared/services/report.service';
 
 @Component({
   selector: 'app-brands-management',
@@ -33,6 +34,22 @@ import { ToastService } from '../../../shared/services/toast.service';
           </p>
         </div>
         <div class="flex gap-3">
+          <app-button
+            [config]="{
+              text: 'Exportar Excel',
+              type: 'secondary',
+              size: 'md'
+            }"
+            (buttonClick)="exportToExcel()"
+          />
+          <app-button
+            [config]="{
+              text: 'Exportar PDF',
+              type: 'secondary',
+              size: 'md'
+            }"
+            (buttonClick)="exportToPDF()"
+          />
           <app-button
             [config]="{
               text: 'Crear Marca',
@@ -215,7 +232,8 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
   constructor(
     private productService: ProductService,
     private router: Router,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private reportService: ReportService
   ) {}
 
   ngOnInit(): void {
@@ -432,5 +450,48 @@ export class BrandsManagementComponent implements OnInit, OnDestroy {
    */
   goBack(): void {
     this.router.navigate(['/admin']);
+  }
+
+  // ==================== EXPORT METHODS ====================
+
+  /**
+   * Exporta las marcas filtradas a Excel
+   */
+  exportToExcel(): void {
+    const columns = [
+      { header: 'ID', field: 'id', width: 10 },
+      { header: 'Nombre', field: 'name', width: 30 },
+      { header: 'Descripción', field: 'description', width: 50 },
+      { header: 'Activo', field: 'isActive', width: 10 },
+    ];
+
+    this.reportService.exportToExcel(
+      this.filteredBrands,
+      columns,
+      'Reporte_Marcas'
+    );
+    
+    this.toastService.success('Reporte exportado exitosamente');
+  }
+
+  /**
+   * Exporta las marcas filtradas a PDF
+   */
+  exportToPDF(): void {
+    const columns = [
+      { header: 'ID', field: 'id' },
+      { header: 'Nombre', field: 'name' },
+      { header: 'Descripción', field: 'description' },
+      { header: 'Activo', field: 'isActive' },
+    ];
+
+    this.reportService.exportToPDF(
+      this.filteredBrands,
+      columns,
+      'Reporte_Marcas',
+      'Reporte de Marcas - Tambo Delivery'
+    );
+    
+    this.toastService.success('Reporte exportado exitosamente');
   }
 }

@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { OrderService } from '../../orders/services/order.service';
 import { Order, OrderStatus } from '../../../models/order.model';
+import { ReportService } from '../../../shared/services/report.service';
+import { ButtonComponent } from '../../../shared/components';
 
 // Interfaz para el display de órdenes con propiedades adicionales
 interface OrderDisplay extends Order {
@@ -16,7 +18,7 @@ interface OrderDisplay extends Order {
 @Component({
   selector: 'app-orders-management',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonComponent],
   template: `
     <div class="p-6">
       <!-- Header -->
@@ -26,12 +28,30 @@ interface OrderDisplay extends Order {
           <p class="text-gray-600">Administra todos los pedidos de Tambo Delivery</p>
         </div>
         <div class="flex gap-3">
-          <button
-            (click)="refreshOrders()"
-            class="px-4 py-2 text-[#a81b8d] bg-white border border-[#a81b8d] rounded-lg hover:bg-[#a81b8d] hover:text-white transition-colors"
-          >
-            Actualizar
-          </button>
+          <app-button
+            [config]="{
+              text: 'Exportar Excel',
+              type: 'secondary',
+              size: 'md'
+            }"
+            (buttonClick)="exportToExcel()"
+          />
+          <app-button
+            [config]="{
+              text: 'Exportar PDF',
+              type: 'secondary',
+              size: 'md'
+            }"
+            (buttonClick)="exportToPDF()"
+          />
+          <app-button
+            [config]="{
+              text: 'Actualizar',
+              type: 'primary',
+              size: 'md'
+            }"
+            (buttonClick)="refreshOrders()"
+          />
         </div>
       </div>
 
@@ -250,7 +270,8 @@ export class OrdersManagementComponent implements OnInit, OnDestroy {
 
   constructor(
     private orderService: OrderService,
-    private router: Router
+    private router: Router,
+    private reportService: ReportService
   ) {}
 
   ngOnInit(): void {
@@ -444,5 +465,51 @@ export class OrdersManagementComponent implements OnInit, OnDestroy {
    */
   goBack(): void {
     this.router.navigate(['/admin']);
+  }
+
+  // ==================== EXPORT METHODS ====================
+
+  /**
+   * Exporta los pedidos filtrados a Excel
+   */
+  exportToExcel(): void {
+    const columns = [
+      { header: 'Número de Orden', field: 'orderNumber', width: 15 },
+      { header: 'Cliente', field: 'user.firstName', width: 20 },
+      { header: 'Apellido', field: 'user.lastName', width: 20 },
+      { header: 'Email', field: 'user.email', width: 30 },
+      { header: 'Estado', field: 'status', width: 15 },
+      { header: 'Total', field: 'totalAmount', width: 12 },
+      { header: 'Fecha', field: 'createdAt', width: 20 },
+      { header: 'Dirección', field: 'deliveryAddress.address', width: 40 },
+      { header: 'Ciudad', field: 'deliveryAddress.city', width: 20 },
+    ];
+
+    this.reportService.exportToExcel(
+      this.filteredOrders,
+      columns,
+      'Reporte_Pedidos'
+    );
+  }
+
+  /**
+   * Exporta los pedidos filtrados a PDF
+   */
+  exportToPDF(): void {
+    const columns = [
+      { header: 'Nº Orden', field: 'orderNumber' },
+      { header: 'Cliente', field: 'user.firstName' },
+      { header: 'Estado', field: 'status' },
+      { header: 'Total', field: 'totalAmount' },
+      { header: 'Fecha', field: 'createdAt' },
+      { header: 'Ciudad', field: 'deliveryAddress.city' },
+    ];
+
+    this.reportService.exportToPDF(
+      this.filteredOrders,
+      columns,
+      'Reporte_Pedidos',
+      'Reporte de Pedidos - Tambo Delivery'
+    );
   }
 }

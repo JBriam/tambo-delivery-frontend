@@ -24,6 +24,7 @@ import { ProductCreateSummaryModalComponent } from '../../products/components/pr
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal.component';
 import { ToastComponent } from '../../../shared/components/toast.component';
 import { ToastService } from '../../../shared/services/toast.service';
+import { ReportService } from '../../../shared/services/report.service';
 
 @Component({
   selector: 'app-products-management',
@@ -50,6 +51,22 @@ import { ToastService } from '../../../shared/services/toast.service';
           </p>
         </div>
         <div class="flex gap-3">
+          <app-button
+            [config]="{
+              text: 'Exportar Excel',
+              type: 'secondary',
+              size: 'md'
+            }"
+            (buttonClick)="exportToExcel()"
+          />
+          <app-button
+            [config]="{
+              text: 'Exportar PDF',
+              type: 'secondary',
+              size: 'md'
+            }"
+            (buttonClick)="exportToPDF()"
+          />
           <app-button
             [config]="{
               text: 'Crear Producto',
@@ -541,7 +558,8 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
   constructor(
     private productService: ProductService, 
     private router: Router,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private reportService: ReportService
   ) {}
 
   ngOnInit(): void {
@@ -1124,5 +1142,60 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
         },
       })
     );
+  }
+
+  // ==================== EXPORT METHODS ====================
+
+  /**
+   * Exporta los productos filtrados a Excel
+   */
+  exportToExcel(): void {
+    const columns = [
+      { header: 'ID', field: 'id', width: 10 },
+      { header: 'Nombre', field: 'name', width: 30 },
+      { header: 'Descripción', field: 'description', width: 40 },
+      { header: 'Categoría', field: 'category.name', width: 20 },
+      { header: 'Marca', field: 'brand.name', width: 20 },
+      { header: 'Precio', field: 'price', width: 12 },
+      { header: 'Precio Final', field: 'finalPrice', width: 12 },
+      { header: 'Descuento (%)', field: 'discountPercentage', width: 12 },
+      { header: 'Stock', field: 'stock', width: 10 },
+      { header: 'Activo', field: 'isActive', width: 10 },
+      { header: 'Nuevo', field: 'isNewArrival', width: 10 },
+    ];
+
+    this.reportService.exportToExcel(
+      this.filteredProducts,
+      columns,
+      'Reporte_Productos'
+    );
+    
+    this.toastService.success('Reporte exportado exitosamente');
+  }
+
+  /**
+   * Exporta los productos filtrados a PDF
+   */
+  exportToPDF(): void {
+    const columns = [
+      { header: 'ID', field: 'id' },
+      { header: 'Nombre', field: 'name' },
+      { header: 'Categoría', field: 'category.name' },
+      { header: 'Marca', field: 'brand.name' },
+      { header: 'Precio', field: 'price' },
+      { header: 'Precio Final', field: 'finalPrice' },
+      { header: 'Descuento (%)', field: 'discountPercentage' },
+      { header: 'Stock', field: 'stock' },
+      { header: 'Activo', field: 'isActive' },
+    ];
+
+    this.reportService.exportToPDF(
+      this.filteredProducts,
+      columns,
+      'Reporte_Productos',
+      'Reporte de Productos - Tambo Delivery'
+    );
+    
+    this.toastService.success('Reporte exportado exitosamente');
   }
 }

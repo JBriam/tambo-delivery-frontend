@@ -12,6 +12,7 @@ import { DiscountModalComponent } from '../components/discount-modal.component';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal.component';
 import { ToastComponent } from '../../../shared/components/toast.component';
 import { ToastService } from '../../../shared/services/toast.service';
+import { ReportService } from '../../../shared/services/report.service';
 
 // Registrar locale español
 registerLocaleData(localeEs);
@@ -41,6 +42,22 @@ registerLocaleData(localeEs);
           </p>
         </div>
         <div class="flex gap-3">
+          <app-button
+            [config]="{
+              text: 'Exportar Excel',
+              type: 'secondary',
+              size: 'md'
+            }"
+            (buttonClick)="exportToExcel()"
+          />
+          <app-button
+            [config]="{
+              text: 'Exportar PDF',
+              type: 'secondary',
+              size: 'md'
+            }"
+            (buttonClick)="exportToPDF()"
+          />
           <app-button
             [config]="{
               text: 'Crear Descuento',
@@ -293,7 +310,8 @@ export class DiscountsManagementComponent implements OnInit, OnDestroy {
   constructor(
     private productService: ProductService,
     private router: Router,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private reportService: ReportService
   ) {}
 
   ngOnInit(): void {
@@ -620,5 +638,52 @@ export class DiscountsManagementComponent implements OnInit, OnDestroy {
    */
   goBack(): void {
     this.router.navigate(['/admin']);
+  }
+
+  // ==================== EXPORT METHODS ====================
+
+  /**
+   * Exporta los descuentos filtrados a Excel
+   */
+  exportToExcel(): void {
+    const columns = [
+      { header: 'ID', field: 'id', width: 10 },
+      { header: 'Nombre', field: 'name', width: 30 },
+      { header: 'Porcentaje', field: 'percentage', width: 12 },
+      { header: 'Fecha Inicio', field: 'startDate', width: 15 },
+      { header: 'Fecha Fin', field: 'endDate', width: 15 },
+      { header: 'Activo', field: 'isActive', width: 10 },
+    ];
+
+    this.reportService.exportToExcel(
+      this.filteredDiscounts,
+      columns,
+      'Reporte_Descuentos'
+    );
+    
+    this.toastService.success('Reporte exportado exitosamente');
+  }
+
+  /**
+   * Exporta los descuentos filtrados a PDF
+   */
+  exportToPDF(): void {
+    const columns = [
+      { header: 'ID', field: 'id' },
+      { header: 'Nombre', field: 'name' },
+      { header: 'Porcentaje', field: 'percentage' },
+      { header: 'Fecha Inicio', field: 'startDate' },
+      { header: 'Fecha Fin', field: 'endDate' },
+      { header: 'Activo', field: 'isActive' },
+    ];
+
+    this.reportService.exportToPDF(
+      this.filteredDiscounts,
+      columns,
+      'Reporte_Descuentos',
+      'Reporte de Descuentos - Tambo Delivery'
+    );
+    
+    this.toastService.success('Reporte exportado exitosamente');
   }
 }

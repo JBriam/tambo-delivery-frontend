@@ -11,6 +11,7 @@ import { CategoryTypeModalComponent } from '../components/category-type-modal.co
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal.component';
 import { ToastComponent } from '../../../shared/components/toast.component';
 import { ToastService } from '../../../shared/services/toast.service';
+import { ReportService } from '../../../shared/services/report.service';
 
 @Component({
   selector: 'app-categories-management',
@@ -37,6 +38,22 @@ import { ToastService } from '../../../shared/services/toast.service';
           </p>
         </div>
         <div class="flex gap-3">
+          <app-button
+            [config]="{
+              text: 'Exportar Excel',
+              type: 'secondary',
+              size: 'md'
+            }"
+            (buttonClick)="exportToExcel()"
+          />
+          <app-button
+            [config]="{
+              text: 'Exportar PDF',
+              type: 'secondary',
+              size: 'md'
+            }"
+            (buttonClick)="exportToPDF()"
+          />
           <app-button
             [config]="{
               text: 'Crear Categoría',
@@ -257,7 +274,8 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
   constructor(
     private productService: ProductService,
     private router: Router,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private reportService: ReportService
   ) {}
 
   ngOnInit(): void {
@@ -555,5 +573,50 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
    */
   goBack(): void {
     this.router.navigate(['/admin']);
+  }
+
+  // ==================== EXPORT METHODS ====================
+
+  /**
+   * Exporta las categorías filtradas a Excel
+   */
+  exportToExcel(): void {
+    const columns = [
+      { header: 'ID', field: 'id', width: 10 },
+      { header: 'Nombre', field: 'name', width: 30 },
+      { header: 'Descripción', field: 'description', width: 40 },
+      { header: 'Tipo', field: 'categoryType.name', width: 20 },
+      { header: 'Activo', field: 'isActive', width: 10 },
+    ];
+
+    this.reportService.exportToExcel(
+      this.filteredCategories,
+      columns,
+      'Reporte_Categorias'
+    );
+    
+    this.toastService.success('Reporte exportado exitosamente');
+  }
+
+  /**
+   * Exporta las categorías filtradas a PDF
+   */
+  exportToPDF(): void {
+    const columns = [
+      { header: 'ID', field: 'id' },
+      { header: 'Nombre', field: 'name' },
+      { header: 'Descripción', field: 'description' },
+      { header: 'Tipo', field: 'categoryType.name' },
+      { header: 'Activo', field: 'isActive' },
+    ];
+
+    this.reportService.exportToPDF(
+      this.filteredCategories,
+      columns,
+      'Reporte_Categorias',
+      'Reporte de Categorías - Tambo Delivery'
+    );
+    
+    this.toastService.success('Reporte exportado exitosamente');
   }
 }

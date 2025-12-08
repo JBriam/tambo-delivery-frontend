@@ -27,6 +27,12 @@ Bienvenido a la documentación del frontend de Tambo Delivery. Aquí encontrará
 ### 💰 Descuentos
 - **[Implementación de Descuentos](DISCOUNT-IMPLEMENTATION.md)** - Sistema de descuentos
 
+### 📊 Reportes y Exportación
+- **[Resumen de Implementación](REPORTS-IMPLEMENTATION-SUMMARY.md)** - Vista general del sistema de reportes
+- **[Guía de Reportes](REPORTS-GUIDE.md)** - Uso del sistema de reportes (Excel y PDF)
+- **[Ejemplos Visuales](REPORTS-VISUAL-EXAMPLES.md)** - Cómo se ven los reportes generados
+- **[Cómo Agregar Reportes](HOW-TO-ADD-REPORTS.md)** - Implementar reportes en nuevas secciones
+
 ---
 
 ## 🚀 Inicio Rápido

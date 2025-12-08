@@ -12,6 +12,7 @@ import { RolesModalComponent } from '../components/roles-modal.component';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal.component';
 import { ToastComponent } from '../../../shared/components/toast.component';
 import { ToastService } from '../../../shared/services/toast.service';
+import { ReportService } from '../../../shared/services/report.service';
 
 @Component({
   selector: 'app-users-management',
@@ -33,6 +34,20 @@ import { ToastService } from '../../../shared/services/toast.service';
           <p class="text-gray-600">Administra los usuarios de Tambo Delivery</p>
         </div>
         <div class="flex gap-3">
+          <button
+            type="button"
+            (click)="exportToExcel()"
+            class="cursor-pointer px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+          >
+            Exportar Excel
+          </button>
+          <button
+            type="button"
+            (click)="exportToPDF()"
+            class="cursor-pointer px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+          >
+            Exportar PDF
+          </button>
           <button
             type="button"
             (click)="openRolesModal()"
@@ -380,7 +395,8 @@ export class UsersManagementComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly userAdminService: UserAdminService,
-    private readonly toastService: ToastService
+    private readonly toastService: ToastService,
+    private readonly reportService: ReportService
   ) {}
 
   ngOnInit(): void {
@@ -659,5 +675,64 @@ export class UsersManagementComponent implements OnInit, OnDestroy {
     if (target) {
       target.src = '/assets/icons/user-placeholder.svg';
     }
+  }
+
+  // ==================== EXPORT METHODS ====================
+
+  /**
+   * Exporta los usuarios filtrados a Excel
+   */
+  exportToExcel(): void {
+    const columns = [
+      { header: 'Nombre', field: 'firstName', width: 20 },
+      { header: 'Apellido', field: 'lastName', width: 20 },
+      { header: 'Email', field: 'email', width: 30 },
+      { header: 'Teléfono', field: 'phoneNumber', width: 15 },
+      { header: 'Roles', field: 'roles', width: 25 },
+      { header: 'Activo', field: 'enabled', width: 10 },
+    ];
+
+    // Mapear los datos para formatear los roles
+    const usersForExport = this.filteredUsers.map(user => ({
+      ...user,
+      roles: user.authorityList?.join(', ') || 'Sin roles'
+    }));
+
+    this.reportService.exportToExcel(
+      usersForExport,
+      columns,
+      'Reporte_Usuarios'
+    );
+    
+    this.toastService.success('Reporte exportado exitosamente');
+  }
+
+  /**
+   * Exporta los usuarios filtrados a PDF
+   */
+  exportToPDF(): void {
+    const columns = [
+      { header: 'Nombre', field: 'firstName' },
+      { header: 'Apellido', field: 'lastName' },
+      { header: 'Email', field: 'email' },
+      { header: 'Teléfono', field: 'phoneNumber' },
+      { header: 'Roles', field: 'roles' },
+      { header: 'Activo', field: 'enabled' },
+    ];
+
+    // Mapear los datos para formatear los roles
+    const usersForExport = this.filteredUsers.map(user => ({
+      ...user,
+      roles: user.authorityList?.join(', ') || 'Sin roles'
+    }));
+
+    this.reportService.exportToPDF(
+      usersForExport,
+      columns,
+      'Reporte_Usuarios',
+      'Reporte de Usuarios - Tambo Delivery'
+    );
+    
+    this.toastService.success('Reporte exportado exitosamente');
   }
 }
