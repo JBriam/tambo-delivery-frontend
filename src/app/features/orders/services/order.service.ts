@@ -98,13 +98,13 @@ export class OrderService {
   }
 
   /**
-   * Cancelar un pedido
+   * Cancelar un pedido (usuario)
    */
   cancelOrder(orderId: string): Observable<Order> {
     return this.http
-      .put<Order>(
-        `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ORDERS.CREATE}/${orderId}/cancel`,
-        {}
+      .post<Order>(
+        `${API_ENDPOINTS.BASE_URL}/user/cancelMyOrder`,
+        { orderId }
       )
       .pipe(catchError(this.handleError));
   }
@@ -117,9 +117,7 @@ export class OrderService {
   getAllOrders(): Observable<Order[]> {
     return this.http
       .get<Order[]>(
-        `${API_ENDPOINTS.BASE_URL}${
-          API_ENDPOINTS.ADMIN.ORDERS_ALL || '/admin/orders'
-        }`
+        `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.ORDERS}`
       )
       .pipe(catchError(this.handleError));
   }
@@ -151,11 +149,41 @@ export class OrderService {
 
   /**
    * Obtener estadísticas de pedidos (admin)
+   * Nota: Este endpoint no existe en el backend, calcularemos las estadísticas en el frontend
    */
   getOrderStatistics(): Observable<any> {
-    return this.http
-      .get<any>(`${API_ENDPOINTS.BASE_URL}/admin/orders/statistics`)
-      .pipe(catchError(this.handleError));
+    // Como no existe el endpoint de estadísticas, obtenemos todas las órdenes y calculamos
+    return this.getAllOrders().pipe(
+      map(orders => this.calculateStatisticsFromOrders(orders)),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Calcula estadísticas a partir de las órdenes
+   */
+  private calculateStatisticsFromOrders(orders: Order[]): any {
+    const today = new Date().toDateString();
+    const todayOrders = orders.filter(order => 
+      new Date(order.orderDate).toDateString() === today
+    );
+    
+    return {
+      pending: orders.filter(o => o.orderStatus === 'PENDING').length,
+      confirmed: orders.filter(o => o.orderStatus === 'CONFIRMED').length,
+      preparing: orders.filter(o => o.orderStatus === 'PREPARING').length,
+      outForDelivery: orders.filter(o => o.orderStatus === 'OUT_FOR_DELIVERY').length,
+      delivered: orders.filter(o => o.orderStatus === 'DELIVERED').length,
+      cancelled: orders.filter(o => o.orderStatus === 'CANCELLED').length,
+      totalOrders: orders.length,
+      totalRevenue: orders
+        .filter(o => o.orderStatus === 'DELIVERED')
+        .reduce((sum, order) => sum + order.totalAmount, 0),
+      ordersToday: todayOrders.length,
+      salesToday: todayOrders
+        .filter(o => o.orderStatus === 'DELIVERED')
+        .reduce((sum, order) => sum + order.totalAmount, 0)
+    };
   }
 
   /**

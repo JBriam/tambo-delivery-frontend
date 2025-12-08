@@ -216,8 +216,8 @@ import { ConfirmModalComponent } from '../../shared/components/confirm-modal.com
 
             <li>
               <a
-                (click)="navigateTo('/perfil')"
-                [class]="getNavItemClass('/perfil')"
+                (click)="navigateTo('/admin/profile')"
+                [class]="getNavItemClass('/admin/profile')"
                 class="flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer transition-colors duration-150"
               >
                 <svg

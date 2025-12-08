@@ -30,7 +30,7 @@ interface OrderDisplay extends Order {
             (click)="refreshOrders()"
             class="px-4 py-2 text-[#a81b8d] bg-white border border-[#a81b8d] rounded-lg hover:bg-[#a81b8d] hover:text-white transition-colors"
           >
-            🔄 Actualizar
+            Actualizar
           </button>
         </div>
       </div>
@@ -64,14 +64,14 @@ interface OrderDisplay extends Order {
               [(ngModel)]="searchTerm"
               (input)="applyFilters()"
               placeholder="Buscar por ID, cliente..."
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
+              class="w-full px-3 py-2 text-sm placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
             />
           </div>
           <div>
             <select
               [(ngModel)]="selectedStatus"
               (change)="applyFilters()"
-              class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
+              class="w-full px-3 py-2 text-sm text-gray-500 placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d] cursor-pointer"
             >
               <option value="">Todos los estados</option>
               <option value="PENDING">Pendientes</option>
@@ -88,7 +88,7 @@ interface OrderDisplay extends Order {
               type="date"
               [(ngModel)]="selectedDate"
               (change)="applyFilters()"
-              class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a81b8d] focus:border-[#a81b8d]"
+              class="w-full px-3 py-2 text-sm text-gray-500 placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-0.5 focus:ring-[#a81b8d] focus:border-[#a81b8d] cursor-pointer"
             />
           </div>
         </div>
@@ -98,6 +98,23 @@ interface OrderDisplay extends Order {
       @if (isLoading) {
         <div class="flex justify-center items-center py-12">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#a81b8d]"></div>
+        </div>
+      } @else if (error) {
+        <!-- Error Message -->
+        <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <div class="text-red-600 mb-4">
+            <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-red-800 mb-2">Error al cargar pedidos</h3>
+          <p class="text-red-600 mb-4">{{ error }}</p>
+          <button
+            (click)="refreshOrders()"
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Intentar nuevamente
+          </button>
         </div>
       } @else {
         <!-- Orders List -->
@@ -117,7 +134,7 @@ interface OrderDisplay extends Order {
                   <div class="flex justify-between items-start mb-4">
                     <div>
                       <div class="flex items-center gap-3 mb-2">
-                        <h3 class="text-lg font-semibold text-gray-800">Pedido #{{ order.orderNumber }}</h3>
+                        <h3 class="text-lg font-bold text-[#a81b8d]">Pedido #{{ order.orderNumber }}</h3>
                         <span 
                           class="px-3 py-1 text-xs font-medium rounded-full"
                           [class]="getStatusBadgeClass(order.status)"
@@ -143,7 +160,7 @@ interface OrderDisplay extends Order {
                     <h4 class="font-medium text-gray-800 mb-2">Productos:</h4>
                     <div class="space-y-2">
                       @for (item of order.items; track item.id) {
-                        <div class="flex justify-between items-center text-sm">
+                        <div class="flex justify-between items-center text-sm text-gray-600">
                           <span>{{ item.product.name }} x{{ item.quantity }}</span>
                           <span class="font-medium">S/ {{ (item.price * item.quantity).toFixed(2) }}</span>
                         </div>
@@ -251,13 +268,44 @@ export class OrdersManagementComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.error = null;
     
-    // Por ahora mostrar estado vacío hasta implementar OrderService
-    setTimeout(() => {
-      this.orders = [];
-      this.calculateStats();
-      this.applyFilters();
-      this.isLoading = false;
-    }, 500);
+    console.log('OrdersManagement: Cargando pedidos...');
+    
+    const sub = this.orderService.getAllOrders().subscribe({
+      next: (orders) => {
+        console.log('OrdersManagement: Pedidos recibidos:', orders);
+        
+        // Mapear las órdenes al formato OrderDisplay
+        this.orders = orders.map(order => {
+          const orderItems = order.orderItems || order.orderItemList || [];
+          return {
+            ...order,
+            orderNumber: order.id.toString(),
+            status: order.orderStatus,
+            items: orderItems.map(item => ({
+              id: item.id || '',
+              product: {
+                name: item.product?.name || 'Producto sin nombre'
+              },
+              quantity: item.quantity,
+              price: item.price || item.itemPrice || 0
+            }))
+          };
+        });
+        
+        console.log('OrdersManagement: Pedidos mapeados:', this.orders.length);
+        
+        this.calculateStats();
+        this.applyFilters();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('OrdersManagement: Error loading orders:', error);
+        this.error = error.message || 'Error al cargar los pedidos. Por favor, intenta nuevamente.';
+        this.isLoading = false;
+      }
+    });
+    
+    this.subscriptions.push(sub);
   }
 
   /**
@@ -314,15 +362,29 @@ export class OrdersManagementComponent implements OnInit, OnDestroy {
 
   /**
    * Actualiza el estado de una orden
+   * NOTA: El backend actual no tiene este endpoint implementado
    */
   updateOrderStatus(order: OrderDisplay, newStatus: OrderStatus): void {
+    alert('La actualización de estado de pedidos aún no está disponible en el backend. Por favor, implementa el endpoint PUT /admin/orders/{orderId}/status en tu backend.');
+    
+    /* Código para cuando esté disponible el endpoint:
     if (confirm(`¿Estás seguro de cambiar el estado del pedido #${order.orderNumber}?`)) {
-      // TODO: Implementar llamada al backend
-      order.status = newStatus;
-      order.orderStatus = newStatus; // También actualizar el campo original
-      this.calculateStats();
-      console.log(`Pedido ${order.orderNumber} actualizado a ${newStatus}`);
+      const sub = this.orderService.updateOrderStatus(order.id, newStatus).subscribe({
+        next: (updatedOrder) => {
+          order.status = newStatus;
+          order.orderStatus = newStatus;
+          this.calculateStats();
+          console.log(`Pedido ${order.orderNumber} actualizado a ${newStatus}`);
+        },
+        error: (error) => {
+          console.error('Error updating order status:', error);
+          alert('Error al actualizar el estado del pedido. Por favor, intenta nuevamente.');
+        }
+      });
+      
+      this.subscriptions.push(sub);
     }
+    */
   }
 
   /**
