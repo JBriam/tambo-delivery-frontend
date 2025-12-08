@@ -144,7 +144,7 @@ import { ReportService } from '../../../shared/services/report.service';
                   <button
                     (click)="manageTypes(category.id)"
                     type="button"
-                    class="px-3 py-1.5 text-sm font-medium text-[#a81b8d] hover:bg-[#a81b8d] hover:text-white border border-[#a81b8d] rounded-lg transition-colors flex items-center gap-2"
+                    class="px-3 py-1.5 text-sm font-medium text-[#a81b8d] hover:bg-[#a81b8d] hover:text-white border border-[#a81b8d] rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
                     title="Gestionar tipos"
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
