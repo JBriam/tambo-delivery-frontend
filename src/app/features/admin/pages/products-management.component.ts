@@ -13,7 +13,7 @@ import {
   ProductPhase1Data, 
   ProductResource 
 } from '../../../models/product.model';
-import { Category } from '../../../models/category.model';
+import { Category, CategoryType } from '../../../models/category.model';
 import { Brand } from '../../../models/brand.model';
 import { Discount } from '../../../models/discount.model';
 import { ButtonComponent } from '../../../shared/components/button.component';
@@ -492,6 +492,7 @@ import { ReportService } from '../../../shared/services/report.service';
       [productData]="getCompleteProductDraft()"
       [brands]="brands"
       [categories]="categories"
+      [categoryTypes]="categoryTypes"
       [discounts]="discounts"
       [isSubmitting]="isSubmitting"
       [mode]="modalMode"
@@ -519,6 +520,7 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
   products: Product[] = [];
   filteredProducts: Product[] = [];
   categories: Category[] = [];
+  categoryTypes: CategoryType[] = [];
   brands: Brand[] = [];
   discounts: Discount[] = [];
   isLoading = false;
@@ -551,6 +553,11 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
   // Datos acumulados del producto (se van llenando en cada fase)
   productDraft: Partial<CreateProductCompleteDto> = {};
   
+  // 🔧 FIX: Cachear initialData para evitar loops infinitos
+  cachedPhase1Data: ProductPhase1Data | undefined = undefined;
+  cachedPhase2Resources: ProductResource[] | undefined = undefined;
+  cachedPhase3DiscountIds: string[] | undefined = undefined;
+  
   isSubmitting = false;
 
   private subscriptions: Subscription[] = [];
@@ -565,6 +572,7 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadProducts();
     this.loadCategories();
+    this.loadCategoryTypes();
     this.loadBrands();
     this.loadDiscounts();
   }
@@ -604,6 +612,22 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading categories:', error);
+        },
+      })
+    );
+  }
+
+  /**
+   * Carga todos los tipos de categoría
+   */
+  private loadCategoryTypes(): void {
+    this.subscriptions.push(
+      this.productService.getAllCategoryTypes().subscribe({
+        next: (types) => {
+          this.categoryTypes = types || [];
+        },
+        error: (error) => {
+          console.error('Error loading category types:', error);
         },
       })
     );
@@ -764,6 +788,10 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
    */
   openCreateProductModal(): void {
     this.productDraft = {}; // Reiniciar el borrador
+    // 🔧 FIX: Limpiar cache al crear nuevo producto
+    this.cachedPhase1Data = undefined;
+    this.cachedPhase2Resources = undefined;
+    this.cachedPhase3DiscountIds = undefined;
     this.isPhase1ModalOpen = true;
   }
 
@@ -778,6 +806,10 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
    * Cuando se completa la Fase 1, guarda datos y abre la Fase 2
    */
   onPhase1Completed(data: ProductPhase1Data): void {
+
+    // 🔧 FIX: Limpiar cache para que se regenere en próxima apertura
+    this.cachedPhase1Data = undefined;
+
     // ✅ MERGE: Conservar resources y discountIds si ya existen (modo edición)
     this.productDraft = { 
       ...this.productDraft, // Mantener datos existentes (resources, discountIds)
@@ -942,9 +974,14 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
    * Obtiene los datos de Fase 1 del productDraft
    */
   getPhase1Data(): ProductPhase1Data | undefined {
+    // 🔧 FIX: Retornar cache si existe para evitar crear nuevos objetos
+    if (this.cachedPhase1Data) {
+      return this.cachedPhase1Data;
+    }
+    
     if (!this.productDraft.name) return undefined;
     
-    return {
+    const phase1Data = {
       slug: this.productDraft.slug || '',
       name: this.productDraft.name || '',
       description: this.productDraft.description || '',
@@ -956,6 +993,8 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
       isNewArrival: this.productDraft.isNewArrival || false,
       isActive: this.productDraft.isActive ?? true
     };
+    
+    return phase1Data;
   }
 
   /**
@@ -1013,11 +1052,20 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
       discountIds: product.discounts?.map(d => d.id) || []
     };
     
-    // console.log('📝 [ProductsManagement] Datos cargados para edición:', {
-    //   productName: product.name,
-    //   resources: this.productDraft.resources,
-    //   discounts: this.productDraft.discountIds
-    // });
+    
+    // 🔧 FIX: Cachear los datos iniciales para Phase 1
+    this.cachedPhase1Data = {
+      slug: this.productDraft.slug || '',
+      name: this.productDraft.name || '',
+      description: this.productDraft.description || '',
+      price: this.productDraft.price || 0,
+      stock: this.productDraft.stock || 0,
+      brandId: this.productDraft.brandId || '',
+      categoryId: this.productDraft.categoryId || '',
+      categoryTypeId: this.productDraft.categoryTypeId,
+      isNewArrival: this.productDraft.isNewArrival || false,
+      isActive: this.productDraft.isActive ?? true
+    };
     
     // Abrir el primer modal con los datos pre-cargados
     this.isPhase1ModalOpen = true;
@@ -1030,6 +1078,10 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
     this.modalMode = 'create';
     this.selectedProduct = null;
     this.productDraft = {};
+    // 🔧 FIX: Limpiar cache al cerrar el flujo
+    this.cachedPhase1Data = undefined;
+    this.cachedPhase2Resources = undefined;
+    this.cachedPhase3DiscountIds = undefined;
     this.isPhase1ModalOpen = false;
     this.isPhase2ModalOpen = false;
     this.isPhase3ModalOpen = false;
@@ -1048,6 +1100,12 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
     this.isSubmitting = true;
     const completeProductData = this.getCompleteProductDraft();
 
+    // 🔧 FIX: Convertir categoryTypeId correctamente (string vacío, undefined -> null)
+    let categoryTypeIdValue: string | null = completeProductData.categoryTypeId || null;
+    if (categoryTypeIdValue === '') {
+      categoryTypeIdValue = null;
+    }
+
     // Convertir CreateProductCompleteDto a UpdateProductRequest
     // Ahora incluimos resources y discountIds (backend actualizado para soportarlos)
     const updateRequest: any = {
@@ -1059,21 +1117,12 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
       stock: completeProductData.stock,
       brandId: completeProductData.brandId,
       categoryId: completeProductData.categoryId,
-      categoryTypeId: completeProductData.categoryTypeId || '',
+      categoryTypeId: categoryTypeIdValue,
       isNewArrival: completeProductData.isNewArrival,
       isActive: completeProductData.isActive,
       resources: completeProductData.resources || [],
       discountIds: completeProductData.discountIds || []
     };
-
-    console.log('📤 [ProductsManagement] Enviando actualización:', {
-      productId: this.selectedProduct.id,
-      name: updateRequest.name,
-      categoryTypeId: updateRequest.categoryTypeId,
-      resourcesCount: updateRequest.resources?.length || 0,
-      discountsCount: updateRequest.discountIds?.length || 0,
-      updateRequest
-    });
 
     this.subscriptions.push(
       this.productService.updateProduct(this.selectedProduct.id, updateRequest).subscribe({
@@ -1081,7 +1130,7 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
           this.isSubmitting = false;
           this.closeSummaryModal();
           this.closeProductFlow();
-          console.log('✅ [ProductsManagement] Producto actualizado:', updatedProduct);
+          // console.log('✅ [ProductsManagement] Producto actualizado:', updatedProduct);
           this.toastService.success(
             `Producto "${completeProductData.name}" actualizado exitosamente`
           );

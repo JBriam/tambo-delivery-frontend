@@ -296,12 +296,27 @@ export class ProductCreatePhase1ModalComponent implements OnInit, OnChanges {
 
   onCategoryChange(): void {
     if (this.formData.categoryId) {
+      // Guardar el categoryTypeId actual antes de cargar los tipos
+      const currentCategoryTypeId = this.formData.categoryTypeId;
+      
       this.productService
         .getAllCategoryTypesByCategory(this.formData.categoryId)
         .subscribe({
           next: (types) => {
             this.categoryTypes = types;
-            this.formData.categoryTypeId = undefined;
+            
+            // Solo resetear categoryTypeId si no había uno previamente
+            // (esto permite que en modo edición se mantenga el valor)
+            if (!currentCategoryTypeId) {
+              this.formData.categoryTypeId = undefined;
+            } else {
+              // Verificar si el categoryTypeId actual existe en los tipos cargados
+              const typeExists = types.some(t => t.id === currentCategoryTypeId);
+              if (!typeExists) {
+                console.warn('⚠️ [Phase1Modal] CategoryTypeId no existe en los tipos de la categoría seleccionada');
+                this.formData.categoryTypeId = undefined;
+              }
+            }
           },
           error: (err) => {
             console.error('Error loading category types:', err);
@@ -322,6 +337,11 @@ export class ProductCreatePhase1ModalComponent implements OnInit, OnChanges {
     // Auto-generar slug si está vacío
     if (!this.formData.slug.trim()) {
       this.formData.slug = this.generateSlug(this.formData.name);
+    }
+
+    // 🔧 FIX: Convertir categoryTypeId string vacío a undefined
+    if (this.formData.categoryTypeId === '') {
+      this.formData.categoryTypeId = undefined;
     }
 
     // Emitir los datos de la fase 1 sin llamar API

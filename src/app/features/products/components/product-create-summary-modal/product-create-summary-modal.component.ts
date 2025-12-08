@@ -6,7 +6,7 @@ import {
   ProductResource,
 } from '../../../../models/product.model';
 import { Brand } from '../../../../models/brand.model';
-import { Category } from '../../../../models/category.model';
+import { Category, CategoryType } from '../../../../models/category.model';
 import { Discount } from '../../../../models/discount.model';
 
 @Component({
@@ -57,6 +57,10 @@ import { Discount } from '../../../../models/discount.model';
               <span class="value">{{
                 getCategoryName(productData.categoryId)
               }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Tipo de Categoría:</span>
+              <span class="value">{{ getCategoryTypeName(productData.categoryTypeId) }}</span>
             </div>
             <div class="info-item full-width">
               <span class="label">Descripción:</span>
@@ -418,6 +422,7 @@ export class ProductCreateSummaryModalComponent {
   @Input() productData!: CreateProductCompleteDto;
   @Input() brands: Brand[] = [];
   @Input() categories: Category[] = [];
+  @Input() categoryTypes: CategoryType[] = [];
   @Input() discounts: Discount[] = [];
   @Input() isSubmitting = false;
 
@@ -447,6 +452,13 @@ export class ProductCreateSummaryModalComponent {
   getCategoryName(categoryId: string): string {
     const category = this.categories.find((c) => c.id === categoryId);
     return category ? category.name : 'Desconocida';
+  }
+
+  getCategoryTypeName(categoryTypeId?: string): string {
+    // 🔧 FIX: Manejar string vacío además de undefined/null
+    if (!categoryTypeId || categoryTypeId === '') return 'Sin tipo específico';
+    const type = this.categoryTypes.find((t) => t.id === categoryTypeId);
+    return type ? type.name : 'Desconocido';
   }
 
   getDiscountName(discountId: string): string {
