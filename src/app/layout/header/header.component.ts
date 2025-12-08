@@ -7,13 +7,19 @@ import {
   debounceTime,
   distinctUntilChanged,
   Subject,
+  forkJoin,
 } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { ProductService } from '../../features/products/services/product.service';
 import { CartService } from '../../services/cart.service';
 import { Product } from '../../models/product.model';
-import { Category } from '../../models/category.model';
+import { Category, CategoryType } from '../../models/category.model';
 import { ConfirmModalComponent } from '../../shared/components/confirm-modal.component';
+
+// Interfaz extendida para el header que incluye los tipos
+interface CategoryWithTypes extends Category {
+  categoryTypes?: CategoryType[];
+}
 
 @Component({
   selector: 'app-header',
@@ -106,27 +112,19 @@ import { ConfirmModalComponent } from '../../shared/components/confirm-modal.com
                       <button
                         #categoryButton
                         (click)="
-                          category.categoryTypes &&
-                          category.categoryTypes.length > 0
+                          hasTypes(category)
                             ? null
                             : navigateToCategory(category.id)
                         "
                         class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#a81b8d] transition-colors flex items-center justify-between"
-                        [class.cursor-pointer]="
-                          !category.categoryTypes ||
-                          category.categoryTypes.length === 0
-                        "
-                        [class.cursor-default]="
-                          category.categoryTypes &&
-                          category.categoryTypes.length > 0
-                        "
+                        [class.cursor-pointer]="!hasTypes(category)"
+                        [class.cursor-default]="hasTypes(category)"
                       >
                         <div class="flex items-center gap-3">
                           <div class="w-2 h-2 bg-[#a81b8d] rounded-full"></div>
                           <div class="font-semibold">{{ category.name }}</div>
                         </div>
-                        @if (category.categoryTypes &&
-                        category.categoryTypes.length > 0) {
+                        @if (hasTypes(category)) {
                         <svg
                           class="w-4 h-4 text-gray-400"
                           fill="none"
@@ -144,9 +142,7 @@ import { ConfirmModalComponent } from '../../shared/components/confirm-modal.com
                       </button>
 
                       <!-- Submenu de tipos de categoría (aparece al lado) -->
-                      @if (category.categoryTypes &&
-                      category.categoryTypes.length > 0 && hoveredCategoryId ===
-                      category.id) {
+                      @if (hasTypes(category) && hoveredCategoryId === category.id) {
                       <div
                         class="fixed w-45 bg-white rounded-lg shadow-2xl border border-gray-200 z-[60] max-h-[400px] overflow-y-auto"
                         [style.left.px]="submenuPosition.left"
@@ -154,7 +150,7 @@ import { ConfirmModalComponent } from '../../shared/components/confirm-modal.com
                       >
                         <div class="py-2">
                           <!-- Lista de tipos -->
-                          @for (type of category.categoryTypes; track type.id) {
+                          @for (type of getCategoryTypes(category); track type.id) {
                           <button
                             (click)="
                               navigateToCategoryType(category.id, type.id)
@@ -805,7 +801,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   hoveredCategoryId: string | null = null; // Para controlar el submenu
   submenuPosition = { left: 0, top: 0 }; // Posición fija del submenu
   isLogoutModalOpen = false; // Modal de confirmación de cierre de sesión
-  categories: Category[] = [];
+  categories: CategoryWithTypes[] = [];
   cartItemCount = 0;
 
   // Propiedades de búsqueda
@@ -876,7 +872,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Primero intentar obtener categorías públicas
     this.productService.getPublicCategories().subscribe({
       next: (categories) => {
-        this.categories = categories || [];
+        // Cargar los tipos de cada categoría
+        this.loadCategoryTypes(categories);
       },
       error: (error) => {
         console.error(
@@ -888,18 +885,65 @@ export class HeaderComponent implements OnInit, OnDestroy {
         if (this.isAuthenticated) {
           this.productService.getAllCategories().subscribe({
             next: (categories) => {
-              this.categories = categories || [];
+              this.loadCategoryTypes(categories);
             },
             error: (adminError) => {
-              // Si ambos fallan, usar categorías por defecto
-              // this.categories = this.getFallbackCategories();
+              this.categories = [];
             },
           });
         } else {
-          // this.categories = this.getFallbackCategories();
+          this.categories = [];
         }
       },
     });
+  }
+
+  /**
+   * Carga los tipos de cada categoría
+   */
+  private loadCategoryTypes(categories: Category[]): void {
+    if (!categories || categories.length === 0) {
+      this.categories = [];
+      return;
+    }
+
+    // Crear observables para cargar los tipos de cada categoría
+    const typeRequests = categories.map((category) =>
+      this.productService.getAllCategoryTypesByCategory(category.id)
+    );
+
+    forkJoin(typeRequests).subscribe({
+      next: (typesArrays) => {
+        // Combinar categorías con sus tipos
+        this.categories = categories.map((category, index) => ({
+          ...category,
+          categoryTypes: typesArrays[index] || [],
+        })) as CategoryWithTypes[];
+      },
+      error: (error) => {
+        console.error('🏠 Header: Error loading category types:', error);
+        // Si falla la carga de tipos, mostrar categorías sin tipos
+        this.categories = categories.map((category) => ({
+          ...category,
+          categoryTypes: [],
+        })) as CategoryWithTypes[];
+      },
+    });
+  }
+
+  /**
+   * Helper para obtener los tipos de una categoría (para el template)
+   */
+  getCategoryTypes(category: Category): CategoryType[] {
+    return (category as CategoryWithTypes).categoryTypes || [];
+  }
+
+  /**
+   * Verifica si una categoría tiene tipos
+   */
+  hasTypes(category: Category): boolean {
+    const types = this.getCategoryTypes(category);
+    return types.length > 0;
   }
 
   /**

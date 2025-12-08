@@ -3,12 +3,11 @@ export interface Category {
   name: string;
   description?: string;
   imageUrl?: string;
-  categoryTypes?: CategoryType[]; // Cambiado para coincidir con backend
 }
 
 export interface CategoryType {
   id: string;
   name: string;
   description?: string;
-  categoryId?: string; // Agregado para crear tipos asociados
+  categoryId: string; // ID de la categoría a la que pertenece
 }

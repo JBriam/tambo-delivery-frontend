@@ -24,6 +24,10 @@ export const ADMIN_ROUTES: Routes = [
         loadComponent: () => import('./pages/categories-management.component').then(c => c.CategoriesManagementComponent)
       },
       {
+        path: 'categories/:id/types',
+        loadComponent: () => import('./pages/category-types-management.component').then(c => c.CategoryTypesManagementComponent)
+      },
+      {
         path: 'discounts',
         loadComponent: () => import('./pages/discounts-management.component').then(c => c.DiscountsManagementComponent)
       },

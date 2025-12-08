@@ -275,7 +275,7 @@ export class ProductService {
   }
 
   /**
-   * Crear categoría (admin) con tipos asociados
+   * Crear categoría (admin) - Solo información básica
    */
   createCategory(categoryData: Category): Observable<Category> {
     return this.http.post<Category>(
@@ -287,7 +287,7 @@ export class ProductService {
   }
 
   /**
-   * Actualizar categoría (admin) con tipos asociados
+   * Actualizar categoría (admin) - Solo información básica
    */
   updateCategory(categoryId: string, categoryData: Category): Observable<Category> {
     return this.http.put<Category>(
@@ -347,10 +347,10 @@ export class ProductService {
   /**
    * Crear tipo de categoría (admin)
    */
-  createCategoryType(categoryData: { name: string; description?: string; }): Observable<CategoryType> {
+  createCategoryType(typeData: { name: string; description?: string; categoryId: string }): Observable<CategoryType> {
     return this.http.post<CategoryType>(
       `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_TYPE_CREATE}`,
-      categoryData
+      typeData
     ).pipe(
       catchError(this.handleError)
     );
@@ -359,10 +359,10 @@ export class ProductService {
   /**
    * Actualizar tipo de categoría (admin)
    */
-  updateCategoryType(categoryTypeId: string, categoryData: { name: string; description?: string; imageUrl?: string }): Observable<CategoryType> {
+  updateCategoryType(categoryTypeId: string, typeData: { name: string; description?: string; categoryId: string }): Observable<CategoryType> {
     return this.http.put<CategoryType>(
       `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.ADMIN.CATEGORY_TYPE_UPDATE}/${categoryTypeId}`,
-      categoryData
+      typeData
     ).pipe(
       catchError(this.handleError)
     );

@@ -1066,13 +1066,14 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
       discountIds: completeProductData.discountIds || []
     };
 
-    // console.log('📤 [ProductsManagement] Enviando actualización:', {
-    //   productId: this.selectedProduct.id,
-    //   name: updateRequest.name,
-    //   resourcesCount: updateRequest.resources?.length || 0,
-    //   discountsCount: updateRequest.discountIds?.length || 0,
-    //   updateRequest
-    // });
+    console.log('📤 [ProductsManagement] Enviando actualización:', {
+      productId: this.selectedProduct.id,
+      name: updateRequest.name,
+      categoryTypeId: updateRequest.categoryTypeId,
+      resourcesCount: updateRequest.resources?.length || 0,
+      discountsCount: updateRequest.discountIds?.length || 0,
+      updateRequest
+    });
 
     this.subscriptions.push(
       this.productService.updateProduct(this.selectedProduct.id, updateRequest).subscribe({
@@ -1080,7 +1081,7 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
           this.isSubmitting = false;
           this.closeSummaryModal();
           this.closeProductFlow();
-          // console.log('✅ [ProductsManagement] Producto actualizado:', updatedProduct);
+          console.log('✅ [ProductsManagement] Producto actualizado:', updatedProduct);
           this.toastService.success(
             `Producto "${completeProductData.name}" actualizado exitosamente`
           );

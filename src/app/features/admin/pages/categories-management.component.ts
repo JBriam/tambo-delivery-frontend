@@ -4,10 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ProductService } from '../../products/services/product.service';
-import { Category, CategoryType } from '../../../models/category.model';
+import { Category } from '../../../models/category.model';
 import { ButtonComponent } from '../../../shared/components/button.component';
 import { CategoryModalComponent } from '../components/category-modal.component';
-import { CategoryTypeModalComponent } from '../components/category-type-modal.component';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal.component';
 import { ToastComponent } from '../../../shared/components/toast.component';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -21,7 +20,6 @@ import { ReportService } from '../../../shared/services/report.service';
     FormsModule,
     ButtonComponent,
     CategoryModalComponent,
-    CategoryTypeModalComponent,
     ConfirmModalComponent,
     ToastComponent,
   ],
@@ -143,16 +141,17 @@ import { ReportService } from '../../../shared/services/report.service';
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <div
-                      class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full"
-                    >
-                      @if (category.categoryTypes?.length == 1) {
-                      {{ category.categoryTypes?.length }} tipo } @else if
-                      (category.categoryTypes?.length == 0) { Ninguno } @else{
-                      {{ category.categoryTypes?.length }} tipos}
-                    </div>
-                  </div>
+                  <button
+                    (click)="manageTypes(category.id)"
+                    type="button"
+                    class="px-3 py-1.5 text-sm font-medium text-[#a81b8d] hover:bg-[#a81b8d] hover:text-white border border-[#a81b8d] rounded-lg transition-colors flex items-center gap-2"
+                    title="Gestionar tipos"
+                  >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    Gestionar Tipos
+                  </button>
                 </td>
                 <td
                   class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2"
@@ -161,7 +160,7 @@ import { ReportService } from '../../../shared/services/report.service';
                     (click)="editCategory(category)"
                     type="button"
                     class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors cursor-pointer"
-                    title="Editar tipo"
+                    title="Editar categoría"
                   >
                     <svg
                       class="w-5 h-5"
@@ -181,7 +180,7 @@ import { ReportService } from '../../../shared/services/report.service';
                     (click)="onDeleteCategory(category.id)"
                     type="button"
                     class="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
-                    title="Eliminar tipo"
+                    title="Eliminar categoría"
                   >
                     <svg
                       class="w-5 h-5"
@@ -212,21 +211,8 @@ import { ReportService } from '../../../shared/services/report.service';
       [isOpen]="isModalOpen"
       [mode]="modalMode"
       [category]="selectedCategory"
-      [categoryTypes]="selectedCategoryTypes"
       (closeModal)="closeModal()"
       (saveCategory)="onSaveCategory($event)"
-      (addType)="openTypeModal()"
-      (editTypeEvent)="openEditTypeModal($event)"
-      (removeTypeEvent)="removeType($event)"
-    />
-
-    <!-- Category Type Modal -->
-    <app-category-type-modal
-      [isOpen]="isTypeModalOpen"
-      [mode]="typeModalMode"
-      [categoryType]="selectedType"
-      (closeModal)="closeTypeModal()"
-      (saveType)="onSaveType($event)"
     />
 
     <!-- Delete Confirmation Modal -->
@@ -258,12 +244,6 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
   isModalOpen = false;
   modalMode: 'create' | 'edit' = 'create';
   selectedCategory: Category | null = null;
-  selectedCategoryTypes: CategoryType[] = [];
-
-  // Type Modal
-  isTypeModalOpen = false;
-  typeModalMode: 'create' | 'edit' = 'create';
-  selectedType: CategoryType | null = null;
 
   // Delete Modal
   isDeleteModalOpen = false;
@@ -331,7 +311,6 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
   openCreateCategoryModal(): void {
     this.modalMode = 'create';
     this.selectedCategory = null;
-    this.selectedCategoryTypes = [];
     this.isModalOpen = true;
   }
 
@@ -341,10 +320,6 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
   editCategory(category: Category): void {
     this.modalMode = 'edit';
     this.selectedCategory = { ...category };
-    // ✅ Cargar los tipos asociados desde la categoría
-    this.selectedCategoryTypes = category.categoryTypes
-      ? [...category.categoryTypes]
-      : [];
     this.isModalOpen = true;
   }
 
@@ -354,37 +329,29 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
   closeModal(): void {
     this.isModalOpen = false;
     this.selectedCategory = null;
-    this.selectedCategoryTypes = [];
   }
 
   /**
    * Guarda o actualiza una categoría
    */
-  onSaveCategory(data: { category: Category; types: CategoryType[] }): void {
-    const { category, types } = data;
+  onSaveCategory(category: Category): void {
     if (this.modalMode === 'create') {
-      this.createCategory(category, types);
+      this.createCategory(category);
     } else {
-      this.updateCategory(category, types);
+      this.updateCategory(category);
     }
   }
 
   /**
    * Crea una nueva categoría
    */
-  private createCategory(category: Category, types: CategoryType[]): void {
-    // ✅ Incluir los tipos en el objeto de categoría
-    const categoryWithTypes: Category = {
-      ...category,
-      categoryTypes: types,
-    };
-
+  private createCategory(category: Category): void {
     this.subscriptions.push(
-      this.productService.createCategory(categoryWithTypes).subscribe({
+      this.productService.createCategory(category).subscribe({
         next: (newCategory) => {
           this.closeModal();
           this.toastService.success(
-            `Categoría "${category.name}" creada exitosamente con ${types.length} tipo(s)`
+            `Categoría "${category.name}" creada exitosamente`
           );
           this.loadCategories();
         },
@@ -393,14 +360,6 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
           this.toastService.error(
             'Error al crear la categoría. Por favor, intenta nuevamente.'
           );
-          // ✅ Cerrar y reabrir el modal para resetear isSubmitting
-          this.closeModal();
-          setTimeout(() => {
-            this.modalMode = 'create';
-            this.selectedCategory = category;
-            this.selectedCategoryTypes = types;
-            this.isModalOpen = true;
-          }, 100);
         },
       })
     );
@@ -409,21 +368,15 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
   /**
    * Actualiza una categoría existente
    */
-  private updateCategory(category: Category, types: CategoryType[]): void {
-    // ✅ Incluir los tipos actualizados en el objeto de categoría
-    const categoryWithTypes: Category = {
-      ...category,
-      categoryTypes: types,
-    };
-
+  private updateCategory(category: Category): void {
     this.subscriptions.push(
       this.productService
-        .updateCategory(category.id, categoryWithTypes)
+        .updateCategory(category.id, category)
         .subscribe({
           next: (updatedCategory) => {
             this.closeModal();
             this.toastService.success(
-              `Categoría "${category.name}" actualizada exitosamente con ${types.length} tipo(s)`
+              `Categoría "${category.name}" actualizada exitosamente`
             );
             this.loadCategories();
           },
@@ -432,14 +385,6 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
             this.toastService.error(
               'Error al actualizar la categoría. Por favor, intenta nuevamente.'
             );
-            // ✅ Cerrar y reabrir el modal para resetear isSubmitting
-            this.closeModal();
-            setTimeout(() => {
-              this.modalMode = 'edit';
-              this.selectedCategory = category;
-              this.selectedCategoryTypes = types;
-              this.isModalOpen = true;
-            }, 100);
           },
         })
     );
@@ -495,60 +440,10 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Abre el modal para agregar un nuevo tipo
+   * Navega a la página de gestión de tipos
    */
-  openTypeModal(): void {
-    this.typeModalMode = 'create';
-    this.selectedType = null;
-    this.isTypeModalOpen = true;
-  }
-
-  /**
-   * Abre el modal para editar un tipo existente
-   */
-  openEditTypeModal(type: CategoryType): void {
-    this.typeModalMode = 'edit';
-    this.selectedType = { ...type };
-    this.isTypeModalOpen = true;
-  }
-
-  /**
-   * Cierra el modal de tipo
-   */
-  closeTypeModal(): void {
-    this.isTypeModalOpen = false;
-    this.selectedType = null;
-  }
-
-  /**
-   * Guarda un tipo de categoría (agregar o editar)
-   */
-  onSaveType(type: CategoryType): void {
-    if (this.typeModalMode === 'create') {
-      // Agregar el nuevo tipo a la lista
-      this.selectedCategoryTypes = [...this.selectedCategoryTypes, type];
-      this.toastService.success(`Tipo "${type.name}" agregado exitosamente`);
-    } else {
-      // Actualizar el tipo existente
-      this.selectedCategoryTypes = this.selectedCategoryTypes.map((t) =>
-        t.id === type.id ? type : t
-      );
-      this.toastService.success(`Tipo "${type.name}" actualizado exitosamente`);
-    }
-    this.closeTypeModal();
-  }
-
-  /**
-   * Elimina un tipo de la lista
-   */
-  removeType(typeId: string): void {
-    const type = this.selectedCategoryTypes.find((t) => t.id === typeId);
-    if (type) {
-      this.selectedCategoryTypes = this.selectedCategoryTypes.filter(
-        (t) => t.id !== typeId
-      );
-      this.toastService.success(`Tipo "${type.name}" eliminado`);
-    }
+  manageTypes(categoryId: string): void {
+    this.router.navigate(['/admin/categories', categoryId, 'types']);
   }
 
   /**
