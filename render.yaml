@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: tambo-delivery-frontend
+    env: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist/tambo-delivery-frontend/browser
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

@@ -57,3 +57,16 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Deployment (Render / Vercel)
+
+This Angular app is a SPA and requires a rewrite rule to `index.html`.
+
+- Build command: `npm ci && npm run build`
+- Output folder: `dist/tambo-delivery-frontend/browser`
+
+Notes:
+
+- In Angular 19 (`@angular-devkit/build-angular:application`), static files are generated under `browser/`.
+- If you publish `dist/tambo-delivery-frontend` instead of `dist/tambo-delivery-frontend/browser`, you can get `404 Not Found` at `/`.
+- The repository includes `render.yaml` and `vercel.json` with the correct rewrite configuration for SPA routing.
