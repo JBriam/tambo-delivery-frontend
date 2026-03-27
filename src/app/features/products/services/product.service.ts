@@ -164,6 +164,18 @@ export class ProductService {
     );
   }
 
+  /**
+   * Obtener tipos de categoría públicos por categoría ID
+   * Usa el nuevo endpoint público /api/public/category-type/by-category/{categoryId}
+   */
+  getPublicCategoryTypesByCategory(categoryId: string): Observable<CategoryType[]> {
+    return this.http.get<CategoryType[]>(
+      `${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.PUBLIC.CATEGORY_TYPES_BY_CATEGORY}/${categoryId}`
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   // ============================== ADMIN - PRODUCTOS ==============================
 
   /**

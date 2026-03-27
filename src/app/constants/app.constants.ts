@@ -16,7 +16,9 @@ export const API_ENDPOINTS = {
     PRODUCTS: '/public/product',
     PRODUCTS_BY_CATEGORY: '/public/product/by-category',
     PRODUCT_SECTIONS: '/public/product-sections',
-    CATEGORIES: '/public/category/get-all' // Endpoint público para obtener categorías
+    CATEGORIES: '/public/category/get-all', // Endpoint público para obtener categorías
+    CATEGORY_TYPES: '/public/category-type/get-all', // Endpoint público para obtener tipos de categorías
+    CATEGORY_TYPES_BY_CATEGORY: '/public/category-type/by-category' // Endpoint público para obtener tipos por categoría
   },
 
   // Usuarios (UserDetailController)

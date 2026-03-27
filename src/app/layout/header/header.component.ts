@@ -907,9 +907,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Crear observables para cargar los tipos de cada categoría
+    // Crear observables para cargar los tipos de cada categoría (usando API pública)
     const typeRequests = categories.map((category) =>
-      this.productService.getAllCategoryTypesByCategory(category.id)
+      this.productService.getPublicCategoryTypesByCategory(category.id)
     );
 
     forkJoin(typeRequests).subscribe({
